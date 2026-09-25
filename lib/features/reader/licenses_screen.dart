@@ -1,17 +1,26 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
+import '../../app/providers.dart';
+import '../../app/usage_analytics.dart';
 
 /// Native navigation on both platforms; LicenseRegistry includes bundled notices.
-class LicensesScreen extends StatefulWidget {
+class LicensesScreen extends ConsumerStatefulWidget {
   const LicensesScreen({super.key});
   @override
-  State<LicensesScreen> createState() => _LicensesScreenState();
+  ConsumerState<LicensesScreen> createState() => _LicensesScreenState();
 }
 
-class _LicensesScreenState extends State<LicensesScreen> {
+class _LicensesScreenState extends ConsumerState<LicensesScreen> {
   late final entries = LicenseRegistry.licenses.toList();
+  @override
+  void initState() {
+    super.initState();
+    ref.read(usageAnalyticsProvider).view(UsageScreen.licenses);
+  }
+
   @override
   Widget build(BuildContext context) => PlatformPage(
     title: 'Open-source licenses',

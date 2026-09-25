@@ -199,3 +199,14 @@ SQLite, reading and the interface are real):
 ```sh
 flutter test integration_test/library_flow_test.dart -d <device-id>
 ```
+
+## Test optional usage statistics
+
+The normal development build has analytics disabled. Once a dedicated Umami
+property is configured, run with the three `--dart-define` values shown in the
+[README](../../README.md). In **Reading settings**, turn on **Share usage
+statistics**, open a reading, play/pause, and check that the Umami dashboard
+receives fixed app paths and events. Turn sharing off and repeat: no new events
+should arrive. Use only synthetic reading material for this manual check. The
+automated request-shape, opt-out and offline tests run with `flutter test` and
+do not contact Umami.

@@ -5,18 +5,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
 import '../../app/providers.dart';
+import '../../app/usage_analytics.dart';
 import '../../core/settings.dart';
 import 'licenses_screen.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(usageAnalyticsProvider).view(UsageScreen.settings);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    Future<void> update(ReaderSettings next) async {
+    final analytics = ref.watch(usageAnalyticsProvider);
+    Future<void> update(ReaderSettings next, {UsageEvent? event}) async {
+      final turningSharingOff = settings.shareUsage && !next.shareUsage;
+      if (turningSharingOff) analytics.enabled = false;
       try {
         await ref.read(settingsProvider.notifier).update(next);
+        if (event != null) {
+          analytics.record(event, screen: UsageScreen.settings);
+        }
       } catch (_) {
+        if (turningSharingOff) analytics.enabled = true;
         if (context.mounted) {
           showProblem(
             context,
@@ -66,8 +85,10 @@ class SettingsScreen extends ConsumerWidget {
                       Appearance.dark => LucideIcons.moon,
                     },
                     selected: settings.appearance == appearance,
-                    onPressed: () =>
-                        update(settings.copyWith(appearance: appearance)),
+                    onPressed: () => update(
+                      settings.copyWith(appearance: appearance),
+                      event: UsageEvent.appearanceChanged,
+                    ),
                   ),
               ],
             ),
@@ -81,13 +102,17 @@ class SettingsScreen extends ConsumerWidget {
                 child: isApple(context)
                     ? CupertinoSwitch(
                         value: settings.reduceTransparency,
-                        onChanged: (v) =>
-                            update(settings.copyWith(reduceTransparency: v)),
+                        onChanged: (v) => update(
+                          settings.copyWith(reduceTransparency: v),
+                          event: UsageEvent.transparencyChanged,
+                        ),
                       )
                     : Switch(
                         value: settings.reduceTransparency,
-                        onChanged: (v) =>
-                            update(settings.copyWith(reduceTransparency: v)),
+                        onChanged: (v) => update(
+                          settings.copyWith(reduceTransparency: v),
+                          event: UsageEvent.transparencyChanged,
+                        ),
                       ),
               ),
             ],
@@ -113,7 +138,10 @@ class SettingsScreen extends ConsumerWidget {
               label: '${pause.name[0].toUpperCase()}${pause.name.substring(1)}',
               selected: settings.pauses == pause,
               icon: settings.pauses == pause ? LucideIcons.check : null,
-              onPressed: () => update(settings.copyWith(pauses: pause)),
+              onPressed: () => update(
+                settings.copyWith(pauses: pause),
+                event: UsageEvent.smartPausesChanged,
+              ),
             ),
           const SizedBox(height: 24),
           Row(
@@ -122,11 +150,17 @@ class SettingsScreen extends ConsumerWidget {
               isApple(context)
                   ? CupertinoSwitch(
                       value: settings.highlight,
-                      onChanged: (v) => update(settings.copyWith(highlight: v)),
+                      onChanged: (v) => update(
+                        settings.copyWith(highlight: v),
+                        event: UsageEvent.focalHighlightChanged,
+                      ),
                     )
                   : Switch(
                       value: settings.highlight,
-                      onChanged: (v) => update(settings.copyWith(highlight: v)),
+                      onChanged: (v) => update(
+                        settings.copyWith(highlight: v),
+                        event: UsageEvent.focalHighlightChanged,
+                      ),
                     ),
             ],
           ),
@@ -145,6 +179,7 @@ class SettingsScreen extends ConsumerWidget {
                     ? null
                     : () => update(
                         settings.copyWith(fontSize: settings.fontSize - 2),
+                        event: UsageEvent.readerTypeSizeChanged,
                       ),
               ),
               Expanded(
@@ -162,6 +197,7 @@ class SettingsScreen extends ConsumerWidget {
                     ? null
                     : () => update(
                         settings.copyWith(fontSize: settings.fontSize + 2),
+                        event: UsageEvent.readerTypeSizeChanged,
                       ),
               ),
             ],
@@ -170,6 +206,46 @@ class SettingsScreen extends ConsumerWidget {
           const Text(
             'The reader honors text scaling and fits long words to keep their focal character in view.',
             style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Usage statistics',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Expanded(child: Text('Share usage statistics')),
+              Semantics(
+                label: 'Share usage statistics',
+                child: isApple(context)
+                    ? CupertinoSwitch(
+                        value: settings.shareUsage && analytics.available,
+                        onChanged: analytics.available
+                            ? (v) => update(
+                                settings.copyWith(shareUsage: v),
+                                event: v ? UsageEvent.usageEnabled : null,
+                              )
+                            : null,
+                      )
+                    : Switch(
+                        value: settings.shareUsage && analytics.available,
+                        onChanged: analytics.available
+                            ? (v) => update(
+                                settings.copyWith(shareUsage: v),
+                                event: v ? UsageEvent.usageEnabled : null,
+                              )
+                            : null,
+                      ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            analytics.available
+                ? 'Optional. Shares screen visits and app actions with Umami. Never sends book text, titles, file names or your reading position. Umami receives your network address and device details.'
+                : 'Available when an Umami server is configured for this build.',
+            style: const TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 24),
           ActionButton(

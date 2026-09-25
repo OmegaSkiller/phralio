@@ -4,6 +4,7 @@ import '../core/document.dart';
 import '../core/settings.dart';
 import '../features/library/library_store.dart';
 import '../features/premium/capabilities.dart';
+import 'usage_analytics.dart';
 
 final storeProvider = Provider<LibraryStore>(
   (ref) => throw StateError('Library must be opened before launch.'),
@@ -20,6 +21,16 @@ final libraryProvider = FutureProvider<List<LibraryEntry>>(
 final settingsProvider = NotifierProvider<SettingsController, ReaderSettings>(
   SettingsController.new,
 );
+final usageAnalyticsProvider = Provider<UsageAnalytics>((ref) {
+  final analytics = UsageAnalytics(
+    enabled: ref.read(settingsProvider).shareUsage,
+  );
+  ref.listen(settingsProvider, (_, next) {
+    analytics.enabled = next.shareUsage;
+  });
+  ref.onDispose(analytics.close);
+  return analytics;
+});
 
 class SettingsController extends Notifier<ReaderSettings> {
   @override

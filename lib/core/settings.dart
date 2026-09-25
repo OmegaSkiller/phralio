@@ -9,6 +9,7 @@ class ReaderSettings {
     this.highlight = true,
     this.appearance = Appearance.system,
     this.reduceTransparency = false,
+    this.shareUsage = false,
     double fontSize = 42,
   }) : wpm = wpm.clamp(100, 1500),
        fontSize = fontSize.clamp(24, 72);
@@ -17,6 +18,7 @@ class ReaderSettings {
   final bool highlight;
   final Appearance appearance;
   final bool reduceTransparency;
+  final bool shareUsage;
   final double fontSize;
   ReaderSettings copyWith({
     int? wpm,
@@ -24,6 +26,7 @@ class ReaderSettings {
     bool? highlight,
     Appearance? appearance,
     bool? reduceTransparency,
+    bool? shareUsage,
     double? fontSize,
   }) => ReaderSettings(
     wpm: wpm ?? this.wpm,
@@ -31,6 +34,7 @@ class ReaderSettings {
     highlight: highlight ?? this.highlight,
     appearance: appearance ?? this.appearance,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
+    shareUsage: shareUsage ?? this.shareUsage,
     fontSize: fontSize ?? this.fontSize,
   );
   Map<String, Object> toJson() => {
@@ -39,6 +43,7 @@ class ReaderSettings {
     'highlight': highlight,
     'appearance': appearance.name,
     'reduceTransparency': reduceTransparency,
+    'shareUsage': shareUsage,
     'fontSize': fontSize,
   };
   factory ReaderSettings.fromJson(Map<String, dynamic> json) => ReaderSettings(
@@ -47,6 +52,7 @@ class ReaderSettings {
       orElse: () => Appearance.system,
     ),
     reduceTransparency: json['reduceTransparency'] == true,
+    shareUsage: json['shareUsage'] == true,
     wpm: json['wpm'] is int ? json['wpm'] as int : 300,
     pauses: SmartPauses.values.firstWhere(
       (p) => p.name == json['pauses'],

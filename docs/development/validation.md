@@ -88,3 +88,16 @@ The newer results below supersede the foundation counts above.
   Android Studio did not expose it in Running Devices. The sample EPUB is in
   the emulator's Downloads folder. No picker or accessibility failures were
   suppressed in tests. The automated file flow substitutes only selected files.
+
+## Optional Umami usage analytics
+
+- Umami's current `send` API contract was checked against the official API client
+  documentation. Events use `/api/send`, a website UUID, fixed app path and event
+  name, and an in-memory cache token returned by the server.
+- `flutter analyze` passes. The 35 unit/widget tests include opt-in defaults,
+  bounded request metadata, session cache, queued-event opt-out, offline failure
+  and settings persistence. No test sends data to a live analytics server.
+- Existing native reader and library integration flows pass on both Android API
+  36 and the iPhone 18 Pro simulator after the analytics code was introduced.
+- Live event delivery remains unverified until a dedicated Phralio Umami property
+  and HTTPS server URL are configured. No unrelated website property is used.

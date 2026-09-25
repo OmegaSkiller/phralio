@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
 import '../../app/providers.dart';
+import '../../app/usage_analytics.dart';
 import 'library_store.dart';
 import '../reader/reader_screen.dart';
 
@@ -19,6 +20,12 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
   final _text = TextEditingController();
   bool _saving = false;
   @override
+  void initState() {
+    super.initState();
+    ref.read(usageAnalyticsProvider).view(UsageScreen.addText);
+  }
+
+  @override
   void dispose() {
     _title.dispose();
     _text.dispose();
@@ -30,6 +37,9 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
     try {
       final LibraryStore store = ref.read(storeProvider);
       final id = await store.add(_title.text, _text.text);
+      ref
+          .read(usageAnalyticsProvider)
+          .record(UsageEvent.pasteSaved, source: ReadingSource.paste);
       final document = await store.document(id);
       ref.invalidate(libraryProvider);
       if (!mounted) return;

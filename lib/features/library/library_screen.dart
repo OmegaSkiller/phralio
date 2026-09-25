@@ -10,6 +10,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../app/design.dart';
 import '../../app/identity.dart';
 import '../../app/providers.dart';
+import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
 import '../../core/file_import.dart';
 import '../reader/reader_screen.dart';
@@ -38,12 +39,27 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   bool _starredOnly = false;
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    ref.read(usageAnalyticsProvider).view(UsageScreen.library);
+  }
+
   Future<void> _open(int id) async {
     final document = await ref.read(storeProvider).document(id);
     ref.invalidate(libraryProvider);
     if (!mounted) return;
     await pushPage(context, ReaderScreen(document: document));
-    if (mounted) ref.invalidate(libraryProvider);
+    if (mounted) {
+      ref.invalidate(libraryProvider);
+      ref.read(usageAnalyticsProvider).view(UsageScreen.library);
+    }
+  }
+
+  void _selectFilter(bool starredOnly) {
+    if (_starredOnly == starredOnly) return;
+    setState(() => _starredOnly = starredOnly);
+    ref.read(usageAnalyticsProvider).record(UsageEvent.libraryFilterChanged);
   }
 
   Future<void> _perform(Future<void> Function() action) async {
@@ -66,38 +82,55 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 
   Future<void> _import() => _perform(() async {
-    final file = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(
-          label: 'Books and text',
-          extensions: ['txt', 'epub'],
-          mimeTypes: ['text/plain', 'application/epub+zip'],
-          uniformTypeIdentifiers: [
-            'public.plain-text',
-            'org.idpf.epub-container',
-          ],
-        ),
-      ],
-    );
-    if (file == null || !mounted) return;
-    if (await file.length() > FileImport.maxFileBytes) {
-      throw const FormatException('Choose a file smaller than 32 MB.');
-    }
-    // Bound the stream too: providers can report a stale or unknown length.
-    final bytes = BytesBuilder(copy: false);
-    await for (final chunk in file.openRead()) {
-      if (bytes.length + chunk.length > FileImport.maxFileBytes) {
+    final analytics = ref.read(usageAnalyticsProvider);
+    analytics.record(UsageEvent.importRequested);
+    try {
+      final file = await openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(
+            label: 'Books and text',
+            extensions: ['txt', 'epub'],
+            mimeTypes: ['text/plain', 'application/epub+zip'],
+            uniformTypeIdentifiers: [
+              'public.plain-text',
+              'org.idpf.epub-container',
+            ],
+          ),
+        ],
+      );
+      if (file == null) {
+        analytics.record(UsageEvent.importCancelled);
+        return;
+      }
+      if (!mounted) return;
+      if (await file.length() > FileImport.maxFileBytes) {
         throw const FormatException('Choose a file smaller than 32 MB.');
       }
-      bytes.add(chunk);
+      // Bound the stream too: providers can report a stale or unknown length.
+      final bytes = BytesBuilder(copy: false);
+      await for (final chunk in file.openRead()) {
+        if (bytes.length + chunk.length > FileImport.maxFileBytes) {
+          throw const FormatException('Choose a file smaller than 32 MB.');
+        }
+        bytes.add(chunk);
+      }
+      final book = await compute(FileImport.parse, (
+        name: file.name,
+        bytes: bytes.takeBytes(),
+      ));
+      if (!mounted) return;
+      final id = await ref.read(storeProvider).importReading(book);
+      analytics.record(
+        UsageEvent.importSucceeded,
+        source: file.name.toLowerCase().endsWith('.epub')
+            ? ReadingSource.epub
+            : ReadingSource.txt,
+      );
+      if (mounted) await _open(id);
+    } catch (_) {
+      analytics.record(UsageEvent.importFailed);
+      rethrow;
     }
-    final book = await compute(FileImport.parse, (
-      name: file.name,
-      bytes: bytes.takeBytes(),
-    ));
-    if (!mounted) return;
-    final id = await ref.read(storeProvider).importReading(book);
-    if (mounted) await _open(id);
   });
 
   @override
@@ -206,15 +239,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                               label: 'Recent',
                               icon: LucideIcons.clock3,
                               selected: !_starredOnly,
-                              onPressed: () =>
-                                  setState(() => _starredOnly = false),
+                              onPressed: () => _selectFilter(false),
                             ),
                             ActionButton(
                               label: 'Starred',
                               icon: LucideIcons.star,
                               selected: _starredOnly,
-                              onPressed: () =>
-                                  setState(() => _starredOnly = true),
+                              onPressed: () => _selectFilter(true),
                             ),
                           ],
                         ),
@@ -253,6 +284,12 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                                     await ref
                                         .read(storeProvider)
                                         .add('A little more room', sampleText);
+                                    ref
+                                        .read(usageAnalyticsProvider)
+                                        .record(
+                                          UsageEvent.sampleAdded,
+                                          source: ReadingSource.sample,
+                                        );
                                     ref.invalidate(libraryProvider);
                                   }),
                           ),
@@ -396,6 +433,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     await ref
                         .read(storeProvider)
                         .setStarred(document.id, !document.starred);
+                    ref
+                        .read(usageAnalyticsProvider)
+                        .record(
+                          document.starred
+                              ? UsageEvent.starRemoved
+                              : UsageEvent.starAdded,
+                        );
                     ref.invalidate(libraryProvider);
                   }),
           ),

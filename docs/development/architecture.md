@@ -2,7 +2,8 @@
 
 The public Flutter application stands alone. Features own their UI and storage
 operations. Riverpod composes SQLite, persisted settings and premium capabilities.
-There is no private package dependency and no network requirement at runtime.
+There is no private package dependency. Reading needs no network; optional usage
+analytics is the only app-initiated request.
 
 `core/document.dart` tokenizes whitespace-delimited text, preserves source offsets
 and validates paste ingestion (nonblank, no NUL, maximum 200,000 UTF-16 code units).
@@ -56,3 +57,11 @@ the active app theme, so explicit dark/light choices override the device setting
 Glass uses clipped Flutter blur with a strong tint; high contrast or the in-app
 reduce-transparency setting removes blur. App-owned icons use Lucide. Cupertino
 and Material continue to own routes, dialogs, fields and controls.
+
+`app/usage_analytics.dart` owns the Umami `/api/send` wire format and permits
+only enum-defined screens, events and import sources. Configuration is compiled
+from HTTPS `--dart-define` values; sharing remains off until saved consent is
+enabled. The bounded in-memory sender has a three-second timeout and no retries
+or persistent queue. Opt-out invalidates queued events and clears the Umami
+session cache. Screens call it at navigation boundaries and actions call it after
+successful local operations; network failures never affect local reading.

@@ -29,8 +29,11 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
 - Choose System, Light or Dark appearance, saved across restarts.
 - Lucide icons and restrained glass controls; reduce transparency for solid surfaces.
 
-No account, backend or analytics. Text stays on the device; OS backup behavior
-still applies. Paste limit: 200,000 UTF-16 code units. File import: 32 MB source,
+No account or content upload. Text stays on the device; OS backup behavior
+still applies. Optional Umami usage statistics are off by default and only
+available in builds configured with an Umami property. They include screen visits
+and fixed app actions, never book text, titles, filenames or reading positions.
+Paste limit: 200,000 UTF-16 code units. File import: 32 MB source,
 64 MB total EPUB expansion, 16 MB per text resource, 2 million text code units.
 EPUB imports the main reading order as text; images, original layout and DRM
 are unsupported. TXT accepts UTF-8 or BOM-marked UTF-16. Tokenization
@@ -56,6 +59,22 @@ See [environment](docs/development/environment.md) and
 [validation](docs/development/validation.md) for the actual development setup,
 executed checks and remaining release work. GitHub Actions validates formatting,
 analysis and tests without privileged secrets. CI execution requires a push.
+
+To enable optional Umami tracking in a build, create a dedicated Umami website
+property and supply its HTTPS server URL, website UUID and app hostname:
+
+```sh
+flutter run -d <device-id> \
+  --dart-define=UMAMI_URL=https://stats.example.org \
+  --dart-define=UMAMI_WEBSITE_ID=12345678-1234-1234-1234-123456789abc \
+  --dart-define=UMAMI_HOSTNAME=app.example.org
+```
+
+Replace all example values with your own. The hostname should match the hostname
+configured for that Umami property. In the app, open **Reading settings → Share
+usage statistics** to opt in. Builds without these values leave the switch
+disabled and send nothing. Analytics delivery is best effort: offline events are
+dropped, reading never waits for the server, and opting out stops future sends.
 
 Screenshots use synthetic text and the actual native app renderer. Regenerate:
 

@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
 import '../../app/providers.dart';
+import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
 import '../../core/playback.dart';
 import '../../core/settings.dart';
@@ -31,6 +32,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   Future<void> _writes = Future.value();
   bool _playing = false;
   bool _saveFailed = false;
+  bool _completionReported = false;
+  bool _seeking = false;
   int _lastCheckpoint = -1;
   @override
   void initState() {
@@ -41,8 +44,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       settings: ref.read(settingsProvider),
       position: widget.document.position,
     );
+    _completionReported = _engine.completed;
+    ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
     WidgetsBinding.instance.addObserver(this);
     _subscription = _engine.changes.listen((_) {
+      if (_engine.completed && !_completionReported && _playing && !_seeking) {
+        _completionReported = true;
+        ref
+            .read(usageAnalyticsProvider)
+            .record(UsageEvent.readingFinished, screen: UsageScreen.reader);
+      } else if (!_engine.completed) {
+        _completionReported = false;
+      }
       if (_playing != _engine.playing && mounted) {
         setState(() => _playing = _engine.playing);
       }
@@ -87,12 +100,53 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   void _toggle() {
     HapticFeedback.selectionClick();
-    _engine.playing ? _engine.pause() : _engine.play();
+    final wasPlaying = _engine.playing;
+    wasPlaying ? _engine.pause() : _engine.play();
+    if (wasPlaying != _engine.playing) {
+      ref
+          .read(usageAnalyticsProvider)
+          .record(
+            wasPlaying ? UsageEvent.readingPaused : UsageEvent.readingStarted,
+            screen: UsageScreen.reader,
+          );
+    }
+  }
+
+  void _seek(int position) {
+    if (position.clamp(0, _engine.tokens.length) == _engine.position) return;
+    _scrub(position);
+    ref
+        .read(usageAnalyticsProvider)
+        .record(UsageEvent.readingSeeked, screen: UsageScreen.reader);
+  }
+
+  void _scrub(int position) {
+    _seeking = true;
+    try {
+      _engine.seek(position);
+    } finally {
+      _seeking = false;
+    }
+  }
+
+  void _sentence(int direction) {
+    final position = _engine.position;
+    _seeking = true;
+    _engine.sentence(direction);
+    _seeking = false;
+    if (_engine.position != position) {
+      ref
+          .read(usageAnalyticsProvider)
+          .record(UsageEvent.readingSeeked, screen: UsageScreen.reader);
+    }
   }
 
   Future<void> _persistSettings(ReaderSettings settings) async {
     try {
       await ref.read(settingsProvider.notifier).update(settings);
+      ref
+          .read(usageAnalyticsProvider)
+          .record(UsageEvent.readingSpeedChanged, screen: UsageScreen.reader);
     } catch (_) {
       if (mounted) {
         showProblem(
@@ -127,6 +181,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             await _save();
             if (context.mounted) {
               await pushPage(context, const SettingsScreen());
+              if (mounted) {
+                ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
+              }
             }
           },
         ),
@@ -217,13 +274,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                           IconAction(
                             label: 'Previous sentence',
                             icon: LucideIcons.skipBack,
-                            onPressed: () => _engine.sentence(-1),
+                            onPressed: () => _sentence(-1),
                           ),
                           IconAction(
                             label: 'Back ten words',
                             icon: LucideIcons.rotateCcw,
-                            onPressed: () =>
-                                _engine.seek(_engine.position - 10),
+                            onPressed: () => _seek(_engine.position - 10),
                           ),
                           Semantics(
                             button: true,
@@ -259,13 +315,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                           IconAction(
                             label: 'Forward ten words',
                             icon: LucideIcons.rotateCw,
-                            onPressed: () =>
-                                _engine.seek(_engine.position + 10),
+                            onPressed: () => _seek(_engine.position + 10),
                           ),
                           IconAction(
                             label: 'Next sentence',
                             icon: LucideIcons.skipForward,
-                            onPressed: () => _engine.sentence(1),
+                            onPressed: () => _sentence(1),
                           ),
                         ],
                       ),
@@ -362,16 +417,28 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                     width: double.infinity,
                                     child: CupertinoSlider(
                                       value: _engine.progress,
-                                      onChanged: (v) => _engine.seek(
+                                      onChanged: (v) => _scrub(
                                         (v * _engine.tokens.length).round(),
                                       ),
+                                      onChangeEnd: (_) => ref
+                                          .read(usageAnalyticsProvider)
+                                          .record(
+                                            UsageEvent.readingSeeked,
+                                            screen: UsageScreen.reader,
+                                          ),
                                     ),
                                   )
                                 : Slider(
                                     value: _engine.progress,
-                                    onChanged: (v) => _engine.seek(
+                                    onChanged: (v) => _scrub(
                                       (v * _engine.tokens.length).round(),
                                     ),
+                                    onChangeEnd: (_) => ref
+                                        .read(usageAnalyticsProvider)
+                                        .record(
+                                          UsageEvent.readingSeeked,
+                                          screen: UsageScreen.reader,
+                                        ),
                                   ),
                           ),
                           Text(

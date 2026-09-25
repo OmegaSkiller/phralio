@@ -18,6 +18,7 @@ dependencies:
   xml: ^7.0.1
   html: ^0.15.7
   crypto: ^3.0.7
+  http: ^1.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

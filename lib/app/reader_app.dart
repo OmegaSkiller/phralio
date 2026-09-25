@@ -6,14 +6,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/settings.dart';
 import 'providers.dart';
+import 'usage_analytics.dart';
 import 'design.dart';
 import 'identity.dart';
 import '../features/library/library_screen.dart';
 
-class ReaderApp extends ConsumerWidget {
+class ReaderApp extends ConsumerStatefulWidget {
   const ReaderApp({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReaderApp> createState() => _ReaderAppState();
+}
+
+class _ReaderAppState extends ConsumerState<ReaderApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    ref.read(usageAnalyticsProvider).record(UsageEvent.appForeground);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(usageAnalyticsProvider).record(UsageEvent.appForeground);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
     ThemeData theme(ReaderColors colors, Brightness brightness) => ThemeData(
       brightness: brightness,
