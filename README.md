@@ -32,7 +32,8 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
   frames use a separate 1–30 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.
 - Keep the focal glyph anchored using real text measurement, including composed
-  Unicode characters; adjust type size or turn highlighting off.
+  Unicode characters; choose among ten bundled reading fonts, adjust type size or
+  turn highlighting off. Font choices work offline and stay saved on this device.
 - Restore document position and settings from local SQLite. Reopening starts paused.
 - Choose System, Light or Dark appearance, saved across restarts.
 - Follow the device language or choose English, Russian, Spanish, Portuguese,

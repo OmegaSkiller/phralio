@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:phralio/app/providers.dart';
 import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/document.dart';
+import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
+import 'package:phralio/features/reader/focal_word.dart';
 import 'package:phralio/features/reader/reader_screen.dart';
 import 'package:phralio/l10n/app_localizations.dart';
 import 'package:phralio/l10n/l10n.dart';
@@ -26,7 +28,12 @@ void main() {
     final document = await tester.runAsync(() => store!.document(id!));
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [storeProvider.overrideWithValue(store!)],
+        overrides: [
+          storeProvider.overrideWithValue(store!),
+          initialSettingsProvider.overrideWithValue(
+            ReaderSettings(readingFont: ReadingFont.inter),
+          ),
+        ],
         child: MaterialApp(
           localizationsDelegates: appLocalizationDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -36,10 +43,15 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(ListWheelScrollView), findsOneWidget);
+    expect(tester.widget<Text>(find.text('One')).style?.fontFamily, 'Inter');
     await tester.tap(find.byType(ListWheelScrollView));
     await tester.pump();
     expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
     expect(find.text('Read'), findsNothing);
+    expect(
+      tester.widget<FocalWord>(find.byType(FocalWord)).readingFont,
+      ReadingFont.inter,
+    );
     await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pump();
     expect(find.byType(ListWheelScrollView), findsOneWidget);

@@ -4,6 +4,24 @@ enum SmartPauses { off, normal, strong }
 
 enum AppLanguage { system, en, ru, es, pt, zh, ja, pl, de, fr, it }
 
+/// Stable stored IDs and bundled family names for the reading field only.
+enum ReadingFont {
+  ibmPlexSans('IBM Plex Sans', 'IBMPlexSans'),
+  newsreader('Newsreader', 'Newsreader'),
+  inter('Inter', 'Inter'),
+  roboto('Roboto', 'Roboto'),
+  openSans('Open Sans', 'OpenSans'),
+  montserrat('Montserrat', 'Montserrat'),
+  nunitoSans('Nunito Sans', 'NunitoSans'),
+  merriweather('Merriweather', 'Merriweather'),
+  sourceSans3('Source Sans 3', 'SourceSans3'),
+  notoSans('Noto Sans', 'NotoSans');
+
+  const ReadingFont(this.family, this.assetStem);
+  final String family;
+  final String assetStem;
+}
+
 class ReaderSettings {
   ReaderSettings({
     int wpm = 300,
@@ -11,6 +29,7 @@ class ReaderSettings {
     this.highlight = true,
     this.appearance = Appearance.system,
     this.language = AppLanguage.system,
+    this.readingFont = ReadingFont.ibmPlexSans,
     this.reduceTransparency = false,
     this.shareUsage = false,
     int imageSeconds = 5,
@@ -23,6 +42,7 @@ class ReaderSettings {
   final bool highlight;
   final Appearance appearance;
   final AppLanguage language;
+  final ReadingFont readingFont;
   final bool reduceTransparency;
   final bool shareUsage;
   final int imageSeconds;
@@ -33,6 +53,7 @@ class ReaderSettings {
     bool? highlight,
     Appearance? appearance,
     AppLanguage? language,
+    ReadingFont? readingFont,
     bool? reduceTransparency,
     bool? shareUsage,
     int? imageSeconds,
@@ -43,6 +64,7 @@ class ReaderSettings {
     highlight: highlight ?? this.highlight,
     appearance: appearance ?? this.appearance,
     language: language ?? this.language,
+    readingFont: readingFont ?? this.readingFont,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
     shareUsage: shareUsage ?? this.shareUsage,
     imageSeconds: imageSeconds ?? this.imageSeconds,
@@ -54,6 +76,7 @@ class ReaderSettings {
     'highlight': highlight,
     'appearance': appearance.name,
     'language': language.name,
+    'readingFont': readingFont.name,
     'reduceTransparency': reduceTransparency,
     'shareUsage': shareUsage,
     'imageSeconds': imageSeconds,
@@ -67,6 +90,10 @@ class ReaderSettings {
     language: AppLanguage.values.firstWhere(
       (v) => v.name == json['language'],
       orElse: () => AppLanguage.system,
+    ),
+    readingFont: ReadingFont.values.firstWhere(
+      (v) => v.name == json['readingFont'],
+      orElse: () => ReadingFont.ibmPlexSans,
     ),
     reduceTransparency: json['reduceTransparency'] == true,
     shareUsage: json['shareUsage'] == true,

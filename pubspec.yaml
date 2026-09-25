@@ -41,6 +41,14 @@ flutter:
     - assets/brand/
     - assets/fonts/IBMPlexSans-OFL.txt
     - assets/fonts/Newsreader-OFL.txt
+    - assets/fonts/Inter-OFL.txt
+    - assets/fonts/Roboto-OFL.txt
+    - assets/fonts/OpenSans-OFL.txt
+    - assets/fonts/Montserrat-OFL.txt
+    - assets/fonts/NunitoSans-OFL.txt
+    - assets/fonts/Merriweather-OFL.txt
+    - assets/fonts/SourceSans3-OFL.txt
+    - assets/fonts/NotoSans-OFL.txt
   fonts:
     - family: IBM Plex Sans
       fonts:
@@ -48,3 +56,27 @@ flutter:
     - family: Newsreader
       fonts:
         - asset: assets/fonts/Newsreader.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto.ttf
+    - family: Open Sans
+      fonts:
+        - asset: assets/fonts/OpenSans.ttf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat.ttf
+    - family: Nunito Sans
+      fonts:
+        - asset: assets/fonts/NunitoSans.ttf
+    - family: Merriweather
+      fonts:
+        - asset: assets/fonts/Merriweather.ttf
+    - family: Source Sans 3
+      fonts:
+        - asset: assets/fonts/SourceSans3.ttf
+    - family: Noto Sans
+      fonts:
+        - asset: assets/fonts/NotoSans.ttf

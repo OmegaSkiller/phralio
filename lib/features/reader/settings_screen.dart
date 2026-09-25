@@ -69,8 +69,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     T selected,
     String Function(T) label,
     ReaderSettings Function(T) change,
-    UsageEvent event,
-  ) {
+    UsageEvent event, {
+    TextStyle Function(T)? itemStyle,
+  }) {
     var saving = false;
     showReaderSheet(
       context,
@@ -81,6 +82,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           for (final value in values)
             SettingRow(
               title: label(value),
+              titleStyle: itemStyle?.call(value),
               selected: value == selected,
               icon: null,
               trailing: value == selected
@@ -237,6 +239,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           SectionLabel(l.read),
           GroupedRows(
             children: [
+              SettingRow(
+                title: l.readingFont,
+                icon: LucideIcons.type,
+                value: settings.readingFont.family,
+                onTap: () => _choices(
+                  l.readingFont,
+                  ReadingFont.values,
+                  settings.readingFont,
+                  (font) => font.family,
+                  (font) =>
+                      ref.read(settingsProvider).copyWith(readingFont: font),
+                  UsageEvent.readingFontChanged,
+                  itemStyle: (font) => ReaderTypography.body(size: 18).copyWith(
+                    fontFamily: font.family,
+                    fontFamilyFallback: ReaderTypography.readingFallbacks(
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                  ),
+                ),
+              ),
               SettingRow(
                 title: l.smartPauses,
                 icon: LucideIcons.timer,

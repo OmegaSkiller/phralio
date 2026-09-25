@@ -8,6 +8,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/app/providers.dart';
+import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/reader/focal_word.dart';
 
@@ -94,11 +95,29 @@ void main() {
     );
     await chooseMenu(tester, 'Reading actions', 'Reader settings');
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Reading font'), 160);
+    await tester.tap(find.text('Reading font'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Merriweather'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Merriweather'));
+    await tester.pumpAndSettle();
+    expect((await store.settings()).readingFont, ReadingFont.merriweather);
     await tester.scrollUntilVisible(find.text('Open-source licenses'), 160);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Open-source licenses'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Loading licenses'), findsNothing);
+    await tapIcon(tester, 'Back');
+    await tapIcon(tester, 'Back');
+    await tester.tap(find.bySemanticsLabel('Play reading'));
+    await tester.pump();
+    expect(
+      tester.widget<FocalWord>(find.byType(FocalWord)).readingFont,
+      ReadingFont.merriweather,
+    );
+    await tester.tap(find.byKey(const ValueKey('immersive-reader')));
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await store.close();

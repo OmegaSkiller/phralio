@@ -12,6 +12,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'app/providers.dart';
 import 'app/reader_app.dart';
+import 'core/settings.dart';
 import 'features/library/library_store.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/l10n.dart';
@@ -24,10 +25,10 @@ Future<void> main() async {
     ], await rootBundle.loadString('third_party/licenses/lucide-upstream.txt'));
   });
   LicenseRegistry.addLicense(() async* {
-    for (final font in ['IBMPlexSans', 'Newsreader']) {
+    for (final font in ReadingFont.values) {
       yield LicenseEntryWithLineBreaks([
-        font,
-      ], await rootBundle.loadString('assets/fonts/$font-OFL.txt'));
+        font.family,
+      ], await rootBundle.loadString('assets/fonts/${font.assetStem}-OFL.txt'));
     }
   });
   await launchReader();

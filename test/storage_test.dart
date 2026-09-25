@@ -119,6 +119,7 @@ void main() {
             pauses: SmartPauses.strong,
             highlight: false,
             fontSize: 52,
+            readingFont: ReadingFont.merriweather,
           ),
         );
         await store.close();
@@ -130,6 +131,7 @@ void main() {
         expect(settings.wpm, 700);
         expect(settings.highlight, isFalse);
         expect(settings.pauses, SmartPauses.strong);
+        expect(settings.readingFont, ReadingFont.merriweather);
         final engine = Playback(
           restored.tokens,
           settings: settings,

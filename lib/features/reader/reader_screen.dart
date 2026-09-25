@@ -216,6 +216,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       return FocalWord(
         token: token,
         fontSize: _engine.settings.fontSize,
+        readingFont: _engine.settings.readingFont,
         highlight: _engine.settings.highlight,
       );
     }
@@ -274,6 +275,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
+                    fontFamily: _engine.settings.readingFont.family,
+                    fontFamilyFallback: ReaderTypography.readingFallbacks(
+                      Localizations.localeOf(context).languageCode,
+                    ),
                     fontSize: current ? 28 : 18,
                     fontWeight: current ? FontWeight.w700 : FontWeight.normal,
                     color: current ? colors.accent : colors.secondary,

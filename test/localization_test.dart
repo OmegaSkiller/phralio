@@ -116,6 +116,30 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('reading font sheet previews and saves a choice', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          libraryProvider.overrideWith((ref) async => []),
+          settingsProvider.overrideWith(_TestSettingsController.new),
+        ],
+        child: const ReaderApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Reading font'));
+    await tester.tap(find.text('Reading font'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Merriweather'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Merriweather'));
+    await tester.pumpAndSettle();
+    expect(find.text('Merriweather'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('device language is used when no language is selected', (
     tester,
   ) async {

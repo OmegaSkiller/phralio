@@ -19,8 +19,9 @@ ISC and Feather MIT notices are retained in `third_party/licenses/lucide-upstrea
 and bundled in the in-app license registry. Framework assets keep SDK notices. Original
 Phralio artwork is governed by TRADEMARKS.md.
 
-IBM Plex Sans and Newsreader ship as original variable TTF files with their
-SIL Open Font License notices in `assets/fonts/`, also available in-app.
+Ten reading fonts ship as variable TTF files with their original SIL Open Font
+License notices in `assets/fonts/`, also available in-app. Sources and the
+pinned upstream revision are recorded in `assets/fonts/README.md`.
 
 The optional icon generation tool uses Node.js and sharp (Apache-2.0 and its
 bundled libvips notices). These build tools are not bundled in mobile binaries. Android/Xcode
