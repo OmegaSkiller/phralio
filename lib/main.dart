@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 import 'app/design.dart';
+import 'app/theme.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
@@ -21,6 +22,13 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks([
       'Lucide icons (upstream)',
     ], await rootBundle.loadString('third_party/licenses/lucide-upstream.txt'));
+  });
+  LicenseRegistry.addLicense(() async* {
+    for (final font in ['IBMPlexSans', 'Newsreader']) {
+      yield LicenseEntryWithLineBreaks([
+        font,
+      ], await rootBundle.loadString('assets/fonts/$font-OFL.txt'));
+    }
   });
   await launchReader();
 }
@@ -69,11 +77,14 @@ Future<void> launchReader() async {
             defaultTargetPlatform == TargetPlatform.iOS ||
                 defaultTargetPlatform == TargetPlatform.macOS
             ? CupertinoApp(
+                theme: ReaderTheme.cupertino(null),
                 localizationsDelegates: appLocalizationDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
                 home: recovery,
               )
             : MaterialApp(
+                theme: ReaderTheme.material(Brightness.light),
+                darkTheme: ReaderTheme.material(Brightness.dark),
                 localizationsDelegates: appLocalizationDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
                 home: recovery,

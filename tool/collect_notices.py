@@ -35,7 +35,8 @@ in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
 characters, path, file_selector, crypto, http, markdown, intl and flutter_localizations (BSD-3-Clause); archive and xml (MIT);
-html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
+html (MIT, additional notices retained); lucide_icons_flutter (MIT); flutter_svg
+and its vector rendering dependencies (MIT/BSD notices below). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes
 fake_async (Apache-2.0) and sqflite_common_ffi (BSD-2-Clause).
@@ -45,8 +46,11 @@ ISC and Feather MIT notices are retained in `third_party/licenses/lucide-upstrea
 and bundled in the in-app license registry. Framework assets keep SDK notices. Original
 Phralio artwork is governed by TRADEMARKS.md.
 
-The optional icon generation tool uses Pillow12.3.0, whose HPND license applies
-to that build tool; it is not linked or bundled in mobile binaries. Android/Xcode
+IBM Plex Sans and Newsreader ship as original variable TTF files with their
+SIL Open Font License notices in `assets/fonts/`, also available in-app.
+
+The optional icon generation tool uses Node.js and sharp (Apache-2.0 and its
+bundled libvips notices). These build tools are not bundled in mobile binaries. Android/Xcode
 platform libraries retain their platform license terms. A signed release still
 requires review of the final binary/native dependency manifest.
 

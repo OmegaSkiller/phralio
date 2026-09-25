@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/settings.dart';
 import 'providers.dart';
 import 'usage_analytics.dart';
-import 'design.dart';
+import 'theme.dart';
 import 'identity.dart';
 import 'reader_shell.dart';
 import '../l10n/app_localizations.dart';
@@ -48,29 +48,6 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
     final locale = language == AppLanguage.system
         ? null
         : Locale(language.name);
-    ThemeData theme(ReaderColors colors, Brightness brightness) => ThemeData(
-      brightness: brightness,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: colors.accent,
-        brightness: brightness,
-        surface: colors.surface,
-        primary: colors.accent,
-        error: colors.destructive,
-      ),
-      scaffoldBackgroundColor: colors.background,
-      useMaterial3: true,
-      appBarTheme: AppBarTheme(
-        backgroundColor: colors.background,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
-    );
     if (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS) {
       return CupertinoApp(
@@ -79,21 +56,11 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
         locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: appLocalizationDelegates,
-        theme: CupertinoThemeData(
-          brightness: switch (appearance) {
-            Appearance.system => null,
-            Appearance.light => Brightness.light,
-            Appearance.dark => Brightness.dark,
-          },
-          primaryContrastingColor: CupertinoDynamicColor.withBrightness(
-            color: ReaderColors.light.onAccent,
-            darkColor: ReaderColors.dark.onAccent,
-          ),
-          primaryColor: CupertinoDynamicColor.withBrightness(
-            color: ReaderColors.light.accent,
-            darkColor: ReaderColors.dark.accent,
-          ),
-        ),
+        theme: ReaderTheme.cupertino(switch (appearance) {
+          Appearance.system => null,
+          Appearance.light => Brightness.light,
+          Appearance.dark => Brightness.dark,
+        }),
         home: const ReaderShell(),
       );
     }
@@ -103,8 +70,8 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: appLocalizationDelegates,
-      theme: theme(ReaderColors.light, Brightness.light),
-      darkTheme: theme(ReaderColors.dark, Brightness.dark),
+      theme: ReaderTheme.material(Brightness.light),
+      darkTheme: ReaderTheme.material(Brightness.dark),
       themeMode: switch (appearance) {
         Appearance.system => ThemeMode.system,
         Appearance.light => ThemeMode.light,

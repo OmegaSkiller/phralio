@@ -8,7 +8,8 @@ in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
 characters, path, file_selector, crypto, http, markdown, intl and flutter_localizations (BSD-3-Clause); archive and xml (MIT);
-html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
+html (MIT, additional notices retained); lucide_icons_flutter (MIT); flutter_svg
+and its vector rendering dependencies (MIT/BSD notices below). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes
 fake_async (Apache-2.0) and sqflite_common_ffi (BSD-2-Clause).
@@ -18,8 +19,11 @@ ISC and Feather MIT notices are retained in `third_party/licenses/lucide-upstrea
 and bundled in the in-app license registry. Framework assets keep SDK notices. Original
 Phralio artwork is governed by TRADEMARKS.md.
 
-The optional icon generation tool uses Pillow12.3.0, whose HPND license applies
-to that build tool; it is not linked or bundled in mobile binaries. Android/Xcode
+IBM Plex Sans and Newsreader ship as original variable TTF files with their
+SIL Open Font License notices in `assets/fonts/`, also available in-app.
+
+The optional icon generation tool uses Node.js and sharp (Apache-2.0 and its
+bundled libvips notices). These build tools are not bundled in mobile binaries. Android/Xcode
 platform libraries retain their platform license terms. A signed release still
 requires review of the final binary/native dependency manifest.
 
@@ -54,6 +58,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `flutter_lints` | [License](third_party/licenses/flutter_lints.txt) |
 | `flutter_localizations` | [License](third_party/licenses/flutter_localizations.txt) |
 | `flutter_riverpod` | [License](third_party/licenses/flutter_riverpod.txt) |
+| `flutter_svg` | [License](third_party/licenses/flutter_svg.txt) |
 | `flutter_test` | [License](third_party/licenses/flutter_test.txt) |
 | `flutter_web_plugins` | [License](third_party/licenses/flutter_web_plugins.txt) |
 | `flutter` | [License](third_party/licenses/flutter.txt) |
@@ -77,6 +82,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `material_color_utilities` | [License](third_party/licenses/material_color_utilities.txt) |
 | `meta` | [License](third_party/licenses/meta.txt) |
 | `native_toolchain_c` | [License](third_party/licenses/native_toolchain_c.txt) |
+| `path_parsing` | [License](third_party/licenses/path_parsing.txt) |
 | `path` | [License](third_party/licenses/path.txt) |
 | `petitparser` | [License](third_party/licenses/petitparser.txt) |
 | `platform` | [License](third_party/licenses/platform.txt) |
@@ -105,6 +111,9 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `test_api` | [License](third_party/licenses/test_api.txt) |
 | `typed_data` | [License](third_party/licenses/typed_data.txt) |
 | `uuid` | [License](third_party/licenses/uuid.txt) |
+| `vector_graphics_codec` | [License](third_party/licenses/vector_graphics_codec.txt) |
+| `vector_graphics_compiler` | [License](third_party/licenses/vector_graphics_compiler.txt) |
+| `vector_graphics` | [License](third_party/licenses/vector_graphics.txt) |
 | `vector_math` | [License](third_party/licenses/vector_math.txt) |
 | `vm_service` | [License](third_party/licenses/vm_service.txt) |
 | `web` | [License](third_party/licenses/web.txt) |

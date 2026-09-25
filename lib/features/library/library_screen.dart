@@ -186,6 +186,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     final library = ref.watch(libraryProvider);
     return PlatformPage(
       title: context.l10n.home,
+      showBrand: true,
       trailing: ActionMenu(
         label: context.l10n.addReading,
         icon: LucideIcons.plus,
@@ -230,21 +231,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   ),
                 ),
               if (all.isEmpty) ...[
-                const SizedBox(height: 56),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: BrandMark(size: 56),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
                 Text(
                   context.l10n.makeRoom,
-                  style: TextStyle(
-                    fontSize: 32,
-                    height: 1.15,
-                    letterSpacing: -.8,
-                    fontWeight: FontWeight.w600,
-                    color: colors.text,
-                  ),
+                  style: ReaderTypography.editorial(context, size: 36),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -346,7 +336,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,12 +345,14 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             children: [
               Icon(LucideIcons.bookOpen, size: 20, color: colors.accent),
               const SizedBox(width: 10),
-              Text(
-                context.l10n.continueReading,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: colors.secondary,
+              Expanded(
+                child: Text(
+                  context.l10n.continueReading,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.secondary,
+                  ),
                 ),
               ),
             ],
@@ -370,13 +362,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             document.title,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              height: 1.15,
-              letterSpacing: -.7,
-              color: colors.text,
-            ),
+            style: ReaderTypography.editorial(context, size: 30),
           ),
           const SizedBox(height: 12),
           Text(
@@ -443,7 +429,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         document.format == 'EPUB'
                             ? LucideIcons.bookOpen
                             : LucideIcons.fileText,
-                        color: colors.accent,
+                        color: colors.text,
                         size: 23,
                       ),
                     ),

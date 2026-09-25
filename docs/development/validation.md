@@ -168,3 +168,44 @@ Remaining release checks: physical-device performance, full VoiceOver/TalkBack
 walkthroughs and an older iOS device/runtime. Native-speaker proofreading and
 unspaced Chinese/Japanese word segmentation remain the earlier localization
 limitations. These are not claimed as validated by simulator screenshots.
+
+## Approved brandkit implementation — 25 September 2026
+
+- Read the approved guide, HTML preview source, CSS tokens, overview board and
+  original SVG/TTF/license files before visual changes. The reference folder was
+  left intact; all copied SVGs, TTFs and licenses match its files byte for byte.
+- Paper/Ink, Brick/Ember and the original split-P now cover app themes, Home,
+  Saved, entry forms, reader, preferences, sheets, dialogs and startup recovery.
+  Native iOS tabs register the supplied Plex font at weight 500. Native OS-owned
+  menus retain their standard typography; they use the existing UIKit bridge.
+- Formatting and static analysis pass. All **50 unit/widget tests pass**, with
+  the actual bundled Plex font loaded for shaped-glyph anchor tests. These check
+  the fixed 42% anchor at 1×/2×/3× text scale, Unicode/graphemes and long-word fit.
+  Existing tests cover contrast, narrow layouts, semantics and every supported
+  locale's Settings/language sheet at 2× scale.
+- **All four integration flows pass on each platform:** iPhone 18 Pro / iOS 27
+  (402×874 logical points) and Android API 36 emulator (320×640 logical pixels).
+  Coverage: add text/play/pause/seek/reopen/resume and SQLite position advancement;
+  EPUB/import cancellation/star/theme/reimport; Markdown/contents/images/
+  bookmarks/Saved/clipboard; Russian→Spanish switching and persisted restart.
+- The final screenshot drivers pass on both platforms. Capture uses rendered
+  frame synchronization, avoiding the previous route or test-pointer overlays.
+  Captures cover both themes, empty/error states, entry forms, focused/paused
+  reader, Saved, Settings and Japanese/Russian fallback rendering.
+- In the normal iOS app, Device Hub interaction separately verified the actual
+  native Add menu, text entry, play-to-focus, pause, word navigation, tabs and
+  appearance sheet. Home displayed the saved 53% position. Automated iOS menu
+  tests invoke the Dart callbacks because Flutter cannot tap UIKit menu items;
+  this manual check is the distinct native hit-testing evidence.
+- Normal **iOS simulator and Android debug APK builds pass** and were installed.
+  Launcher PNGs are opaque RGB; adaptive/monochrome Android vectors reuse the
+  same paths within the safe zone. Static splash catalogs include light/dark
+  variants. Store submission, signing and release builds are outside this task.
+- No changes to `core/`, library storage, schemas, formats, analytics payloads or
+  consent. No migration, font download, account or planned feature was added.
+
+See [screenshots](../screenshots/brandkit/README.md). Remaining limitations:
+physical-device performance and full VoiceOver/TalkBack walkthroughs, older iOS
+fallback runtime review, and launch-transition review across physical devices.
+Font fallback does not add CJK word segmentation or change the existing reader's
+whitespace tokenizer. Native-speaker proofreading remains separate.

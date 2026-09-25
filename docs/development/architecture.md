@@ -92,3 +92,11 @@ enabled. The bounded in-memory sender has a three-second timeout and no retries
 or persistent queue. Opt-out invalidates queued events and clears the Umami
 session cache. Screens call it at navigation boundaries and actions call it after
 successful local operations; network failures never affect local reading.
+
+The approved brand palette and type roles live in `app/design.dart`;
+`app/theme.dart` applies them to Material, Cupertino and startup recovery.
+`ReaderTextField` owns the shared input boundaries/focus treatment. Exact brand
+SVGs use flutter_svg and bundled variable TTFs load offline. Newsreader is limited
+to library editorial headings. The UIKit bridge registers the same Plex font and
+receives semantic colors through its existing configuration channel. These
+presentation changes do not alter the engine, importers, schemas or analytics.

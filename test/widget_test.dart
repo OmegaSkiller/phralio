@@ -4,6 +4,7 @@ import 'package:phralio/features/library/library_screen.dart';
 import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,12 @@ import 'package:phralio/l10n/l10n.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    final loader = FontLoader(ReaderTypography.ui)
+      ..addFont(rootBundle.load('assets/fonts/IBMPlexSans.ttf'));
+    await loader.load();
+  });
   test('semantic text and filled controls retain accessible contrast', () {
     double contrast(Color a, Color b) {
       final x = a.computeLuminance(), y = b.computeLuminance();
@@ -47,13 +54,19 @@ void main() {
         'I',
         '“Focus,”',
         'е́то',
+        '意識',
+        '読む',
         'extraordinarily-longword',
         '👩‍💻',
       ]) {
         for (final scale in [1.0, 2.0, 3.0]) {
           final layout = FocalLayout(
             ReaderToken(word, 0, false),
-            const TextStyle(fontSize: 42),
+            const TextStyle(
+              fontSize: 42,
+              fontFamily: ReaderTypography.ui,
+              fontWeight: FontWeight.w500,
+            ),
             Colors.teal,
             true,
             320,

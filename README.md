@@ -131,3 +131,12 @@ recorded. [Brand concepts](docs/brand/brand-concepts.md) and
 Outside contributions and support requests are not currently accepted; see
 [CONTRIBUTING](CONTRIBUTING.md). No CLA is required or provided.
 [Security/privacy](SECURITY.md) · [Roadmap](docs/development/roadmap.md).
+
+## Approved visual identity
+
+The app implements **The reading aperture** from the workspace's approved
+`phralio-brandkit`: Paper/Ink surfaces, Brick/Ember actions, exact split-P SVGs,
+IBM Plex Sans UI/reader type and selective Newsreader library headings.
+The fonts ship locally with OFL licenses available in Open-source licenses.
+Native iOS glass controls receive the same palette through the existing bridge.
+See [DESIGN.md](DESIGN.md) and [artwork tooling](assets/brand/README.md).

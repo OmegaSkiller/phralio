@@ -29,7 +29,13 @@ class FocalLayout {
           TextSpan(
             text: character,
             style: highlight
-                ? TextStyle(color: focal, fontWeight: FontWeight.w700)
+                ? TextStyle(
+                    color: focal,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationColor: focal,
+                    decorationThickness: 1.5,
+                  )
                 : null,
           ),
           TextSpan(text: glyphs.skip(index + 1).join()),
@@ -83,7 +89,11 @@ class FocalWord extends StatelessWidget {
             token,
             DefaultTextStyle.of(context).style.copyWith(
               fontSize: fontSize,
-              fontWeight: FontWeight.w400,
+              fontFamily: ReaderTypography.ui,
+              fontFamilyFallback: ReaderTypography.fallbacks(
+                Localizations.localeOf(context).languageCode,
+              ),
+              fontWeight: FontWeight.w500,
               color: colors.text,
               height: 1.3,
             ),
@@ -91,7 +101,13 @@ class FocalWord extends StatelessWidget {
             highlight,
             MediaQuery.textScalerOf(context),
           ),
-          size: const Size(double.infinity, 180),
+          size: Size(
+            double.infinity,
+            math.max(
+              180,
+              MediaQuery.textScalerOf(context).scale(fontSize) * 1.6,
+            ),
+          ),
         ),
       ),
     );

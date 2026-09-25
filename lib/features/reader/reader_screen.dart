@@ -274,7 +274,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: current ? 24 : 18,
+                    fontSize: current ? 28 : 18,
                     fontWeight: current ? FontWeight.w700 : FontWeight.normal,
                     color: current ? colors.accent : colors.secondary,
                   ),
@@ -432,9 +432,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   widget.document.title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 19,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -.6,
+                    letterSpacing: 0,
                     color: colors.text,
                   ),
                 ),

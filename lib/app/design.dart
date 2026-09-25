@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -49,35 +51,43 @@ class ReaderColors {
       destructive;
   Color get focal => accent;
   Color get interactive => accent;
+  // Exact core tokens from the approved brandkit; supporting shades are
+  // neutral Paper/Ink blends, never additional accent families.
+  static const ink = Color(0xFF182523);
+  static const paper = Color(0xFFF4F0E7);
+  static const vermilion = Color(0xFFBA4A32);
+  static const mist = Color(0xFFC9D1CB);
+  static const brick = Color(0xFFA73E2A);
+  static const ember = Color(0xFFF29C82);
   static const light = ReaderColors(
-    background: Color(0xFFF4F5F7),
-    surface: Color(0xFFFFFFFF),
-    elevated: Color(0xFFE9ECF3),
-    text: Color(0xFF1B1D24),
-    secondary: Color(0xFF626773),
-    subtle: Color(0xFF646A76),
-    accent: Color(0xFF2959D1),
-    onAccent: Color(0xFFFFFFFF),
-    separator: Color(0xFFE1E3E9),
-    disabled: Color(0xFF92A5A1),
-    positive: Color(0xFF236733),
+    background: paper,
+    surface: Color(0xFFFAF7F0),
+    elevated: Color(0xFFE8E7DD),
+    text: ink,
+    secondary: Color(0xFF53605A),
+    subtle: Color(0xFF626B63),
+    accent: brick,
+    onAccent: paper,
+    separator: Color(0xFFD1D2C7),
+    disabled: Color(0xFF929A91),
+    positive: Color(0xFF356044),
     warning: Color(0xFF795700),
-    destructive: Color(0xFFB32636),
+    destructive: brick,
   );
   static const dark = ReaderColors(
-    background: Color(0xFF101115),
-    surface: Color(0xFF1D1F25),
-    elevated: Color(0xFF292D36),
-    text: Color(0xFFF1F2F7),
-    secondary: Color(0xFFB7BCC9),
-    subtle: Color(0xFF999FAF),
-    accent: Color(0xFF91B6FF),
-    onAccent: Color(0xFF101115),
-    separator: Color(0xFF323640),
-    disabled: Color(0xFF607A72),
-    positive: Color(0xFF9AD29A),
+    background: ink,
+    surface: Color(0xFF23322F),
+    elevated: Color(0xFF30413C),
+    text: paper,
+    secondary: mist,
+    subtle: Color(0xFFADB7AE),
+    accent: ember,
+    onAccent: ink,
+    separator: Color(0xFF46554F),
+    disabled: Color(0xFF708179),
+    positive: Color(0xFFA7CEAB),
     warning: Color(0xFFE6C675),
-    destructive: Color(0xFFFFB2B8),
+    destructive: ember,
   );
   static ReaderColors of(BuildContext context) =>
       (isApple(context)
@@ -86,6 +96,40 @@ class ReaderColors {
           Brightness.dark
       ? dark
       : light;
+}
+
+abstract final class ReaderTypography {
+  static const ui = 'IBM Plex Sans';
+  static const display = 'Newsreader';
+  static List<String> fallbacks([String? language]) => language == null
+      ? const ['sans-serif']
+      : language == 'ja'
+      ? const [
+          'Hiragino Sans',
+          'Noto Sans CJK JP',
+          'Noto Sans JP',
+          'sans-serif',
+        ]
+      : const ['PingFang SC', 'Noto Sans CJK SC', 'Noto Sans SC', 'sans-serif'];
+  static TextStyle body({Color? color, double size = 17}) => TextStyle(
+    fontFamily: ui,
+    fontFamilyFallback: fallbacks(),
+    fontSize: size,
+    color: color,
+    height: 1.4,
+  );
+  static TextStyle editorial(BuildContext context, {double size = 32}) {
+    final language = Localizations.localeOf(context).languageCode;
+    return TextStyle(
+      fontFamily: ['zh', 'ja', 'ru'].contains(language) ? ui : display,
+      fontFamilyFallback: fallbacks(language),
+      fontVariations: [FontVariation('opsz', size)],
+      fontWeight: FontWeight.w500,
+      fontSize: size,
+      height: 1.15,
+      color: ReaderColors.of(context).text,
+    );
+  }
 }
 
 bool isApple(BuildContext context) =>
@@ -100,11 +144,13 @@ class PlatformPage extends StatelessWidget {
     required this.child,
     this.trailing,
     this.largeTitle,
+    this.showBrand = false,
   });
   final String title;
   final Widget child;
   final Widget? trailing;
   final bool? largeTitle;
+  final bool showBrand;
   @override
   Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
@@ -114,6 +160,14 @@ class PlatformPage extends StatelessWidget {
       bottom: false,
       child: Column(
         children: [
+          if (showBrand)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(24, 10, 24, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: BrandLockup(),
+              ),
+            ),
           Padding(
             padding: EdgeInsets.fromLTRB(large ? 24 : 14, 12, 20, 12),
             child: Row(
@@ -131,9 +185,9 @@ class PlatformPage extends StatelessWidget {
                     title,
                     maxLines: 2,
                     style: TextStyle(
-                      fontSize: large ? 34 : 20,
-                      letterSpacing: large ? -1 : -.3,
-                      fontWeight: FontWeight.w700,
+                      fontSize: large ? 32 : 20,
+                      letterSpacing: large ? -.6 : 0,
+                      fontWeight: FontWeight.w500,
                       color: colors.text,
                     ),
                   ),
@@ -149,7 +203,10 @@ class PlatformPage extends StatelessWidget {
     return isApple(context)
         ? CupertinoPageScaffold(
             backgroundColor: colors.background,
-            child: content,
+            child: DefaultTextStyle(
+              style: ReaderTypography.body(color: colors.text),
+              child: content,
+            ),
           )
         : Scaffold(backgroundColor: colors.background, body: content);
   }
@@ -212,6 +269,81 @@ class ActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
         ),
         child: button,
+      ),
+    );
+  }
+}
+
+/// Shared input styling keeps contrast and keyboard focus consistent on both
+/// text-entry routes while preserving each platform's editing behavior.
+class ReaderTextField extends StatefulWidget {
+  const ReaderTextField({
+    super.key,
+    required this.controller,
+    required this.hint,
+    this.label,
+    this.lines = 1,
+    this.keyboardType,
+    this.autocorrect = true,
+  });
+  final TextEditingController controller;
+  final String hint;
+  final String? label;
+  final int lines;
+  final TextInputType? keyboardType;
+  final bool autocorrect;
+  @override
+  State<ReaderTextField> createState() => _ReaderTextFieldState();
+}
+
+class _ReaderTextFieldState extends State<ReaderTextField> {
+  bool _focused = false;
+  @override
+  Widget build(BuildContext context) {
+    final colors = ReaderColors.of(context);
+    final style = ReaderTypography.body(color: colors.text).copyWith(
+      fontFamilyFallback: ReaderTypography.fallbacks(
+        Localizations.localeOf(context).languageCode,
+      ),
+    );
+    if (!isApple(context)) {
+      return TextField(
+        controller: widget.controller,
+        maxLines: widget.lines,
+        keyboardType: widget.keyboardType,
+        autocorrect: widget.autocorrect,
+        style: style,
+        decoration: InputDecoration(
+          hintText: widget.hint,
+          labelText: widget.label,
+          filled: true,
+          fillColor: colors.surface,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(color: colors.secondary),
+          ),
+        ),
+      );
+    }
+    return Focus(
+      onFocusChange: (focused) => setState(() => _focused = focused),
+      child: CupertinoTextField(
+        controller: widget.controller,
+        placeholder: widget.hint,
+        maxLines: widget.lines,
+        keyboardType: widget.keyboardType,
+        autocorrect: widget.autocorrect,
+        style: style,
+        placeholderStyle: style.copyWith(color: colors.secondary),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _focused ? colors.accent : colors.secondary,
+            width: _focused ? 2 : 1,
+          ),
+        ),
       ),
     );
   }
@@ -281,6 +413,10 @@ Map<String, Object?> nativeStyle(BuildContext context, WidgetRef ref) => {
       ref.watch(settingsProvider.select((s) => s.reduceTransparency)) ||
       MediaQuery.highContrastOf(context),
   'textScale': MediaQuery.textScalerOf(context).scale(14) / 14,
+  'accent': ReaderColors.of(context).accent.toARGB32(),
+  'text': ReaderColors.of(context).text.toARGB32(),
+  'secondary': ReaderColors.of(context).secondary.toARGB32(),
+  'surface': ReaderColors.of(context).surface.toARGB32(),
 };
 
 class MenuChoice {
@@ -527,7 +663,7 @@ Future<T?> showReaderSheet<T>(
       child: SafeArea(
         top: false,
         child: DefaultTextStyle(
-          style: TextStyle(fontSize: 17, color: colors.text),
+          style: ReaderTypography.body(color: colors.text),
           child: SingleChildScrollView(
             controller: controller,
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
@@ -599,12 +735,27 @@ Future<void> showProblem(BuildContext context, String message) async {
     await showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: Text(context.l10n.couldNotFinish),
-        content: Text(message),
+        title: Text(
+          context.l10n.couldNotFinish,
+          style: ReaderTypography.body(color: ReaderColors.of(context).text)
+              .copyWith(fontWeight: FontWeight.w500),
+        ),
+        content: Text(
+          message,
+          style: ReaderTypography.body(
+            color: ReaderColors.of(context).text,
+            size: 15,
+          ),
+        ),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.okay),
+            child: Text(
+              context.l10n.okay,
+              style: ReaderTypography.body(
+                color: ReaderColors.of(context).accent,
+              ).copyWith(fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),
@@ -613,12 +764,27 @@ Future<void> showProblem(BuildContext context, String message) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(context.l10n.couldNotFinish),
-        content: Text(message),
+        title: Text(
+          context.l10n.couldNotFinish,
+          style: ReaderTypography.body(color: ReaderColors.of(context).text)
+              .copyWith(fontWeight: FontWeight.w500),
+        ),
+        content: Text(
+          message,
+          style: ReaderTypography.body(
+            color: ReaderColors.of(context).text,
+            size: 15,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.okay),
+            child: Text(
+              context.l10n.okay,
+              style: ReaderTypography.body(
+                color: ReaderColors.of(context).accent,
+              ).copyWith(fontWeight: FontWeight.w500),
+            ),
           ),
         ],
       ),
@@ -626,42 +792,28 @@ Future<void> showProblem(BuildContext context, String message) async {
   }
 }
 
+/// Render the supplied SVG masters directly; never approximate their paths.
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.size = 48});
   final double size;
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: SizedBox(
-      width: size,
+    child: SvgPicture.asset(
+      'assets/brand/mark-${ReaderColors.of(context) == ReaderColors.dark ? 'paper' : 'ink'}.svg',
+      width: size * 104 / 120,
       height: size,
-      child: CustomPaint(
-        painter: _BrandPainter(ReaderColors.of(context).accent),
-      ),
     ),
   );
 }
 
-class _BrandPainter extends CustomPainter {
-  _BrandPainter(this.color);
-  final Color color;
+class BrandLockup extends StatelessWidget {
+  const BrandLockup({super.key});
   @override
-  void paint(Canvas canvas, Size size) {
-    canvas.scale(size.width / 48, size.height / 48);
-    final paint = Paint()..color = color;
-    for (final r in [
-      const Rect.fromLTWH(5, 20, 12, 8),
-      const Rect.fromLTWH(21, 10, 6, 28),
-      const Rect.fromLTWH(31, 20, 12, 8),
-    ]) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(r, const Radius.circular(3)),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_BrandPainter old) => old.color != color;
+  Widget build(BuildContext context) => SvgPicture.asset(
+    'assets/brand/logo-${ReaderColors.of(context) == ReaderColors.dark ? 'paper' : 'ink'}.svg',
+    width: 140,
+    semanticsLabel: 'Phralio',
+  );
 }
 
 /// Restrained Flutter glass, inspired by Apple materials (not UIGlassEffect).

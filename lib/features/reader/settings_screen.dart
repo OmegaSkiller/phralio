@@ -168,7 +168,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       Semantics(
         label: label,
         child: isApple(context)
-            ? CupertinoSwitch(value: value, onChanged: onChanged)
+            ? CupertinoSwitch(
+                value: value,
+                onChanged: onChanged,
+                activeTrackColor: ReaderColors.of(context).accent,
+              )
             : Switch(value: value, onChanged: onChanged),
       );
 

@@ -23,6 +23,7 @@ dependencies:
   crypto: ^3.0.7
   http: ^1.6.0
   markdown: ^7.3.1
+  flutter_svg: ^2.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -37,3 +38,13 @@ flutter:
   uses-material-design: true
   assets:
     - third_party/licenses/lucide-upstream.txt
+    - assets/brand/
+    - assets/fonts/IBMPlexSans-OFL.txt
+    - assets/fonts/Newsreader-OFL.txt
+  fonts:
+    - family: IBM Plex Sans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans.ttf
+    - family: Newsreader
+      fonts:
+        - asset: assets/fonts/Newsreader.ttf

@@ -100,8 +100,8 @@ appearance/language and privacy/resources. Keep analytics consent explicit.
 
 - Base horizontal inset 20–24pt; section gaps 28–32pt; row padding 14–16pt.
 - Titles 32–34pt bold, section headings 20–22pt semibold, body 16–17pt,
-   secondary labels 13–14pt. Use platform system fonts and scalable text.
-- Primary accent: a restrained blue, used for actions and selection.
+   secondary labels 13–14pt. Use the bundled IBM Plex Sans and scalable text.
+- Primary accent: Brick on Paper and Ember on Ink, used for actions and selection.
 - Group radius 22–26pt; floating controls use capsule/circle shapes.
 - Main content has no heavy shadows, repeated borders or glass-card nesting.
 - Keep explanatory text out of the primary flow unless it helps a decision.
@@ -129,3 +129,33 @@ competing with its labels. Native transparency accessibility notifications and
 the app's solid-controls preference take precedence over the glass treatment.
 
 See docs/development/validation.md for simulator evidence and release checks.
+
+## Approved brandkit implementation — The reading aperture
+
+The approved `../phralio-brandkit/BRAND-GUIDE.md`, SVG masters, TTF fonts and
+`brand-tokens.css` now govern the visual identity. The original eight-reference
+study above still informs interaction and spacing, not color or logo geometry.
+
+- Exact base tokens: Paper #F4F0E7, Ink #182523, Vermilion #BA4A32,
+  Mist #C9D1CB, Brick #A73E2A and Ember #F29C82. Brick/Paper and Ember/Ink
+  own functional contrast; Vermilion is not used for small text.
+- IBM Plex Sans owns UI, controls, input and reading. Newsreader is reserved
+  for editorial library headings; Chinese/Japanese use language-aware system
+  fallbacks. Both supplied variable TTFs and OFL notices ship locally.
+- Use the supplied split-P SVG assets unchanged. Keep clear space and an empty
+  aperture. No logo, texture or decorative animation in the reading field.
+- Glass remains native on iOS with palette and type shared from Flutter.
+  OS-owned menus retain native presentation. Solid/high-contrast fallbacks stay.
+- Platform icons derive from the square master, without baked-in corner masks.
+  Android adaptive artwork stays inside its safe zone; splash has light/dark
+  surfaces and a still, centered mark.
+- Keep the 0.42 focal anchor, glyph-based alignment, timing, seeking, pause/resume,
+  engine, SQLite data and privacy contracts unchanged. Only presentation changes.
+- Verify actual fonts at phone sizes in both themes, persisted add/read/resume,
+  imports/Saved/settings, 2× text, all locales, and native controls. Simulator
+  evidence is distinct from physical-device accessibility/performance proof.
+
+Font coverage was checked against the original TTF character maps: Plex covers
+the requested Latin and Cyrillic UI scripts; Newsreader lacks Cyrillic and both
+fonts lack CJK. Russian editorial headings therefore use Plex. Chinese/Japanese
+use language-aware platform fallbacks. Never download fonts at runtime.

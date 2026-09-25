@@ -81,32 +81,7 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
     String hint,
     int lines,
   ) {
-    final colors = ReaderColors.of(context);
-    return isApple(context)
-        ? CupertinoTextField(
-            controller: controller,
-            placeholder: hint,
-            maxLines: lines,
-            padding: const EdgeInsets.all(16),
-            style: TextStyle(color: colors.text, fontSize: 17),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          )
-        : TextField(
-            controller: controller,
-            maxLines: lines,
-            decoration: InputDecoration(
-              hintText: hint,
-              filled: true,
-              fillColor: colors.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          );
+    return ReaderTextField(controller: controller, hint: hint, lines: lines);
   }
 
   @override

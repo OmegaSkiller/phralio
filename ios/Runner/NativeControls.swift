@@ -7,6 +7,7 @@ import CoreText
 final class NativeControlsFactory: NSObject, FlutterPlatformViewFactory {
   private let messenger: FlutterBinaryMessenger
   private let fontName: String
+  private let uiFontName: String
 
   init(registrar: FlutterPluginRegistrar) {
     messenger = registrar.messenger()
@@ -21,6 +22,16 @@ final class NativeControlsFactory: NSObject, FlutterPlatformViewFactory {
       }
     }
     fontName = name
+    let uiKey = registrar.lookupKey(forAsset: "assets/fonts/IBMPlexSans.ttf")
+    var uiName = "IBMPlexSans"
+    if let path = Bundle.main.path(forResource: uiKey, ofType: nil) {
+      let url = URL(fileURLWithPath: path) as CFURL
+      CTFontManagerRegisterFontsForURL(url, .process, nil)
+      if let descriptors = CTFontManagerCreateFontDescriptorsFromURL(url) as? [CTFontDescriptor], let first = descriptors.first {
+        uiName = CTFontDescriptorCopyAttribute(first, kCTFontNameAttribute) as? String ?? uiName
+      }
+    }
+    uiFontName = uiName
     super.init()
   }
 
@@ -29,7 +40,7 @@ final class NativeControlsFactory: NSObject, FlutterPlatformViewFactory {
   }
 
   func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-    NativeControlsView(frame: frame, id: viewId, args: args, messenger: messenger, fontName: fontName)
+    NativeControlsView(frame: frame, id: viewId, args: args, messenger: messenger, fontName: fontName, uiFontName: uiFontName)
   }
 }
 
@@ -37,12 +48,14 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
   private let root: UIView
   private let channel: FlutterMethodChannel
   private let fontName: String
+  private let uiFontName: String
   private var configuration: [String: Any] = [:]
 
-  init(frame: CGRect, id: Int64, args: Any?, messenger: FlutterBinaryMessenger, fontName: String) {
+  init(frame: CGRect, id: Int64, args: Any?, messenger: FlutterBinaryMessenger, fontName: String, uiFontName: String) {
     root = UIView(frame: frame)
     channel = FlutterMethodChannel(name: "phralio/native-control/\(id)", binaryMessenger: messenger)
     self.fontName = fontName
+    self.uiFontName = uiFontName
     super.init()
     update(args as? [String: Any] ?? [:])
     channel.setMethodCallHandler { [weak self] call, result in
@@ -90,8 +103,13 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
     root.subviews.forEach { $0.removeFromSuperview() }
     root.overrideUserInterfaceStyle = values["dark"] as? Bool == true ? .dark : .light
     let solid = values["solid"] as? Bool == true || UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled
-    let tint = UIColor(red: 0.16, green: 0.35, blue: 0.82, alpha: 1)
-    root.tintColor = root.overrideUserInterfaceStyle == .dark ? UIColor(red: 0.57, green: 0.71, blue: 1, alpha: 1) : tint
+    func color(_ key: String) -> UIColor {
+      let argb = (values[key] as? NSNumber)?.uint32Value ?? 0xFF182523
+      return UIColor(red: CGFloat((argb >> 16) & 255) / 255,
+                     green: CGFloat((argb >> 8) & 255) / 255,
+                     blue: CGFloat(argb & 255) / 255, alpha: 1)
+    }
+    root.tintColor = color("accent")
     let items = values["items"] as? [[String: Any]] ?? []
     if values["kind"] as? String == "tabs" {
       let material = UIVisualEffectView()
@@ -104,7 +122,7 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
           material.effect = UIBlurEffect(style: .systemMaterial)
         }
       } else {
-        material.backgroundColor = .secondarySystemGroupedBackground
+        material.backgroundColor = color("surface")
       }
       material.clipsToBounds = true
       material.layer.cornerRadius = 36
@@ -123,13 +141,20 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
         config.imagePlacement = .top
         config.imagePadding = 3
         config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 1, bottom: 5, trailing: 1)
-        config.baseForegroundColor = selected ? root.tintColor : .secondaryLabel
-        config.background.backgroundColor = selected ? UIColor.label.withAlphaComponent(0.07) : .clear
+        config.baseForegroundColor = selected ? root.tintColor : color("secondary")
+        config.background.backgroundColor = selected ? color("text").withAlphaComponent(0.07) : .clear
         config.background.cornerRadius = 29
         let scale = min(values["textScale"] as? Double ?? 1, 1.4)
+        let baseFont = UIFont(name: uiFontName, size: 11 * scale) ?? UIFont.systemFont(ofSize: 11 * scale, weight: .medium)
+        // The first registered descriptor can be the Thin named instance.
+        // Set the supplied variable font's real weight axis, not synthetic bold.
+        let descriptor = baseFont.fontDescriptor.addingAttributes([
+          UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [NSNumber(value: 0x77676874): NSNumber(value: 500)]
+        ])
+        let uiFont = UIFont(descriptor: descriptor, size: 11 * scale)
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
           var result = attributes
-          result.font = UIFont.systemFont(ofSize: 11 * scale, weight: selected ? .semibold : .medium)
+          result.font = uiFont
           return result
         }
         button.configuration = config
@@ -147,7 +172,7 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
         config = .glass()
       } else {
         config = .filled()
-        config.baseBackgroundColor = .secondarySystemGroupedBackground
+        config.baseBackgroundColor = color("surface")
       }
       config.cornerStyle = .capsule
       config.image = icon(values["icon"])

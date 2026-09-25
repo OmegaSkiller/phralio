@@ -82,6 +82,16 @@ void main() {
     );
     expect((await store.document(saved.id)).tokens[saved.position].text, focal);
     expect(find.bySemanticsLabel('Play reading'), findsOneWidget);
+    // Resume the reopened document, pause again and verify the persisted
+    // checkpoint advances rather than restarting at the beginning.
+    await tester.tap(find.bySemanticsLabel('Play reading'));
+    await tester.pump(const Duration(milliseconds: 650));
+    await tester.tap(find.byKey(const ValueKey('immersive-reader')));
+    await tester.pumpAndSettle();
+    expect(
+      (await store.document(saved.id)).position,
+      greaterThan(saved.position),
+    );
     await chooseMenu(tester, 'Reading actions', 'Reader settings');
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Open-source licenses'), 160);

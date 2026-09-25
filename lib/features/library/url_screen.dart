@@ -88,32 +88,16 @@ class _UrlScreenState extends ConsumerState<UrlScreen> {
       children: [
         Text(context.l10n.urlHint),
         const SizedBox(height: 16),
-        isApple(context)
-            ? CupertinoTextField(
-                controller: _controller,
-                placeholder: context.l10n.urlPlaceholder,
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: ReaderColors.of(context).surface,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              )
-            : TextField(
-                controller: _controller,
-                keyboardType: TextInputType.url,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  labelText: context.l10n.pageUrl,
-                  filled: true,
-                  fillColor: ReaderColors.of(context).surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
+        Semantics(
+          label: context.l10n.pageUrl,
+          child: ReaderTextField(
+            controller: _controller,
+            hint: context.l10n.urlPlaceholder,
+            label: context.l10n.pageUrl,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+          ),
+        ),
         const SizedBox(height: 16),
         Text(
           context.l10n.urlPrivacy,
