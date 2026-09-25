@@ -51,6 +51,7 @@ enum UsageEvent {
   readingSeeked('reading_seeked'),
   readingSpeedChanged('reading_speed_changed'),
   appearanceChanged('appearance_changed'),
+  languageChanged('language_changed'),
   transparencyChanged('transparency_changed'),
   smartPausesChanged('smart_pauses_changed'),
   focalHighlightChanged('focal_highlight_changed'),

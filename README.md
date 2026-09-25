@@ -35,7 +35,13 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
   Unicode characters; adjust type size or turn highlighting off.
 - Restore document position and settings from local SQLite. Reopening starts paused.
 - Choose System, Light or Dark appearance, saved across restarts.
-- Lucide icons and restrained glass controls; reduce transparency for solid surfaces.
+- Follow the device language or choose English, Russian, Spanish, Portuguese,
+  Simplified Chinese, Japanese, Polish, German, French or Italian in Settings.
+  The choice is saved on this device.
+- Lucide icons, native UIKit Liquid Glass controls and menus on iOS 26+, with
+  accessible older-iOS and Android fallbacks. Reduce transparency for solid surfaces.
+- A calm continuation card, floating navigation, grouped settings and focused
+  preference sheets. [DESIGN.md](DESIGN.md) defines the redesign rules.
 
 No account or content upload. Imported text and images stay on the device; OS backup behavior
 still applies. Optional Umami usage statistics are off by default and only
@@ -101,6 +107,8 @@ Pure Dart tokenization, settings and a monotonic playback engine live in `core`.
 Feature folders own library storage, reader UI and premium contracts. Riverpod
 injects the SQLite store and capabilities. Narrow stream listeners update the
 word and progress surfaces. [Architecture and invariants](docs/development/architecture.md).
+Flutter generates typed UI strings from ten ARB catalogs in `lib/l10n`;
+`flutter pub get` regenerates the ignored Dart localization files.
 
 The public app builds by itself. The private Pro repository may consume the
 public package and supply entitlement/PDF implementations through composition;

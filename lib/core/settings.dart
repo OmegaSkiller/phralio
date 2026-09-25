@@ -2,12 +2,15 @@ enum Appearance { system, light, dark }
 
 enum SmartPauses { off, normal, strong }
 
+enum AppLanguage { system, en, ru, es, pt, zh, ja, pl, de, fr, it }
+
 class ReaderSettings {
   ReaderSettings({
     int wpm = 300,
     this.pauses = SmartPauses.normal,
     this.highlight = true,
     this.appearance = Appearance.system,
+    this.language = AppLanguage.system,
     this.reduceTransparency = false,
     this.shareUsage = false,
     int imageSeconds = 5,
@@ -19,6 +22,7 @@ class ReaderSettings {
   final SmartPauses pauses;
   final bool highlight;
   final Appearance appearance;
+  final AppLanguage language;
   final bool reduceTransparency;
   final bool shareUsage;
   final int imageSeconds;
@@ -28,6 +32,7 @@ class ReaderSettings {
     SmartPauses? pauses,
     bool? highlight,
     Appearance? appearance,
+    AppLanguage? language,
     bool? reduceTransparency,
     bool? shareUsage,
     int? imageSeconds,
@@ -37,6 +42,7 @@ class ReaderSettings {
     pauses: pauses ?? this.pauses,
     highlight: highlight ?? this.highlight,
     appearance: appearance ?? this.appearance,
+    language: language ?? this.language,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
     shareUsage: shareUsage ?? this.shareUsage,
     imageSeconds: imageSeconds ?? this.imageSeconds,
@@ -47,6 +53,7 @@ class ReaderSettings {
     'pauses': pauses.name,
     'highlight': highlight,
     'appearance': appearance.name,
+    'language': language.name,
     'reduceTransparency': reduceTransparency,
     'shareUsage': shareUsage,
     'imageSeconds': imageSeconds,
@@ -56,6 +63,10 @@ class ReaderSettings {
     appearance: Appearance.values.firstWhere(
       (v) => v.name == json['appearance'],
       orElse: () => Appearance.system,
+    ),
+    language: AppLanguage.values.firstWhere(
+      (v) => v.name == json['language'],
+      orElse: () => AppLanguage.system,
     ),
     reduceTransparency: json['reduceTransparency'] == true,
     shareUsage: json['shareUsage'] == true,

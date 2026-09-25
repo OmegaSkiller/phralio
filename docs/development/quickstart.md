@@ -104,17 +104,20 @@ for commands while the app runs. Start with one platform at a time.
 
 ## 5. Try the app manually
 
-1. On **Home**, tap **Try a short reading**, then open **A little more room**.
+1. On **Home**, tap **Try a short reading** to open the sample.
 2. Tap the reading surface to play with controls hidden. Tap again to pause,
    then swipe the word wheel to move one word at a time. The current word stays
    highlighted.
-3. Adjust WPM, use the sentence / ten-word controls, and scroll to the progress
-   slider if needed. Bookmark the current word and find it under **Saved**.
+3. Tap the speed label to adjust WPM. The **…** reader menu holds sentence jumps,
+   bookmarks, contents and reader settings. Ten-word controls and the progress
+   slider remain directly available. Find your bookmarks under **Saved**.
 4. Return to **Home** and reopen the reading. It should resume at its saved word,
    paused. Quit and relaunch to check the same behavior across launches.
-5. Open **Settings** and change smart pauses, focal highlighting, type size,
-   image viewing time and appearance. Check light/dark and larger system text.
-6. Use **Add text** to save your own passage. Empty text should show an error.
+5. Open **Settings** and change language, smart pauses, focal highlighting,
+   type size, image viewing time and appearance. Check light/dark and larger
+   system text.
+6. Open **Home → +** for file, URL, clipboard and text imports. Use **Add text**
+   to save your own passage. Empty text should show an error.
 
 WPM is a pacing setting, not a comprehension score. Emulator data stays local;
 uninstalling the app or erasing a simulator removes its local library.
@@ -129,7 +132,7 @@ flutter test
 ```
 
 `analyze` checks source-code problems. `test` runs the unit/widget suite; it does
-not need a running emulator. The current baseline is 44 passing tests. The suite
+not need a running emulator. The current baseline is 50 passing tests. The suite
 checks timing, imports, URL extraction, bookmarks, SQLite persistence, focal
 alignment and UI/accessibility.
 
@@ -228,6 +231,27 @@ It selects a synthetic Markdown file through a test picker, then exercises real
 parsing, SQLite storage, contents, bookmarks, Saved navigation and clipboard.
 The URL fetch parser uses a mock HTTP client in unit tests; live URL behavior
 depends on the site and is a separate manual check.
+
+## Try the ten interface languages
+
+Open **Settings → Language**. Leave **Device language** selected to follow the
+phone, or choose English, Русский, Español, Português, 简体中文, 日本語, Polski,
+Deutsch, Français or Italiano. The navigation and controls change immediately.
+Close and reopen the app to check that your choice remains selected. To test
+device-language matching, choose **Device language**, change the simulator's
+language in its system settings, then relaunch Phralio.
+
+The native automated flow tests Russian, switches to Spanish, and checks that
+Spanish remains selected after reopening the local database:
+
+```sh
+flutter test integration_test/localization_flow_test.dart -d <device-id>
+```
+
+Translations cover app controls and messages. Imported books and webpages stay
+in their original language; the app does not translate their content. The
+reader's whitespace-based tokenization does not yet segment unspaced Chinese
+or Japanese text into words.
 
 ## Test optional usage statistics
 

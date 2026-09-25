@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/design.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
+import '../../l10n/l10n.dart';
 
 /// Native navigation on both platforms; LicenseRegistry includes bundled notices.
 class LicensesScreen extends ConsumerStatefulWidget {
@@ -23,15 +24,15 @@ class _LicensesScreenState extends ConsumerState<LicensesScreen> {
 
   @override
   Widget build(BuildContext context) => PlatformPage(
-    title: 'Open-source licenses',
+    title: context.l10n.licenses,
     child: FutureBuilder<List<LicenseEntry>>(
       future: entries,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Center(child: Text('Licenses could not be loaded.'));
+          return Center(child: Text(context.l10n.licensesLoadFailed));
         }
         if (!snapshot.hasData) {
-          return const Center(child: Text('Loading licenses…'));
+          return Center(child: Text(context.l10n.licensesLoading));
         }
         return ListView.builder(
           padding: const EdgeInsets.all(24),

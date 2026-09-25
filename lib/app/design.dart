@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'providers.dart';
+import 'native_controls.dart';
+import '../l10n/l10n.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,30 +50,30 @@ class ReaderColors {
   Color get focal => accent;
   Color get interactive => accent;
   static const light = ReaderColors(
-    background: Color(0xFFF5F8F8),
+    background: Color(0xFFF4F5F7),
     surface: Color(0xFFFFFFFF),
-    elevated: Color(0xFFE8F0EF),
-    text: Color(0xFF152B2B),
-    secondary: Color(0xFF47615F),
-    subtle: Color(0xFF59716F),
-    accent: Color(0xFF006A60),
+    elevated: Color(0xFFE9ECF3),
+    text: Color(0xFF1B1D24),
+    secondary: Color(0xFF626773),
+    subtle: Color(0xFF646A76),
+    accent: Color(0xFF2959D1),
     onAccent: Color(0xFFFFFFFF),
-    separator: Color(0xFFCADAD7),
+    separator: Color(0xFFE1E3E9),
     disabled: Color(0xFF92A5A1),
     positive: Color(0xFF236733),
     warning: Color(0xFF795700),
     destructive: Color(0xFFB32636),
   );
   static const dark = ReaderColors(
-    background: Color(0xFF101D1D),
-    surface: Color(0xFF172828),
-    elevated: Color(0xFF223737),
-    text: Color(0xFFE6F0ED),
-    secondary: Color(0xFFB2C8C2),
-    subtle: Color(0xFF98B2AC),
-    accent: Color(0xFF71DCC4),
-    onAccent: Color(0xFF101D1D),
-    separator: Color(0xFF34504A),
+    background: Color(0xFF101115),
+    surface: Color(0xFF1D1F25),
+    elevated: Color(0xFF292D36),
+    text: Color(0xFFF1F2F7),
+    secondary: Color(0xFFB7BCC9),
+    subtle: Color(0xFF999FAF),
+    accent: Color(0xFF91B6FF),
+    onAccent: Color(0xFF101115),
+    separator: Color(0xFF323640),
     disabled: Color(0xFF607A72),
     positive: Color(0xFF9AD29A),
     warning: Color(0xFFE6C675),
@@ -90,61 +92,66 @@ bool isApple(BuildContext context) =>
     Theme.of(context).platform == TargetPlatform.iOS ||
     Theme.of(context).platform == TargetPlatform.macOS;
 
-/// Navigation remains owned by the platform. Brand treatments stay in content.
-class PlatformPage extends ConsumerWidget {
+/// A quiet header; navigation controls float above an opaque content canvas.
+class PlatformPage extends StatelessWidget {
   const PlatformPage({
     super.key,
     required this.title,
     required this.child,
     this.trailing,
+    this.largeTitle,
   });
   final String title;
   final Widget child;
   final Widget? trailing;
+  final bool? largeTitle;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
-    final solid =
-        ref.watch(settingsProvider).reduceTransparency ||
-        MediaQuery.highContrastOf(context);
-    final back = Navigator.canPop(context)
-        ? IconAction(
-            label: 'Back',
-            icon: LucideIcons.arrowLeft,
-            onPressed: () => Navigator.maybePop(context),
-          )
-        : null;
-    if (isApple(context)) {
-      return CupertinoPageScaffold(
-        backgroundColor: colors.background,
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(title),
-          automaticallyImplyLeading: false,
-          leading: back,
-          trailing: trailing,
-          backgroundColor: solid
-              ? colors.surface
-              : colors.surface.withValues(alpha: .88),
-          enableBackgroundFilterBlur: !solid,
-          border: Border(
-            bottom: BorderSide(color: colors.separator.withValues(alpha: .5)),
+    final canPop = Navigator.canPop(context);
+    final large = largeTitle ?? !canPop;
+    final content = SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(large ? 24 : 14, 12, 20, 12),
+            child: Row(
+              children: [
+                if (canPop) ...[
+                  IconAction(
+                    label: context.l10n.back,
+                    icon: LucideIcons.chevronLeft,
+                    onPressed: () => Navigator.maybePop(context),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: large ? 34 : 20,
+                      letterSpacing: large ? -1 : -.3,
+                      fontWeight: FontWeight.w700,
+                      color: colors.text,
+                    ),
+                  ),
+                ),
+                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(child: child),
-      );
-    }
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        title: Text(title),
-        automaticallyImplyLeading: false,
-        leading: back,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: const GlassSurface(radius: 0, child: SizedBox.expand()),
-        actions: [?trailing],
+          Expanded(child: child),
+        ],
       ),
-      body: SafeArea(child: child),
     );
+    return isApple(context)
+        ? CupertinoPageScaffold(
+            backgroundColor: colors.background,
+            child: content,
+          )
+        : Scaffold(backgroundColor: colors.background, body: content);
   }
 }
 
@@ -184,7 +191,11 @@ class ActionButton extends StatelessWidget {
     Widget button;
     if (isApple(context)) {
       button = primary
-          ? CupertinoButton.filled(onPressed: onPressed, child: content)
+          ? CupertinoButton.filled(
+              borderRadius: BorderRadius.circular(30),
+              onPressed: onPressed,
+              child: content,
+            )
           : CupertinoButton(onPressed: onPressed, child: content);
     } else {
       button = primary
@@ -206,7 +217,7 @@ class ActionButton extends StatelessWidget {
   }
 }
 
-class IconAction extends StatelessWidget {
+class IconAction extends ConsumerWidget {
   const IconAction({
     super.key,
     required this.label,
@@ -219,28 +230,366 @@ class IconAction extends StatelessWidget {
   final bool? selected;
   final VoidCallback? onPressed;
   @override
-  Widget build(BuildContext context) => Semantics(
-    label: label,
-    selected: selected,
-    button: true,
-    enabled: onPressed != null,
-    onTap: onPressed,
-    child: ExcludeSemantics(
-      child: SizedBox(
-        width: Measures.target,
-        height: Measures.target,
-        child: isApple(context)
-            ? CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: onPressed,
-                child: Icon(icon),
-              )
-            : IconButton(
-                tooltip: label,
-                onPressed: onPressed,
-                icon: Icon(icon),
-              ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (NativeControl.available) {
+      return SizedBox(
+        width: 48,
+        height: 48,
+        child: NativeControl(
+          configuration: nativeStyle(context, ref)
+            ..addAll({
+              'kind': 'button',
+              'label': label,
+              'icon': icon.codePoint,
+              'enabled': onPressed != null,
+              'selected': selected == true,
+            }),
+          onSelect: (_) => onPressed?.call(),
+        ),
+      );
+    }
+    return Semantics(
+      label: label,
+      selected: selected,
+      button: true,
+      enabled: onPressed != null,
+      onTap: onPressed,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: isApple(context)
+              ? CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: onPressed,
+                  child: Icon(icon),
+                )
+              : IconButton(
+                  tooltip: label,
+                  onPressed: onPressed,
+                  icon: Icon(icon),
+                ),
+        ),
       ),
+    );
+  }
+}
+
+Map<String, Object?> nativeStyle(BuildContext context, WidgetRef ref) => {
+  'dark': ReaderColors.of(context) == ReaderColors.dark,
+  'solid':
+      ref.watch(settingsProvider.select((s) => s.reduceTransparency)) ||
+      MediaQuery.highContrastOf(context),
+  'textScale': MediaQuery.textScalerOf(context).scale(14) / 14,
+};
+
+class MenuChoice {
+  const MenuChoice(
+    this.label,
+    this.icon,
+    this.onSelected, {
+    this.selected = false,
+  });
+  final String label;
+  final IconData icon;
+  final VoidCallback onSelected;
+  final bool selected;
+}
+
+class ActionMenu extends ConsumerWidget {
+  const ActionMenu({
+    super.key,
+    required this.label,
+    required this.choices,
+    this.icon = LucideIcons.ellipsis,
+    this.enabled = true,
+  });
+  final String label;
+  final IconData icon;
+  final bool enabled;
+  final List<MenuChoice> choices;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (NativeControl.available) {
+      return SizedBox(
+        width: 48,
+        height: 48,
+        child: NativeControl(
+          configuration: nativeStyle(context, ref)
+            ..addAll({
+              'kind': 'menu',
+              'label': label,
+              'icon': icon.codePoint,
+              'enabled': enabled,
+              'items': [
+                for (var i = 0; i < choices.length; i++)
+                  {
+                    'id': '$i',
+                    'label': choices[i].label,
+                    'icon': choices[i].icon.codePoint,
+                    'selected': choices[i].selected,
+                  },
+              ],
+            }),
+          onSelect: (id) {
+            final index = int.tryParse(id);
+            if (enabled &&
+                index != null &&
+                index >= 0 &&
+                index < choices.length) {
+              choices[index].onSelected();
+            }
+          },
+        ),
+      );
+    }
+    return IconAction(
+      label: label,
+      icon: icon,
+      onPressed: enabled
+          ? () => showReaderSheet(
+              context,
+              label,
+              (sheetContext) => GroupedRows(
+                children: [
+                  for (final choice in choices)
+                    SettingRow(
+                      title: choice.label,
+                      selected: choice.selected,
+                      icon: choice.icon,
+                      trailing: choice.selected
+                          ? const Icon(LucideIcons.check, size: 20)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        choice.onSelected();
+                      },
+                    ),
+                ],
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+class GroupedRows extends StatelessWidget {
+  const GroupedRows({
+    super.key,
+    required this.children,
+    this.separatorInset = 56,
+  });
+  final List<Widget> children;
+  final double separatorInset;
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(24),
+    child: ColoredBox(
+      color: ReaderColors.of(context).surface,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              Padding(
+                padding: EdgeInsets.only(left: separatorInset),
+                child: Container(
+                  height: .5,
+                  color: ReaderColors.of(context).separator,
+                ),
+              ),
+            children[i],
+          ],
+        ],
+      ),
+    ),
+  );
+}
+
+class SettingRow extends StatelessWidget {
+  const SettingRow({
+    super.key,
+    required this.title,
+    required this.icon,
+    this.subtitle,
+    this.value,
+    this.trailing,
+    this.onTap,
+    this.selected,
+  });
+  final String title;
+  final IconData? icon;
+  final String? subtitle, value;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final bool? selected;
+  @override
+  Widget build(BuildContext context) {
+    final colors = ReaderColors.of(context);
+    final inlineValue =
+        value != null &&
+        MediaQuery.sizeOf(context).width >= 360 &&
+        MediaQuery.textScalerOf(context).scale(16) <= 21;
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 22, color: colors.secondary),
+            const SizedBox(width: 14),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(fontSize: 16, color: colors.text)),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    subtitle!,
+                    style: TextStyle(fontSize: 13, color: colors.secondary),
+                  ),
+                ],
+                if (value != null && !inlineValue) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    value!,
+                    style: TextStyle(fontSize: 14, color: colors.secondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (inlineValue) ...[
+            const SizedBox(width: 12),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * .4,
+              ),
+              child: Text(
+                value!,
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, color: colors.secondary),
+              ),
+            ),
+          ],
+          if (trailing != null) ...[
+            const SizedBox(width: 12),
+            trailing!,
+          ] else if (onTap != null) ...[
+            const SizedBox(width: 12),
+            Icon(LucideIcons.chevronRight, color: colors.subtle, size: 17),
+          ],
+        ],
+      ),
+    );
+    return onTap == null
+        ? content
+        : Semantics(
+            selected: selected,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: onTap,
+              child: content,
+            ),
+          );
+  }
+}
+
+class SectionLabel extends StatelessWidget {
+  const SectionLabel(this.title, {super.key});
+  final String title;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 28, 4, 12),
+    child: Text(
+      title,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -.3,
+        color: ReaderColors.of(context).text,
+      ),
+    ),
+  );
+}
+
+Future<T?> showReaderSheet<T>(
+  BuildContext context,
+  String title,
+  WidgetBuilder builder,
+) {
+  Widget content(BuildContext sheetContext, ScrollController? controller) {
+    final colors = ReaderColors.of(sheetContext);
+    return ColoredBox(
+      color: colors.background,
+      child: SafeArea(
+        top: false,
+        child: DefaultTextStyle(
+          style: TextStyle(fontSize: 17, color: colors.text),
+          child: SingleChildScrollView(
+            controller: controller,
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: colors.separator,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    IconAction(
+                      label: sheetContext.l10n.close,
+                      icon: LucideIcons.x,
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                builder(sheetContext),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  if (isApple(context)) {
+    return showCupertinoSheet<T>(
+      context: context,
+      topGap: .14,
+      scrollableBuilder: (context, controller) => content(context, controller),
+    );
+  }
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: true,
+    clipBehavior: Clip.antiAlias,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    ),
+    builder: (context) => ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * .85,
+      ),
+      child: content(context, null),
     ),
   );
 }
@@ -250,12 +599,12 @@ Future<void> showProblem(BuildContext context, String message) async {
     await showCupertinoDialog<void>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Could not finish'),
+        title: Text(context.l10n.couldNotFinish),
         content: Text(message),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(context.l10n.okay),
           ),
         ],
       ),
@@ -264,12 +613,12 @@ Future<void> showProblem(BuildContext context, String message) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Could not finish'),
+        title: Text(context.l10n.couldNotFinish),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(context.l10n.okay),
           ),
         ],
       ),

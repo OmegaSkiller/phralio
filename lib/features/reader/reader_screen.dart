@@ -17,6 +17,7 @@ import '../library/library_store.dart';
 import 'focal_word.dart';
 import 'contents_screen.dart';
 import 'settings_screen.dart';
+import '../../l10n/l10n.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
   const ReaderScreen({
@@ -186,7 +187,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             _bookmarks.remove(position);
           }
         });
-        showProblem(context, 'Bookmark could not be saved. Please try again.');
+        showProblem(context, context.l10n.bookmarkSaveFailed);
       }
     }
   }
@@ -209,7 +210,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   Widget _wordOrImage(BuildContext context) {
     final token = _engine.current;
     if (token == null) {
-      return const Center(child: Text('A good place to pause.'));
+      return Center(child: Text(context.l10n.goodPlaceToPause));
     }
     if (!token.isImage) {
       return FocalWord(
@@ -230,21 +231,23 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         bytes,
         fit: BoxFit.contain,
         height: 260,
-        errorBuilder: (_, _, _) => const Text('Image unavailable'),
+        errorBuilder: (_, _, _) => Text(context.l10n.imageUnavailable),
       );
     }
     return Center(
       child: Text(
-        image?.alt.isNotEmpty == true ? image!.alt : 'Image unavailable',
+        image?.alt.isNotEmpty == true
+            ? image!.alt
+            : context.l10n.imageUnavailable,
       ),
     );
   }
 
-  Widget _pausedWords(BuildContext context) {
+  Widget _pausedWords(BuildContext context, {double height = 260}) {
     if (_engine.tokens.isEmpty) return const SizedBox.shrink();
     final colors = ReaderColors.of(context);
     return SizedBox(
-      height: 260,
+      height: height,
       child: NotificationListener<ScrollEndNotification>(
         onNotification: (_) {
           _scrolling = false;
@@ -267,7 +270,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               final current = index == _engine.position;
               return Center(
                 child: Text(
-                  token.isImage ? 'Image' : token.text,
+                  token.isImage ? context.l10n.image : token.text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -314,6 +317,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     _seeking = true;
     _engine.sentence(direction);
     _seeking = false;
+    _alignPausedWords();
+    setState(() {});
     if (_engine.position != position) {
       ref
           .read(usageAnalyticsProvider)
@@ -329,10 +334,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
           .record(UsageEvent.readingSpeedChanged, screen: UsageScreen.reader);
     } catch (_) {
       if (mounted) {
-        showProblem(
-          context,
-          'This pace works for this session, but could not be saved.',
-        );
+        showProblem(context, context.l10n.paceSaveFailed);
       }
     }
   }
@@ -374,26 +376,34 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         }
       },
       child: PlatformPage(
-        title: 'Read',
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconAction(
-              label: _bookmarks.contains(_engine.position)
-                  ? 'Remove bookmark'
-                  : 'Bookmark this word',
-              icon: LucideIcons.bookmark,
-              onPressed: _toggleBookmark,
+        title: context.l10n.read,
+        largeTitle: false,
+        trailing: ActionMenu(
+          label: context.l10n.readingActions,
+          choices: [
+            MenuChoice(
+              _bookmarks.contains(_engine.position)
+                  ? context.l10n.removeBookmark
+                  : context.l10n.bookmarkThisWord,
+              LucideIcons.bookmark,
+              _toggleBookmark,
+              selected: _bookmarks.contains(_engine.position),
             ),
-            IconAction(
-              label: 'Contents',
-              icon: LucideIcons.list,
-              onPressed: _contents,
+            MenuChoice(context.l10n.contents, LucideIcons.list, _contents),
+            MenuChoice(
+              context.l10n.previousSentence,
+              LucideIcons.skipBack,
+              () => _sentence(-1),
             ),
-            IconAction(
-              label: 'Reader settings',
-              icon: LucideIcons.slidersHorizontal,
-              onPressed: () async {
+            MenuChoice(
+              context.l10n.nextSentence,
+              LucideIcons.skipForward,
+              () => _sentence(1),
+            ),
+            MenuChoice(
+              context.l10n.readerSettings,
+              LucideIcons.slidersHorizontal,
+              () async {
                 _engine.pause();
                 await _save();
                 if (context.mounted) {
@@ -406,213 +416,65 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             ),
           ],
         ),
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.document.title,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: _playing ? colors.secondary : colors.text,
-                    ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bottom =
+                MediaQuery.paddingOf(context).bottom +
+                (widget.onImmersiveChanged != null ? 100 : 24);
+            final wordHeight = (constraints.maxHeight - 360 - bottom).clamp(
+              170.0,
+              320.0,
+            );
+            return ListView(
+              padding: EdgeInsets.fromLTRB(24, 12, 24, bottom),
+              children: [
+                Text(
+                  widget.document.title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -.6,
+                    color: colors.text,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _playing
-                        ? 'Follow the fixed point.'
-                        : 'Tap to read · Swipe to move one word at a time.',
-                    style: TextStyle(fontSize: 14, color: colors.secondary),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _engine.completed
+                      ? context.l10n.finishedRestart
+                      : context.l10n.positionOfWords(
+                          _engine.position + 1,
+                          _engine.tokens.length,
+                        ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: colors.secondary),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _toggle,
+                  child: Column(
+                    children: [
+                      _pausedWords(context, height: wordHeight),
+                      if (_engine.current?.isImage == true)
+                        SizedBox(height: 200, child: _wordOrImage(context)),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 26),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _toggle,
-              child: Column(
-                children: [
-                  _pausedWords(context),
-                  if (_engine.current?.isImage == true)
-                    SizedBox(height: 220, child: _wordOrImage(context)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  GlassSurface(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconAction(
-                            label: 'Previous sentence',
-                            icon: LucideIcons.skipBack,
-                            onPressed: () => _sentence(-1),
-                          ),
-                          IconAction(
-                            label: 'Back ten words',
-                            icon: LucideIcons.rotateCcw,
-                            onPressed: () => _seek(_engine.position - 10),
-                          ),
-                          Semantics(
-                            button: true,
-                            label: _playing ? 'Pause reading' : 'Play reading',
-                            onTap: _toggle,
-                            child: ExcludeSemantics(
-                              child: SizedBox(
-                                width: 72,
-                                height: 64,
-                                child: isApple(context)
-                                    ? CupertinoButton.filled(
-                                        padding: EdgeInsets.zero,
-                                        onPressed: _toggle,
-                                        child: Icon(
-                                          _playing
-                                              ? LucideIcons.pause
-                                              : LucideIcons.play,
-                                          size: 28,
-                                        ),
-                                      )
-                                    : FilledButton(
-                                        onPressed: _toggle,
-                                        child: Icon(
-                                          _playing
-                                              ? LucideIcons.pause
-                                              : LucideIcons.play,
-                                          size: 28,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                          IconAction(
-                            label: 'Forward ten words',
-                            icon: LucideIcons.rotateCw,
-                            onPressed: () => _seek(_engine.position + 10),
-                          ),
-                          IconAction(
-                            label: 'Next sentence',
-                            icon: LucideIcons.skipForward,
-                            onPressed: () => _sentence(1),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    '${_engine.settings.wpm}',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w600,
-                      color: colors.text,
-                    ),
-                  ),
-                  Text(
-                    'words per minute',
-                    style: TextStyle(fontSize: 13, color: colors.secondary),
-                  ),
-                  const SizedBox(height: 8),
-                  Semantics(
-                    label: 'Reading speed',
-                    value: '${_engine.settings.wpm} words per minute',
-                    child: isApple(context)
-                        ? SizedBox(
-                            width: double.infinity,
-                            child: CupertinoSlider(
-                              value: _engine.settings.wpm.toDouble(),
-                              min: 100,
-                              max: 1500,
-                              divisions: 140,
-                              onChanged: (v) => setState(
-                                () => _engine.configure(
-                                  _engine.settings.copyWith(wpm: v.round()),
-                                ),
-                              ),
-                              onChangeEnd: (_) =>
-                                  _persistSettings(_engine.settings),
-                            ),
-                          )
-                        : Slider(
-                            value: _engine.settings.wpm.toDouble(),
-                            min: 100,
-                            max: 1500,
-                            divisions: 140,
-                            semanticFormatterCallback: (v) =>
-                                '${v.round()} words per minute',
-                            onChanged: (v) => setState(
-                              () => _engine.configure(
-                                _engine.settings.copyWith(wpm: v.round()),
-                              ),
-                            ),
-                            onChangeEnd: (_) =>
-                                _persistSettings(_engine.settings),
-                          ),
-                  ),
-                  const SizedBox(height: 18),
-                  StreamBuilder<void>(
-                    stream: _engine.changes,
-                    builder: (context, _) {
-                      final seconds =
-                          (_engine.remainingTime.inMilliseconds / 1000).ceil();
-                      return Column(
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              spacing: 16,
-                              runSpacing: 8,
-                              children: [
-                                Text(
-                                  '${_engine.completed ? 100 : (_engine.progress * 100).floor()}% read',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: colors.secondary,
-                                  ),
-                                ),
-                                Text(
-                                  seconds == 0
-                                      ? 'Complete'
-                                      : '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')} remaining',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: colors.secondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Semantics(
-                            label: 'Reading position',
-                            child: isApple(context)
-                                ? SizedBox(
-                                    width: double.infinity,
-                                    child: CupertinoSlider(
-                                      value: _engine.progress,
-                                      onChanged: (v) => _scrub(
-                                        (v * _engine.tokens.length).round(),
-                                      ),
-                                      onChangeEnd: (_) => ref
-                                          .read(usageAnalyticsProvider)
-                                          .record(
-                                            UsageEvent.readingSeeked,
-                                            screen: UsageScreen.reader,
-                                          ),
-                                    ),
-                                  )
-                                : Slider(
+                ),
+                const SizedBox(height: 16),
+                StreamBuilder<void>(
+                  stream: _engine.changes,
+                  builder: (context, _) {
+                    final seconds =
+                        (_engine.remainingTime.inMilliseconds / 1000).ceil();
+                    return Column(
+                      children: [
+                        Semantics(
+                          label: context.l10n.readingPosition,
+                          child: isApple(context)
+                              ? SizedBox(
+                                  width: double.infinity,
+                                  child: CupertinoSlider(
                                     value: _engine.progress,
                                     onChanged: (v) => _scrub(
                                       (v * _engine.tokens.length).round(),
@@ -624,26 +486,162 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                                           screen: UsageScreen.reader,
                                         ),
                                   ),
-                          ),
-                          Text(
-                            _engine.completed
-                                ? 'Finished. Play again to return to the beginning.'
-                                : '${_engine.position + 1} of ${_engine.tokens.length} words',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.subtle,
+                                )
+                              : Slider(
+                                  value: _engine.progress,
+                                  onChanged: (v) => _scrub(
+                                    (v * _engine.tokens.length).round(),
+                                  ),
+                                  onChangeEnd: (_) => ref
+                                      .read(usageAnalyticsProvider)
+                                      .record(
+                                        UsageEvent.readingSeeked,
+                                        screen: UsageScreen.reader,
+                                      ),
+                                ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                context.l10n.percentRead(
+                                  _engine.completed
+                                      ? 100
+                                      : (_engine.progress * 100).floor(),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: colors.secondary,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                seconds == 0
+                                    ? context.l10n.complete
+                                    : context.l10n.timeRemaining(
+                                        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}',
+                                      ),
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: colors.secondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 28),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconAction(
+                      label: context.l10n.backTenWords,
+                      icon: LucideIcons.rotateCcw,
+                      onPressed: () => _seek(_engine.position - 10),
+                    ),
+                    const SizedBox(width: 32),
+                    Semantics(
+                      button: true,
+                      label: context.l10n.playReading,
+                      onTap: _toggle,
+                      child: ExcludeSemantics(
+                        child: SizedBox(
+                          width: 76,
+                          height: 76,
+                          child: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            color: colors.accent,
+                            borderRadius: BorderRadius.circular(38),
+                            onPressed: _toggle,
+                            child: Icon(
+                              LucideIcons.play,
+                              color: colors.onAccent,
+                              size: 30,
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                  if (_saveFailed)
-                    ActionButton(
-                      label: 'Place not saved · Retry',
-                      onPressed: () => _save(),
+                        ),
+                      ),
                     ),
-                ],
+                    const SizedBox(width: 32),
+                    IconAction(
+                      label: context.l10n.forwardTenWords,
+                      icon: LucideIcons.rotateCw,
+                      onPressed: () => _seek(_engine.position + 10),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Center(
+                  child: ActionButton(
+                    label: context.l10n.speedValue(_engine.settings.wpm),
+                    icon: LucideIcons.gauge,
+                    onPressed: _speedSheet,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  context.l10n.tapToReadHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: colors.subtle),
+                ),
+                if (_saveFailed)
+                  ActionButton(
+                    label: context.l10n.placeNotSaved,
+                    onPressed: () => _save(),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _speedSheet() {
+    showReaderSheet(
+      context,
+      context.l10n.readingSpeed,
+      (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Column(
+          children: [
+            Text(
+              '${_engine.settings.wpm}',
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w600),
+            ),
+            Text(context.l10n.wordsPerMinute),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: Semantics(
+                label: context.l10n.readingSpeed,
+                child: CupertinoSlider(
+                  value: _engine.settings.wpm.toDouble(),
+                  min: 100,
+                  max: 1500,
+                  divisions: 140,
+                  onChanged: (v) {
+                    _engine.configure(
+                      _engine.settings.copyWith(wpm: v.round()),
+                    );
+                    setSheetState(() {});
+                    setState(() {});
+                  },
+                  onChangeEnd: (_) => _persistSettings(_engine.settings),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              context.l10n.comfortablePace,
+              style: TextStyle(
+                fontSize: 14,
+                color: ReaderColors.of(context).secondary,
               ),
             ),
           ],

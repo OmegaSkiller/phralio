@@ -1,3 +1,5 @@
+import 'controls.dart';
+
 import 'package:phralio/core/settings.dart';
 
 import 'dart:io';
@@ -20,7 +22,9 @@ void main() {
     final file = '${await getDatabasesPath()}/screenshots-reader.sqlite';
     await deleteDatabase(file);
     final store = await LibraryStore.open(file);
-    await store.add('A little more room', sampleText);
+    final id = await store.add('A little more room', sampleText);
+    await store.setStarred(id, true);
+    await store.toggleBookmark(id, 6);
     await store.savePosition(
       await store.document((await store.all()).single.id),
       6,
@@ -37,7 +41,7 @@ void main() {
       await tester.pump();
     }
     final platform = Platform.isIOS ? 'ios' : 'android';
-    await binding.takeScreenshot('$platform-library');
+    await binding.takeScreenshot('redesign/$platform-library');
     final container = ProviderScope.containerOf(
       tester.element(find.byType(LibraryScreen)),
     );
@@ -50,16 +54,16 @@ void main() {
       ReaderColors.dark,
     );
     await tester.pump();
-    await binding.takeScreenshot('$platform-library-dark');
+    await binding.takeScreenshot('redesign/$platform-library-dark');
     await container
         .read(settingsProvider.notifier)
         .update(ReaderSettings(appearance: Appearance.light));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('A little more room'), 160);
+    await tester.scrollUntilVisible(find.text('A little more room').last, 160);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('A little more room'));
+    await tester.tap(find.text('A little more room').last);
     await tester.pumpAndSettle();
-    await binding.takeScreenshot('$platform-reader');
+    await binding.takeScreenshot('redesign/$platform-reader');
     await container
         .read(settingsProvider.notifier)
         .update(ReaderSettings(appearance: Appearance.dark));
@@ -81,11 +85,27 @@ void main() {
       );
     }
     await tester.pump();
-    await binding.takeScreenshot('$platform-reader-dark');
-    await tester.tap(find.bySemanticsLabel('Reader settings'));
-    await tester.pumpAndSettle();
+    await binding.takeScreenshot('redesign/$platform-reader-dark');
+    await tester.tap(find.bySemanticsLabel('Play reading'));
     await tester.pump();
-    await binding.takeScreenshot('$platform-settings-dark');
+    expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
+    await binding.takeScreenshot('redesign/$platform-focus-dark');
+    await tester.tap(find.byKey(const ValueKey('immersive-reader')));
+    await tester.pumpAndSettle();
+    await tapIcon(tester, 'Back');
+    await tapTab(tester, 'Saved');
+    await binding.takeScreenshot('redesign/$platform-saved-dark');
+    await tapTab(tester, 'Settings');
+    await binding.takeScreenshot('redesign/$platform-settings-dark');
+    await container
+        .read(settingsProvider.notifier)
+        .update(ReaderSettings(appearance: Appearance.light));
+    await tester.pumpAndSettle();
+    await binding.takeScreenshot('redesign/$platform-settings-light');
+    await tester.tap(find.text('Language'));
+    await tester.pumpAndSettle();
+    await binding.takeScreenshot('redesign/$platform-language-sheet');
+    await tapIcon(tester, 'Close');
     expect(tester.takeException(), isNull);
     // Android surface restoration is registered by the binding at tearDown.
     await tester.pumpWidget(const SizedBox.shrink());

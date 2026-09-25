@@ -7,7 +7,7 @@ without replacing their copyright notices. Flutter also bundles runtime notices
 in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
-characters, path, file_selector, crypto, http and markdown (BSD-3-Clause); archive and xml (MIT);
+characters, path, file_selector, crypto, http, markdown, intl and flutter_localizations (BSD-3-Clause); archive and xml (MIT);
 html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes
@@ -52,6 +52,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `fixnum` | [License](third_party/licenses/fixnum.txt) |
 | `flutter_driver` | [License](third_party/licenses/flutter_driver.txt) |
 | `flutter_lints` | [License](third_party/licenses/flutter_lints.txt) |
+| `flutter_localizations` | [License](third_party/licenses/flutter_localizations.txt) |
 | `flutter_riverpod` | [License](third_party/licenses/flutter_riverpod.txt) |
 | `flutter_test` | [License](third_party/licenses/flutter_test.txt) |
 | `flutter_web_plugins` | [License](third_party/licenses/flutter_web_plugins.txt) |
@@ -63,6 +64,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `http_parser` | [License](third_party/licenses/http_parser.txt) |
 | `http` | [License](third_party/licenses/http.txt) |
 | `integration_test` | [License](third_party/licenses/integration_test.txt) |
+| `intl` | [License](third_party/licenses/intl.txt) |
 | `leak_tracker_flutter_testing` | [License](third_party/licenses/leak_tracker_flutter_testing.txt) |
 | `leak_tracker_testing` | [License](third_party/licenses/leak_tracker_testing.txt) |
 | `leak_tracker` | [License](third_party/licenses/leak_tracker.txt) |

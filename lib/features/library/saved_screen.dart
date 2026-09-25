@@ -6,6 +6,7 @@ import '../../app/design.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../reader/reader_screen.dart';
+import '../../l10n/l10n.dart';
 
 class SavedScreen extends ConsumerStatefulWidget {
   const SavedScreen({super.key});
@@ -40,7 +41,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
       ref.invalidate(libraryProvider);
     } catch (_) {
       if (context.mounted) {
-        showProblem(context, 'This reading could not be opened.');
+        showProblem(context, context.l10n.readingUnavailable);
       }
     }
   }
@@ -49,61 +50,73 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
   Widget build(BuildContext context) {
     final saved = ref.watch(savedProvider);
     return PlatformPage(
-      title: 'Saved',
+      title: context.l10n.saved,
       child: saved.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
         error: (_, _) => Center(
           child: ActionButton(
-            label: 'Try again',
+            label: context.l10n.tryAgain,
             onPressed: () => ref.invalidate(savedProvider),
           ),
         ),
         data: (data) => ListView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            0,
+            20,
+            MediaQuery.paddingOf(context).bottom + 110,
+          ),
           children: [
-            Text(
-              'Bookmarks',
-              style: TextStyle(
-                fontSize: 22,
-                color: ReaderColors.of(context).text,
-              ),
-            ),
-            if (data.bookmarks.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Text('Save a place from the reader to find it here.'),
-              ),
-            for (final mark in data.bookmarks)
-              ActionButton(
-                icon: LucideIcons.bookmark,
-                label:
-                    '${mark.title} · Word ${mark.position + 1} of ${mark.wordCount}',
-                onPressed: () => _open(
-                  context,
-                  ref,
-                  mark.documentId,
-                  position: mark.position,
-                ),
-              ),
-            const SizedBox(height: 28),
-            Text(
-              'Starred readings',
-              style: TextStyle(
-                fontSize: 22,
-                color: ReaderColors.of(context).text,
-              ),
-            ),
+            SectionLabel(context.l10n.starredReadings),
             if (data.starred.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: Text('Star a reading from Home to keep it here.'),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  context.l10n.starredEmpty,
+                  style: TextStyle(color: ReaderColors.of(context).secondary),
+                ),
+              )
+            else
+              GroupedRows(
+                children: [
+                  for (final book in data.starred)
+                    SettingRow(
+                      title: book.title,
+                      icon: LucideIcons.bookOpen,
+                      subtitle:
+                          '${book.format} · ${context.l10n.percentRead((book.progress * 100).floor())}',
+                      onTap: () => _open(context, ref, book.id),
+                    ),
+                ],
               ),
-            for (final book in data.starred)
-              ActionButton(
-                icon: LucideIcons.star,
-                label:
-                    '${book.title} · ${book.format} · ${(book.progress * 100).floor()}% read',
-                onPressed: () => _open(context, ref, book.id),
+            SectionLabel(context.l10n.bookmarks),
+            if (data.bookmarks.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  context.l10n.bookmarkEmpty,
+                  style: TextStyle(color: ReaderColors.of(context).secondary),
+                ),
+              )
+            else
+              GroupedRows(
+                children: [
+                  for (final mark in data.bookmarks)
+                    SettingRow(
+                      title: mark.title,
+                      icon: LucideIcons.bookmark,
+                      subtitle: context.l10n.wordOfWords(
+                        mark.position + 1,
+                        mark.wordCount,
+                      ),
+                      onTap: () => _open(
+                        context,
+                        ref,
+                        mark.documentId,
+                        position: mark.position,
+                      ),
+                    ),
+                ],
               ),
           ],
         ),

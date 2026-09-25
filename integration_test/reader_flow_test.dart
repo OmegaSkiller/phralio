@@ -1,3 +1,5 @@
+import 'controls.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,7 +35,7 @@ void main() {
     }
 
     await launch();
-    await tester.tap(find.text('Add text'));
+    await chooseMenu(tester, 'Add reading', 'Add text');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(EditableText).at(0), 'A device reading');
     await tester.enterText(
@@ -58,9 +60,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pumpAndSettle();
     expect(find.byType(ListWheelScrollView), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('Forward ten words'));
+    await tapIcon(tester, 'Forward ten words');
     await tester.pumpAndSettle();
-    await tester.tap(find.bySemanticsLabel('Back'));
+    await tapIcon(tester, 'Back');
     await tester.pumpAndSettle();
     final saved = (await store.all()).single;
     expect(saved.position, greaterThanOrEqualTo(10));
@@ -70,9 +72,9 @@ void main() {
     await store.close();
     store = await LibraryStore.open(file);
     await launch();
-    await tester.scrollUntilVisible(find.text('A device reading'), 160);
+    await tester.scrollUntilVisible(find.text('A device reading').last, 160);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('A device reading'));
+    await tester.tap(find.text('A device reading').last);
     await tester.pumpAndSettle();
     expect(
       find.text('${saved.position + 1} of ${saved.wordCount} words'),
@@ -80,7 +82,7 @@ void main() {
     );
     expect((await store.document(saved.id)).tokens[saved.position].text, focal);
     expect(find.bySemanticsLabel('Play reading'), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('Reader settings'));
+    await chooseMenu(tester, 'Reading actions', 'Reader settings');
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Open-source licenses'), 160);
     await tester.pumpAndSettle();

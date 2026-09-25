@@ -34,7 +34,7 @@ without replacing their copyright notices. Flutter also bundles runtime notices
 in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
-characters, path, file_selector, crypto, http and markdown (BSD-3-Clause); archive and xml (MIT);
+characters, path, file_selector, crypto, http, markdown, intl and flutter_localizations (BSD-3-Clause); archive and xml (MIT);
 html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes

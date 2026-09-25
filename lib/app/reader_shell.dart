@@ -10,6 +10,8 @@ import '../features/reader/reader_screen.dart';
 import '../features/reader/settings_screen.dart';
 import 'design.dart';
 import 'providers.dart';
+import 'native_controls.dart';
+import '../l10n/l10n.dart';
 
 class ReaderShell extends ConsumerStatefulWidget {
   const ReaderShell({super.key});
@@ -45,19 +47,19 @@ class _ReaderShellState extends ConsumerState<ReaderShell> {
         future: _recent,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const PlatformPage(
-              title: 'Read',
-              child: Center(child: Text('Reading could not be opened.')),
+            return PlatformPage(
+              title: context.l10n.read,
+              child: Center(child: Text(context.l10n.readingCouldNotOpen)),
             );
           }
           if (!snapshot.hasData) {
             return PlatformPage(
-              title: 'Read',
+              title: context.l10n.read,
               child: Center(
                 child: Text(
                   snapshot.connectionState == ConnectionState.done
-                      ? 'Add a reading from Home to begin.'
-                      : 'Opening your reading…',
+                      ? context.l10n.addReadingToBegin
+                      : context.l10n.openingReading,
                 ),
               ),
             );
@@ -73,50 +75,139 @@ class _ReaderShellState extends ConsumerState<ReaderShell> {
           );
         },
       ),
-      2 => const SettingsScreen(),
-      _ => const SavedScreen(),
+      2 => const SavedScreen(),
+      _ => const SettingsScreen(),
     };
-    const labels = ['Home', 'Read', 'Settings', 'Saved'];
+    final labels = [
+      context.l10n.home,
+      context.l10n.read,
+      context.l10n.saved,
+      context.l10n.settings,
+    ];
     const icons = [
       LucideIcons.house,
       LucideIcons.bookOpen,
-      LucideIcons.settings2,
       LucideIcons.bookmark,
+      LucideIcons.settings2,
     ];
-    if (isApple(context)) {
-      return CupertinoPageScaffold(
-        child: Column(
-          children: [
-            Expanded(child: page),
-            if (!_immersive)
-              CupertinoTabBar(
-                backgroundColor: ReaderColors.of(context).surface,
-                currentIndex: _selected,
-                onTap: _select,
-                items: [
+    final navigation = NativeControl.available
+        ? NativeControl(
+            configuration: nativeStyle(context, ref)
+              ..addAll({
+                'kind': 'tabs',
+                'selected': '$_selected',
+                'items': [
                   for (var i = 0; i < labels.length; i++)
-                    BottomNavigationBarItem(
-                      icon: Icon(icons[i]),
-                      label: labels[i],
+                    {
+                      'id': '$i',
+                      'label': labels[i],
+                      'icon': icons[i].codePoint,
+                    },
+                ],
+              }),
+            onSelect: (id) {
+              final index = int.tryParse(id);
+              if (index != null && index >= 0 && index < labels.length) {
+                _select(index);
+              }
+            },
+          )
+        : GlassSurface(
+            radius: 36,
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Row(
+                children: [
+                  for (var i = 0; i < labels.length; i++)
+                    Expanded(
+                      child: Semantics(
+                        selected: i == _selected,
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () => _select(i),
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: i == _selected
+                                  ? ReaderColors.of(context).accent
+                                        .withValues(alpha: .09)
+                                  : null,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  icons[i],
+                                  size: 23,
+                                  color: i == _selected
+                                      ? ReaderColors.of(context).accent
+                                      : ReaderColors.of(context).secondary,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  labels[i],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: i == _selected
+                                        ? ReaderColors.of(context).accent
+                                        : ReaderColors.of(context).secondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),
-          ],
-        ),
-      );
-    }
-    return Scaffold(
-      body: page,
-      bottomNavigationBar: _immersive
-          ? null
-          : NavigationBar(
-              selectedIndex: _selected,
-              onDestinationSelected: _select,
-              destinations: [
-                for (var i = 0; i < labels.length; i++)
-                  NavigationDestination(icon: Icon(icons[i]), label: labels[i]),
-              ],
             ),
+          );
+    final content = Stack(
+      children: [
+        Positioned.fill(child: page),
+        if (!_immersive)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: MediaQuery.paddingOf(context).bottom + 110,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      ReaderColors.of(context).background.withValues(alpha: 0),
+                      ReaderColors.of(context).background
+                          .withValues(alpha: .94),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (!_immersive)
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.paddingOf(context).bottom + 8,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 540),
+                child: SizedBox(height: 76, child: navigation),
+              ),
+            ),
+          ),
+      ],
     );
+    return isApple(context)
+        ? CupertinoPageScaffold(child: content)
+        : Scaffold(body: content);
   }
 }

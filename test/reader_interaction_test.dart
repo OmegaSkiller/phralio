@@ -6,6 +6,8 @@ import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/document.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/reader/reader_screen.dart';
+import 'package:phralio/l10n/app_localizations.dart';
+import 'package:phralio/l10n/l10n.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -25,7 +27,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [storeProvider.overrideWithValue(store!)],
-        child: MaterialApp(home: ReaderScreen(document: document!)),
+        child: MaterialApp(
+          localizationsDelegates: appLocalizationDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: ReaderScreen(document: document!),
+        ),
       ),
     );
     await tester.pumpAndSettle();

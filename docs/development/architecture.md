@@ -34,7 +34,14 @@ requires both an implementation and entitlement; free defaults deny it. OCR is
 only a contract. Private code can override providers and import the public app.
 Entitlement and parser implementations are not duplicated into arbitrary widgets.
 
-Native routes/buttons/text fields are Cupertino on Apple and Material on Android.
+Flutter routes and fields use Cupertino on Apple and Material on Android.
+`app/native_controls.dart` embeds a small UIKit platform-view bridge from
+`ios/Runner/NativeControls.swift`: native glass buttons, UIMenu actions and a
+floating glass navigation container. Lucide glyphs are rendered from the same
+bundled font used by Flutter. A per-view method channel forwards only action IDs;
+Dart retains ownership of navigation, reading state and persistence.
+Settings use grouped rows and interactive Cupertino sheets (Material sheets on
+Android). Native controls update with locale, appearance and transparency changes.
 The shared RSVP surface owns its own visual identity. No router dependency is
 needed for the current shallow navigation stack.
 
@@ -65,9 +72,18 @@ the reader owns immersive playback and paused word-by-word browsing.
 
 Appearance is persisted alongside reading settings. Semantic colors resolve from
 the active app theme, so explicit dark/light choices override the device setting.
-Glass uses clipped Flutter blur with a strong tint; high contrast or the in-app
-reduce-transparency setting removes blur. App-owned icons use Lucide. Cupertino
-and Material continue to own routes, dialogs, fields and controls.
+iOS 26+ controls use actual `UIGlassEffect` / `UIButton.Configuration.glass()`.
+Older iOS uses UIKit system materials. Android uses the Flutter glass fallback.
+Native controls observe the OS Reduce Transparency / Increase Contrast settings;
+both implementations also respect the app transparency preference and Flutter
+high-contrast setting. Glass is reserved for controls, with opaque reading and
+list surfaces. See the root DESIGN.md for the complete visual contract.
+
+Flutter's `gen-l10n` compiles ten ARB catalogs in `lib/l10n` into typed UI
+messages. The app follows the device locale by default or applies a saved
+`AppLanguage` choice from the existing preferences row; unknown stored values
+fall back to the device. iOS declares the supported languages in Info.plist.
+Source titles, headings and reading text are never translated automatically.
 
 `app/usage_analytics.dart` owns the Umami `/api/send` wire format and permits
 only enum-defined screens, events and import sources. Configuration is compiled

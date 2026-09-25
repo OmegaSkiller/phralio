@@ -1,0 +1,235 @@
+{
+  "@@locale": "en",
+  "home": "Home",
+  "read": "Read",
+  "settings": "Settings",
+  "saved": "Saved",
+  "back": "Back",
+  "tryAgain": "Try again",
+  "okay": "OK",
+  "couldNotFinish": "Could not finish",
+  "readingCouldNotOpen": "Reading could not be opened.",
+  "addReadingToBegin": "Add a reading from Home to begin.",
+  "openingReading": "Opening your reading…",
+  "libraryCouldNotLoad": "Your library could not be loaded.",
+  "readingCouldNotSave": "The reading could not be opened or saved. Please try again.",
+  "fileReadFailed": "This file could not be read. Use TXT, Markdown or DRM-free EPUB and check its size and encoding.",
+  "pasteInvalid": "Add plain text under 200,000 characters.",
+  "urlReadFailed": "Use a public HTTPS article or text page and try again.",
+  "fileTooLarge": "Choose a file smaller than 32 MB.",
+  "clipboardEmpty": "Clipboard has no readable text.",
+  "clipboardReading": "Clipboard reading",
+  "makeRoom": "Make room\nfor a good read.",
+  "yourWordsYourPace": "Your words. Your pace.",
+  "importFile": "Import file",
+  "addText": "Add text",
+  "readUrl": "Read URL",
+  "readClipboard": "Read clipboard",
+  "localFormats": "TXT, Markdown & EPUB · Saved on this device",
+  "recent": "Recent",
+  "starred": "Starred",
+  "keepFavorites": "Keep your favorites close.",
+  "quietShelf": "A quiet shelf, ready for your words.",
+  "tapStarHint": "Tap the star beside a reading to find it here.",
+  "tryShortReading": "Try a short reading",
+  "sampleTitle": "A little more room",
+  "untitledReading": "Untitled reading",
+  "wordsCount": "{count} words",
+  "@wordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "percentRead": "{percent}% read",
+  "@percentRead": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "wholeFileProgress": "Whole file progress",
+  "starTitle": "Star {title}",
+  "@starTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "unstarTitle": "Unstar {title}",
+  "@unstarTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "bookmarks": "Bookmarks",
+  "bookmarkEmpty": "Save a place from the reader to find it here.",
+  "starredReadings": "Starred readings",
+  "starredEmpty": "Star a reading from Home to keep it here.",
+  "wordOfWords": "Word {position} of {count}",
+  "@wordOfWords": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "positionOfWords": "{position} of {count} words",
+  "@positionOfWords": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordNumber": "Word {position}",
+  "@wordNumber": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "readingUnavailable": "This reading could not be opened.",
+  "title": "Title",
+  "readingTitle": "Reading title",
+  "giveName": "Give this reading a name",
+  "yourText": "Your text",
+  "paste": "Paste",
+  "textToRead": "Text to read",
+  "pasteHint": "Paste a passage, article, or a thought worth returning to.",
+  "pasteLimit": "Up to 200,000 characters. Stored only on this device.",
+  "saving": "Saving…",
+  "saveAndRead": "Save and read",
+  "textSaveFailed": "Your text could not be saved. It is still here; please try again.",
+  "readFromUrl": "Read from URL",
+  "urlHint": "Paste a public HTTPS article or text page.",
+  "urlPlaceholder": "https://example.org/article",
+  "pageUrl": "Page URL",
+  "urlPrivacy": "The readable text and supported images are saved on this device. Scripts, navigation and forms are removed.",
+  "opening": "Opening…",
+  "urlDownloadFailed": "This page could not be downloaded. Check the URL and try again.",
+  "contents": "Contents",
+  "noHeadings": "This reading has no headings.",
+  "bookmarkSaveFailed": "Bookmark could not be saved. Please try again.",
+  "goodPlaceToPause": "A good place to pause.",
+  "imageUnavailable": "Image unavailable",
+  "image": "Image",
+  "paceSaveFailed": "This pace works for this session, but could not be saved.",
+  "removeBookmark": "Remove bookmark",
+  "bookmarkThisWord": "Bookmark this word",
+  "readerSettings": "Reader settings",
+  "followFixedPoint": "Follow the fixed point.",
+  "tapToReadHint": "Tap to read · Swipe to move one word at a time.",
+  "previousSentence": "Previous sentence",
+  "backTenWords": "Back ten words",
+  "pauseReading": "Pause reading",
+  "playReading": "Play reading",
+  "forwardTenWords": "Forward ten words",
+  "nextSentence": "Next sentence",
+  "wordsPerMinute": "words per minute",
+  "speedValue": "{wpm} words per minute",
+  "@speedValue": {
+    "placeholders": {
+      "wpm": {
+        "type": "int"
+      }
+    }
+  },
+  "readingSpeed": "Reading speed",
+  "complete": "Complete",
+  "timeRemaining": "{time} remaining",
+  "@timeRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "readingPosition": "Reading position",
+  "finishedRestart": "Finished. Play again to return to the beginning.",
+  "placeNotSaved": "Place not saved · Retry",
+  "findCadence": "Find your cadence.",
+  "comfortablePace": "Start at a comfortable pace. Speed is a control, not a measure of comprehension.",
+  "language": "Language",
+  "deviceLanguage": "Device language",
+  "languageHint": "Use your device language, or choose one for this app.",
+  "english": "English",
+  "russian": "Русский",
+  "spanish": "Español",
+  "portuguese": "Português",
+  "chinese": "简体中文",
+  "japanese": "日本語",
+  "polish": "Polski",
+  "german": "Deutsch",
+  "french": "Français",
+  "italian": "Italiano",
+  "appearance": "Appearance",
+  "system": "System",
+  "light": "Light",
+  "dark": "Dark",
+  "reduceTransparency": "Reduce transparency",
+  "solidControlsHint": "Use solid controls instead of glass. High contrast also uses solid surfaces.",
+  "smartPauses": "Smart pauses",
+  "smartPausesHint": "Give punctuation, paragraphs, numbers, and longer words more time.",
+  "off": "Off",
+  "normal": "Normal",
+  "strong": "Strong",
+  "highlightFocal": "Highlight focal character",
+  "readerTypeSize": "Reader type size · {size}",
+  "@readerTypeSize": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "smallerType": "Smaller reader type",
+  "largerType": "Larger reader type",
+  "typeSizeHint": "The reader honors text scaling and fits long words to keep their focal character in view.",
+  "imageViewingTime": "Image viewing time · {seconds} seconds",
+  "@imageViewingTime": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "secondsCount": "{seconds} seconds",
+  "@secondsCount": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "imageTimeHint": "Images pause the reading flow for this duration.",
+  "usageStatistics": "Usage statistics",
+  "shareUsage": "Share usage statistics",
+  "usagePrivacy": "Optional. Shares screen visits and app actions with Umami. Never sends book text, titles, file names or your reading position. Umami receives your network address and device details.",
+  "usageUnavailable": "Available when an Umami server is configured for this build.",
+  "settingsSaveFailed": "Your settings could not be saved. Please try again.",
+  "licenses": "Open-source licenses",
+  "licensesLoadFailed": "Licenses could not be loaded.",
+  "licensesLoading": "Loading licenses…",
+  "localLibrary": "Local library",
+  "localLibraryFailed": "Your local library could not be opened. No data has been removed.",
+  "close": "Close",
+  "addReading": "Add reading",
+  "continueReading": "Continue reading",
+  "libraryFilter": "Library filter",
+  "readingActions": "Reading actions",
+  "typeSize": "Type size",
+  "imageDuration": "Image duration"
+}

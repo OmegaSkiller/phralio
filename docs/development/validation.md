@@ -78,7 +78,8 @@ The newer results below supersede the foundation counts above.
   captures use explicit in-app appearance settings and were visually reviewed.
 - Icon notices include the Lucide Flutter port and upstream Lucide/Feather
   notices; upstream notices also appear in the normal app's license registry.
-- Glass is a Flutter approximation inspired by Apple, not native UIGlassEffect.
+- At this earlier checkpoint, glass was a Flutter approximation. The redesign
+  section below supersedes this with native iOS controls.
   Reduced transparency and high contrast disable blur. No decorative animations
   were added. Manual assistive-technology and physical-device checks remain open.
 
@@ -119,3 +120,51 @@ The results below supersede earlier test counts for the current checkout.
 - `git diff --check` passes. URL extraction is unit-tested with a mock client;
   public-site behavior still needs a manual check with a live site. Manual
   VoiceOver/TalkBack and physical-device checks remain outstanding.
+
+## Interface localization update
+
+- Flutter's generated catalogs include all 142 messages in English, Russian,
+  Spanish, Portuguese, Simplified Chinese, Japanese, Polish, German, French and
+  Italian. Catalog tests verify matching keys and placeholders.
+- `flutter analyze` and all 49 unit/widget tests pass. Tests cover device-language
+  fallback, live in-app switching, unknown stored values and SQLite reopening.
+- The native Russian → Spanish switch and persisted-restart flow passes on
+  Android API 36 and the iPhone 18 Pro simulator. The existing Markdown/Saved
+  flow also passes on both after localization.
+- Native screenshot drivers pass on both platforms; the refreshed dark Settings
+  captures were visually reviewed with the new language selector. Physical
+  device and manual VoiceOver/TalkBack checks remain open.
+
+## Redesign branch — 25 September 2026
+
+The root [DESIGN.md](../../DESIGN.md) was written before presentation edits. It
+records all eight supplied references, shared patterns and preservation rules.
+The branch is named `redesign`; existing localization work was retained.
+
+- Native iOS controls compile with Xcode 27. The UIKit bridge uses actual iOS
+  26+ Liquid Glass, system menus and Lucide glyphs. It falls back to system
+  material on older iOS; Android uses Flutter controls. Preference sheets use
+  Flutter's interactive Cupertino route on iOS and Material bottom sheets on
+  Android. The app has not been rewritten wholesale in SwiftUI.
+- Static analysis and all 50 unit/widget tests pass. Coverage includes readable
+  contrast, narrow layouts, focal alignment, ten-language catalog parity,
+  every language's Settings/picker at 2× text size, imports and storage safety.
+- All four functional integration flows pass on iPhone 18 Pro / iOS 27 and
+  Android API 36: text/play/seek/resume; EPUB/cancel/star/theme/reimport;
+  Markdown/contents/images/bookmarks/Saved/clipboard; language switch/reopen.
+- Flutter test input cannot activate UIKit-owned UIMenu entries. On iOS the
+  automated helpers exercise their Dart channel callbacks; physical native
+  hit testing is a separate Device Hub check. Android drives its visible
+  fallback menus directly. No test-only switches were added to production UI.
+- Device Hub checks verified native Add/reader menus, native tabs/back actions,
+  play-to-focus and tap-to-pause, saved progress, stars, bookmarks and dark mode.
+- Screenshot drivers pass on both platforms. The `docs/screenshots/redesign/`
+  folder contains Home, paused/focused Read, Saved, Settings and language sheets
+  in light/dark variants. iOS simctl captures also verify the UIKit composition.
+- Existing SQLite schemas, parser boundaries, opt-in analytics and reading
+  engine remain intact. No database migration or new runtime package is needed.
+
+Remaining release checks: physical-device performance, full VoiceOver/TalkBack
+walkthroughs and an older iOS device/runtime. Native-speaker proofreading and
+unspaced Chinese/Japanese word segmentation remain the earlier localization
+limitations. These are not claimed as validated by simulator screenshots.

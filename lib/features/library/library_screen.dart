@@ -9,16 +9,15 @@ import 'package:file_selector/file_selector.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/design.dart';
-import '../../app/identity.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
 import '../../core/file_import.dart';
 import '../../core/remote_import.dart';
 import '../reader/reader_screen.dart';
-import '../reader/settings_screen.dart';
 import 'paste_screen.dart';
 import 'url_screen.dart';
+import '../../l10n/l10n.dart';
 
 const sampleText = '''A little more room for words.
 
@@ -74,10 +73,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       if (mounted) await showProblem(context, e.message);
     } catch (_) {
       if (mounted) {
-        await showProblem(
-          context,
-          'The reading could not be opened or saved. Please try again.',
-        );
+        await showProblem(context, context.l10n.readingCouldNotSave);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -85,13 +81,14 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 
   Future<void> _import() => _perform(() async {
+    final l10n = context.l10n;
     final analytics = ref.read(usageAnalyticsProvider);
     analytics.record(UsageEvent.importRequested);
     try {
       final file = await openFile(
-        acceptedTypeGroups: const [
+        acceptedTypeGroups: [
           XTypeGroup(
-            label: 'Books and text',
+            label: l10n.importFile,
             extensions: ['txt', 'epub', 'md', 'markdown'],
             mimeTypes: ['text/plain', 'application/epub+zip', 'text/markdown'],
             uniformTypeIdentifiers: [
@@ -108,13 +105,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       }
       if (!mounted) return;
       if (await file.length() > FileImport.maxFileBytes) {
-        throw const FormatException('Choose a file smaller than 32 MB.');
+        throw FormatException(l10n.fileTooLarge);
       }
       // Bound the stream too: providers can report a stale or unknown length.
       final bytes = BytesBuilder(copy: false);
       await for (final chunk in file.openRead()) {
         if (bytes.length + chunk.length > FileImport.maxFileBytes) {
-          throw const FormatException('Choose a file smaller than 32 MB.');
+          throw FormatException(l10n.fileTooLarge);
         }
         bytes.add(chunk);
       }
@@ -141,6 +138,12 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         },
       );
       if (mounted) await _open(id);
+    } on FormatException catch (error) {
+      analytics.record(UsageEvent.importFailed);
+      if (l10n.localeName == 'en' || error.message == l10n.fileTooLarge) {
+        rethrow;
+      }
+      throw FormatException(l10n.fileReadFailed);
     } catch (_) {
       analytics.record(UsageEvent.importFailed);
       rethrow;
@@ -148,12 +151,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   });
 
   Future<void> _clipboard() => _perform(() async {
+    final l10n = context.l10n;
     final value = await Clipboard.getData(Clipboard.kTextPlain);
     final text = value?.text;
     if (text == null || text.trim().isEmpty) {
-      throw const FormatException('Clipboard has no readable text.');
+      throw FormatException(l10n.clipboardEmpty);
     }
-    final id = await ref.read(storeProvider).add('Clipboard reading', text);
+    final id = await ref.read(storeProvider).add(l10n.clipboardReading, text);
     ref
         .read(usageAnalyticsProvider)
         .record(UsageEvent.importSucceeded, source: ReadingSource.clipboard);
@@ -161,16 +165,32 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     if (mounted) await _open(id);
   });
 
+  List<MenuChoice> get _addChoices => [
+    MenuChoice(context.l10n.importFile, LucideIcons.fileUp, _import),
+    MenuChoice(
+      context.l10n.readUrl,
+      LucideIcons.link,
+      () => pushPage(context, const UrlScreen()),
+    ),
+    MenuChoice(context.l10n.readClipboard, LucideIcons.clipboard, _clipboard),
+    MenuChoice(
+      context.l10n.addText,
+      LucideIcons.textCursorInput,
+      () => pushPage(context, const PasteScreen()),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
     final library = ref.watch(libraryProvider);
     return PlatformPage(
-      title: ProductIdentity.displayName,
-      trailing: IconAction(
-        label: 'Reading settings',
-        icon: LucideIcons.slidersHorizontal,
-        onPressed: () => pushPage(context, const SettingsScreen()),
+      title: context.l10n.home,
+      trailing: ActionMenu(
+        label: context.l10n.addReading,
+        icon: LucideIcons.plus,
+        enabled: !_busy,
+        choices: _addChoices,
       ),
       child: library.when(
         loading: () => const Center(child: CupertinoActivityIndicator()),
@@ -178,9 +198,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Your library could not be loaded.'),
+              Text(context.l10n.libraryCouldNotLoad),
               ActionButton(
-                label: 'Try again',
+                label: context.l10n.tryAgain,
                 onPressed: () => ref.invalidate(libraryProvider),
               ),
             ],
@@ -190,162 +210,192 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           final documents = _starredOnly
               ? all.where((d) => d.starred).toList()
               : all;
-          return CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          return ListView(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              8,
+              24,
+              MediaQuery.paddingOf(context).bottom + 110,
+            ),
+            children: [
+              if (_busy)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
                     children: [
-                      const BrandMark(size: 40),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Make room\nfor a good read.',
+                      const CupertinoActivityIndicator(radius: 8),
+                      const SizedBox(width: 10),
+                      Text(context.l10n.openingReading),
+                    ],
+                  ),
+                ),
+              if (all.isEmpty) ...[
+                const SizedBox(height: 56),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: BrandMark(size: 56),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  context.l10n.makeRoom,
+                  style: TextStyle(
+                    fontSize: 32,
+                    height: 1.15,
+                    letterSpacing: -.8,
+                    fontWeight: FontWeight.w600,
+                    color: colors.text,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  context.l10n.quietShelf,
+                  style: TextStyle(fontSize: 17, color: colors.secondary),
+                ),
+                const SizedBox(height: 28),
+                ActionButton(
+                  label: context.l10n.importFile,
+                  primary: true,
+                  icon: LucideIcons.plus,
+                  onPressed: _busy ? null : _import,
+                ),
+                const SizedBox(height: 8),
+                ActionButton(
+                  label: context.l10n.tryShortReading,
+                  onPressed: _busy
+                      ? null
+                      : () => _perform(() async {
+                          final id = await ref
+                              .read(storeProvider)
+                              .add(context.l10n.sampleTitle, sampleText);
+                          ref
+                              .read(usageAnalyticsProvider)
+                              .record(
+                                UsageEvent.sampleAdded,
+                                source: ReadingSource.sample,
+                              );
+                          ref.invalidate(libraryProvider);
+                          if (mounted) await _open(id);
+                        }),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  context.l10n.localFormats,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: colors.secondary),
+                ),
+              ] else ...[
+                if (!_starredOnly) ...[
+                  _continuation(all.first),
+                  const SizedBox(height: 24),
+                ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _starredOnly
+                            ? context.l10n.starred
+                            : context.l10n.recent,
                         style: TextStyle(
-                          fontSize: 34,
-                          height: 1.12,
-                          letterSpacing: -1,
+                          fontSize: 22,
                           fontWeight: FontWeight.w600,
                           color: colors.text,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Your words. Your pace.',
-                        style: TextStyle(fontSize: 17, color: colors.secondary),
-                      ),
-                      const SizedBox(height: 24),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          ActionButton(
-                            label: 'Import file',
-                            primary: true,
-                            icon: LucideIcons.fileUp,
-                            onPressed: _busy ? null : _import,
-                          ),
-                          ActionButton(
-                            label: 'Add text',
-                            icon: LucideIcons.plus,
-                            onPressed: _busy
-                                ? null
-                                : () => pushPage(context, const PasteScreen()),
-                          ),
-                          ActionButton(
-                            label: 'Read URL',
-                            icon: LucideIcons.link,
-                            onPressed: _busy
-                                ? null
-                                : () => pushPage(context, const UrlScreen()),
-                          ),
-                          ActionButton(
-                            label: 'Read clipboard',
-                            icon: LucideIcons.clipboard,
-                            onPressed: _busy ? null : _clipboard,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          if (_busy) ...[
-                            const CupertinoActivityIndicator(radius: 7),
-                            const SizedBox(width: 8),
-                          ],
-                          Expanded(
-                            child: Semantics(
-                              liveRegion: true,
-                              child: Text(
-                                _busy ? 'Opening your reading…' : 'TXT, Markdown & EPUB · Saved on this device',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: colors.secondary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      GlassSurface(
-                        child: Wrap(
-                          spacing: 4,
-                          children: [
-                            ActionButton(
-                              label: 'Recent',
-                              icon: LucideIcons.clock3,
-                              selected: !_starredOnly,
-                              onPressed: () => _selectFilter(false),
-                            ),
-                            ActionButton(
-                              label: 'Starred',
-                              icon: LucideIcons.star,
-                              selected: _starredOnly,
-                              onPressed: () => _selectFilter(true),
-                            ),
-                          ],
+                    ),
+                    ActionMenu(
+                      label: context.l10n.libraryFilter,
+                      icon: LucideIcons.listFilter,
+                      choices: [
+                        MenuChoice(
+                          context.l10n.recent,
+                          LucideIcons.clock3,
+                          () => _selectFilter(false),
+                          selected: !_starredOnly,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (documents.isEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.all(24),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _starredOnly
-                              ? 'Keep your favorites close.'
-                              : 'A quiet shelf, ready for your words.',
+                        MenuChoice(
+                          context.l10n.starred,
+                          LucideIcons.star,
+                          () => _selectFilter(true),
+                          selected: _starredOnly,
                         ),
-                        const SizedBox(height: 8),
-                        if (_starredOnly)
-                          Text(
-                            'Tap the star beside a reading to find it here.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colors.secondary,
-                            ),
-                          )
-                        else
-                          ActionButton(
-                            label: 'Try a short reading',
-                            onPressed: _busy
-                                ? null
-                                : () => _perform(() async {
-                                    await ref
-                                        .read(storeProvider)
-                                        .add('A little more room', sampleText);
-                                    ref
-                                        .read(usageAnalyticsProvider)
-                                        .record(
-                                          UsageEvent.sampleAdded,
-                                          source: ReadingSource.sample,
-                                        );
-                                    ref.invalidate(libraryProvider);
-                                  }),
-                          ),
                       ],
                     ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (documents.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28),
+                    child: Text(
+                      context.l10n.starredEmpty,
+                      style: TextStyle(color: colors.secondary),
+                    ),
                   ),
-                ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                sliver: SliverList.builder(
-                  itemCount: documents.length,
-                  itemBuilder: (context, index) => _entry(documents[index]),
-                ),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                for (final document in documents) _entry(document),
+              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _continuation(LibraryEntry document) {
+    final colors = ReaderColors.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.bookOpen, size: 20, color: colors.accent),
+              const SizedBox(width: 10),
+              Text(
+                context.l10n.continueReading,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: colors.secondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            document.title,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w600,
+              height: 1.15,
+              letterSpacing: -.7,
+              color: colors.text,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${document.format} · ${context.l10n.percentRead((document.progress * 100).floor())}',
+            style: TextStyle(fontSize: 14, color: colors.secondary),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ActionButton(
+              label: context.l10n.read,
+              icon: LucideIcons.play,
+              primary: true,
+              onPressed: _busy
+                  ? null
+                  : () => _perform(() => _open(document.id)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -357,7 +407,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         : (document.progress * 100).floor();
     Widget openButton(Widget child) {
       final onPressed = _busy ? null : () => _perform(() => _open(document.id));
-      const padding = EdgeInsets.symmetric(vertical: 22);
+      const padding = EdgeInsets.symmetric(vertical: 16);
       return isApple(context)
           ? CupertinoButton(
               padding: padding,
@@ -405,7 +455,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                           Text(
                             document.title,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 17,
                               fontWeight: FontWeight.w600,
                               color: colors.text,
                             ),
@@ -424,30 +474,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                           ],
                           const SizedBox(height: 7),
                           Text(
-                            '${document.format} · ${document.wordCount} words',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.secondary,
-                            ),
-                          ),
-                          const SizedBox(height: 7),
-                          Text(
-                            '$percent% read',
+                            '${document.format} · ${context.l10n.percentRead(percent)}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: colors.accent,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(3),
-                            child: LinearProgressIndicator(
-                              value: document.progress,
-                              minHeight: 3,
-                              color: colors.accent,
-                              backgroundColor: colors.separator,
-                              semanticsLabel: 'Whole file progress',
-                              semanticsValue: '$percent',
+                              color: colors.secondary,
                             ),
                           ),
                         ],
@@ -461,8 +491,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           const SizedBox(width: 6),
           IconAction(
             label: document.starred
-                ? 'Unstar ${document.title}'
-                : 'Star ${document.title}',
+                ? context.l10n.unstarTitle(document.title)
+                : context.l10n.starTitle(document.title),
             selected: document.starred,
             icon: document.starred ? LucideIcons.starOff : LucideIcons.star,
             onPressed: _busy

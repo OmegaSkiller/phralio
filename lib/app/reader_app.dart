@@ -10,6 +10,8 @@ import 'usage_analytics.dart';
 import 'design.dart';
 import 'identity.dart';
 import 'reader_shell.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n.dart';
 
 class ReaderApp extends ConsumerStatefulWidget {
   const ReaderApp({super.key});
@@ -42,6 +44,10 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
   @override
   Widget build(BuildContext context) {
     final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
+    final language = ref.watch(settingsProvider.select((s) => s.language));
+    final locale = language == AppLanguage.system
+        ? null
+        : Locale(language.name);
     ThemeData theme(ReaderColors colors, Brightness brightness) => ThemeData(
       brightness: brightness,
       colorScheme: ColorScheme.fromSeed(
@@ -70,6 +76,9 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
       return CupertinoApp(
         title: ProductIdentity.displayName,
         debugShowCheckedModeBanner: false,
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: appLocalizationDelegates,
         theme: CupertinoThemeData(
           brightness: switch (appearance) {
             Appearance.system => null,
@@ -91,6 +100,9 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
     return MaterialApp(
       title: ProductIdentity.displayName,
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: appLocalizationDelegates,
       theme: theme(ReaderColors.light, Brightness.light),
       darkTheme: theme(ReaderColors.dark, Brightness.dark),
       themeMode: switch (appearance) {

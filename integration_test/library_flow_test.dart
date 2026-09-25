@@ -1,3 +1,5 @@
+import 'controls.dart';
+
 import 'dart:typed_data';
 
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
@@ -53,7 +55,7 @@ void main() {
     }
 
     Future<void> tapText(String label) async {
-      await tester.scrollUntilVisible(find.text(label), 150);
+      await tester.ensureVisible(find.text(label));
       await tester.pumpAndSettle();
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
@@ -66,29 +68,32 @@ void main() {
       picker.next = XFile.fromData(epub(), path: 'fixture.epub');
       await tapText('Import file');
       expect(find.byType(ListWheelScrollView), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel('Next sentence'));
+      await chooseMenu(tester, 'Reading actions', 'Next sentence');
       await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel('Back'));
+      await tapIcon(tester, 'Back');
       await tester.pumpAndSettle();
       final saved = (await store.all()).single;
       expect(saved.wordCount, 8);
       expect(saved.position, greaterThan(0));
       final word = (await store.document(saved.id)).tokens[saved.position].text;
       expect(saved.progress, lessThan(1));
-      await tester.scrollUntilVisible(
-        find.bySemanticsLabel('Star A book & a pause'),
-        150,
+      await tester.ensureVisible(
+        find.byWidgetPredicate(
+          (w) => w is IconAction && w.label == 'Star A book & a pause',
+        ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel('Star A book & a pause'));
+      await tapIcon(tester, 'Star A book & a pause');
       await tester.pumpAndSettle();
-      await tapText('Starred');
+      await chooseMenu(tester, 'Library filter', 'Starred');
       expect(find.text('A book & a pause'), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel('Reading settings'));
+      await tapTab(tester, 'Settings');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Appearance').last);
       await tester.pumpAndSettle();
       await tapText('Dark');
       expect((await store.settings()).appearance, Appearance.dark);
-      await tester.tap(find.bySemanticsLabel('Back'));
+      await tapTab(tester, 'Home');
       await tester.pumpAndSettle();
       expect(
         ReaderColors.of(tester.element(find.byType(LibraryScreen))),
@@ -103,7 +108,9 @@ void main() {
         ReaderColors.of(tester.element(find.byType(LibraryScreen))),
         ReaderColors.dark,
       );
-      await tapText(
+      await chooseMenu(
+        tester,
+        'Add reading',
         'Import file',
       ); // Same EPUB resumes, rather than duplicates.
       expect(
@@ -115,13 +122,13 @@ void main() {
         word,
       );
       expect((await store.all()).length, 1);
-      await tester.tap(find.bySemanticsLabel('Back'));
+      await tapIcon(tester, 'Back');
       await tester.pumpAndSettle();
       picker.next = XFile.fromData(
         Uint8List.fromList('A fresh text file.'.codeUnits),
         path: 'fresh.txt',
       );
-      await tapText('Import file');
+      await chooseMenu(tester, 'Add reading', 'Import file');
       expect(find.byType(ListWheelScrollView), findsOneWidget);
       expect((await store.all()).length, 2);
       expect(tester.takeException(), isNull);

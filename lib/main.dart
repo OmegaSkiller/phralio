@@ -12,6 +12,8 @@ import 'package:sqflite/sqflite.dart';
 import 'app/providers.dart';
 import 'app/reader_app.dart';
 import 'features/library/library_store.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/l10n.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,19 +43,22 @@ Future<void> launchReader() async {
     );
   } catch (_) {
     await store?.close();
-    final recovery = PlatformPage(
-      title: 'Local library',
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Your local library could not be opened. No data has been removed.',
-              ),
-              ActionButton(label: 'Try again', onPressed: launchReader),
-            ],
+    final recovery = Builder(
+      builder: (context) => PlatformPage(
+        title: context.l10n.localLibrary,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.l10n.localLibraryFailed),
+                ActionButton(
+                  label: context.l10n.tryAgain,
+                  onPressed: launchReader,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -63,8 +68,16 @@ Future<void> launchReader() async {
         child:
             defaultTargetPlatform == TargetPlatform.iOS ||
                 defaultTargetPlatform == TargetPlatform.macOS
-            ? CupertinoApp(home: recovery)
-            : MaterialApp(home: recovery),
+            ? CupertinoApp(
+                localizationsDelegates: appLocalizationDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: recovery,
+              )
+            : MaterialApp(
+                localizationsDelegates: appLocalizationDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: recovery,
+              ),
       ),
     );
   }

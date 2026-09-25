@@ -3,7 +3,6 @@ import 'package:phralio/features/library/library_screen.dart';
 
 import 'dart:ui' show SemanticsAction;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +14,8 @@ import 'package:phralio/core/document.dart';
 import 'package:phralio/features/reader/focal_word.dart';
 import 'package:phralio/features/reader/reader_screen.dart';
 import 'package:phralio/features/library/library_store.dart';
+import 'package:phralio/l10n/app_localizations.dart';
+import 'package:phralio/l10n/l10n.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -98,12 +99,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('42% read'), 150);
+      expect(find.textContaining('42% read'), findsWidgets);
+      await tester.ensureVisible(find.bySemanticsLabel('Star Book'));
       await tester.pumpAndSettle();
-      final bar = tester.widget<LinearProgressIndicator>(
-        find.byType(LinearProgressIndicator),
-      );
-      expect(bar.semanticsValue, '42');
       expect(
         tester
             .getSemantics(find.bySemanticsLabel('Star Book'))
@@ -146,21 +144,24 @@ void main() {
       ProviderScope(
         overrides: [storeProvider.overrideWithValue(store)],
         child: MaterialApp(
+          localizationsDelegates: appLocalizationDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: ThemeData.dark(),
           home: ReaderScreen(document: document),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    for (final label in [
-      'Play reading',
-      'Previous sentence',
-      'Reader settings',
-    ]) {
+    for (final label in ['Play reading', 'Reading actions']) {
       final control = find.byWidgetPredicate(
         (widget) => widget is Semantics && widget.properties.label == label,
       );
-      await tester.scrollUntilVisible(control, 100);
+      if (control.evaluate().isEmpty) {
+        await tester.dragFrom(const Offset(12, 500), const Offset(0, -350));
+        await tester.pumpAndSettle();
+      }
+      expect(control, findsOneWidget, reason: label);
+      await tester.ensureVisible(control);
       await tester.pumpAndSettle();
       expect(
         tester
@@ -170,7 +171,9 @@ void main() {
         isTrue,
       );
     }
-    await tester.scrollUntilVisible(find.text('1 of 6 words'), 150);
+    await tester.dragFrom(const Offset(12, 250), const Offset(0, 600));
+    await tester.pumpAndSettle();
+    expect(find.text('1 of 6 words'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(() async {
@@ -232,13 +235,8 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Phralio'), findsOneWidget);
-        expect(
-          find.byType(
-            platform == TargetPlatform.iOS ? CupertinoNavigationBar : AppBar,
-          ),
-          findsOneWidget,
-        );
+        expect(find.text('Home'), findsWidgets);
+        expect(find.bySemanticsLabel('Add reading'), findsOneWidget);
         debugDefaultTargetPlatformOverride = null;
         expect(tester.takeException(), isNull);
       },

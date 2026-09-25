@@ -1,3 +1,5 @@
+import 'controls.dart';
+
 import 'dart:convert';
 
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
@@ -62,7 +64,7 @@ void main() {
         'Second section',
       ]);
       expect(document.images.single.bytes, png);
-      await tester.tap(find.bySemanticsLabel('Contents'));
+      await chooseMenu(tester, 'Reading actions', 'Contents');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Second section'));
       await tester.pumpAndSettle();
@@ -72,14 +74,14 @@ void main() {
         ),
         findsOneWidget,
       );
-      await tester.tap(find.bySemanticsLabel('Bookmark this word'));
+      await chooseMenu(tester, 'Reading actions', 'Bookmark this word');
       await tester.pumpAndSettle();
       expect(await store.bookmarksFor(book.id), [
         document.headings.last.position,
       ]);
-      await tester.tap(find.bySemanticsLabel('Back'));
+      await tapIcon(tester, 'Back');
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Saved').last);
+      await tapTab(tester, 'Saved');
       await tester.pumpAndSettle();
       expect(
         find.textContaining('Word ${document.headings.last.position + 1}'),
@@ -95,12 +97,12 @@ void main() {
         ),
         findsOneWidget,
       );
-      await tester.tap(find.bySemanticsLabel('Back'));
+      await tapIcon(tester, 'Back');
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Home').last);
+      await tapTab(tester, 'Home');
       await tester.pumpAndSettle();
       await Clipboard.setData(const ClipboardData(text: 'From the clipboard.'));
-      await tester.tap(find.text('Read clipboard'));
+      await chooseMenu(tester, 'Add reading', 'Read clipboard');
       await tester.pumpAndSettle();
       expect((await store.all()).length, 2);
       expect(find.text('Clipboard reading'), findsOneWidget);

@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import 'library_store.dart';
 import '../reader/reader_screen.dart';
+import '../../l10n/l10n.dart';
 
 class PasteScreen extends ConsumerStatefulWidget {
   const PasteScreen({super.key});
@@ -33,10 +34,14 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
   }
 
   Future<void> _save() async {
+    final untitled = context.l10n.untitledReading;
     setState(() => _saving = true);
     try {
       final LibraryStore store = ref.read(storeProvider);
-      final id = await store.add(_title.text, _text.text);
+      final id = await store.add(
+        _title.text.trim().isEmpty ? untitled : _title.text,
+        _text.text,
+      );
       ref
           .read(usageAnalyticsProvider)
           .record(UsageEvent.pasteSaved, source: ReadingSource.paste);
@@ -53,13 +58,17 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
               ),
       );
     } on FormatException catch (e) {
-      if (mounted) await showProblem(context, e.message);
-    } catch (_) {
       if (mounted) {
         await showProblem(
           context,
-          'Your text could not be saved. It is still here; please try again.',
+          context.l10n.localeName == 'en'
+              ? e.message
+              : context.l10n.pasteInvalid,
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        await showProblem(context, context.l10n.textSaveFailed);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -82,8 +91,7 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
             style: TextStyle(color: colors.text, fontSize: 17),
             decoration: BoxDecoration(
               color: colors.surface,
-              border: Border.all(color: colors.separator),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
             ),
           )
         : TextField(
@@ -93,34 +101,46 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
               hintText: hint,
               filled: true,
               fillColor: colors.surface,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide.none,
+              ),
             ),
           );
   }
 
   @override
   Widget build(BuildContext context) => PlatformPage(
-    title: 'Add text',
+    title: context.l10n.addText,
     child: ListView(
-      padding: const EdgeInsets.all(24),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.fromLTRB(
+        24,
+        20,
+        24,
+        MediaQuery.paddingOf(context).bottom + 24,
+      ),
       children: [
-        const Text('Title', style: TextStyle(fontWeight: FontWeight.w600)),
+        Text(
+          context.l10n.title,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 8),
         Semantics(
-          label: 'Reading title',
-          child: _field(context, _title, 'Give this reading a name', 1),
+          label: context.l10n.readingTitle,
+          child: _field(context, _title, context.l10n.giveName, 1),
         ),
         const SizedBox(height: 24),
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'Your text',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                context.l10n.yourText,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
             ActionButton(
-              label: 'Paste',
+              label: context.l10n.paste,
               onPressed: _saving
                   ? null
                   : () async {
@@ -135,22 +155,14 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
           ],
         ),
         Semantics(
-          label: 'Text to read',
-          child: _field(
-            context,
-            _text,
-            'Paste a passage, article, or a thought worth returning to.',
-            10,
-          ),
+          label: context.l10n.textToRead,
+          child: _field(context, _text, context.l10n.pasteHint, 10),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Up to 200,000 characters. Stored only on this device.',
-          style: TextStyle(fontSize: 13),
-        ),
+        Text(context.l10n.pasteLimit, style: const TextStyle(fontSize: 13)),
         const SizedBox(height: 24),
         ActionButton(
-          label: _saving ? 'Saving…' : 'Save and read',
+          label: _saving ? context.l10n.saving : context.l10n.saveAndRead,
           primary: true,
           onPressed: _saving ? null : _save,
         ),

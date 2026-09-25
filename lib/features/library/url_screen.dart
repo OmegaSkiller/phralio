@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/remote_import.dart';
 import '../reader/reader_screen.dart';
+import '../../l10n/l10n.dart';
 
 class UrlScreen extends ConsumerStatefulWidget {
   const UrlScreen({super.key});
@@ -55,13 +56,17 @@ class _UrlScreenState extends ConsumerState<UrlScreen> {
               ),
       );
     } on FormatException catch (error) {
-      if (mounted) showProblem(context, error.message);
-    } catch (_) {
       if (mounted) {
         showProblem(
           context,
-          'This page could not be downloaded. Check the URL and try again.',
+          context.l10n.localeName == 'en'
+              ? error.message
+              : context.l10n.urlReadFailed,
         );
+      }
+    } catch (_) {
+      if (mounted) {
+        showProblem(context, context.l10n.urlDownloadFailed);
       }
     } finally {
       importer.close();
@@ -71,36 +76,56 @@ class _UrlScreenState extends ConsumerState<UrlScreen> {
 
   @override
   Widget build(BuildContext context) => PlatformPage(
-    title: 'Read from URL',
+    title: context.l10n.readFromUrl,
     child: ListView(
-      padding: const EdgeInsets.all(24),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.fromLTRB(
+        24,
+        20,
+        24,
+        MediaQuery.paddingOf(context).bottom + 24,
+      ),
       children: [
-        const Text('Paste a public HTTPS article or text page.'),
+        Text(context.l10n.urlHint),
         const SizedBox(height: 16),
         isApple(context)
             ? CupertinoTextField(
                 controller: _controller,
-                placeholder: 'https://example.org/article',
+                placeholder: context.l10n.urlPlaceholder,
                 keyboardType: TextInputType.url,
                 autocorrect: false,
                 padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: ReaderColors.of(context).surface,
+                  borderRadius: BorderRadius.circular(20),
+                ),
               )
             : TextField(
                 controller: _controller,
                 keyboardType: TextInputType.url,
                 autocorrect: false,
-                decoration: const InputDecoration(
-                  labelText: 'Page URL',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.pageUrl,
+                  filled: true,
+                  fillColor: ReaderColors.of(context).surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
         const SizedBox(height: 16),
-        const Text(
-          'The readable text and supported images are saved on this device. Scripts, navigation and forms are removed.',
+        Text(
+          context.l10n.urlPrivacy,
+          style: TextStyle(
+            fontSize: 14,
+            height: 1.4,
+            color: ReaderColors.of(context).secondary,
+          ),
         ),
         const SizedBox(height: 24),
         ActionButton(
-          label: _busy ? 'Opening…' : 'Save and read',
+          label: _busy ? context.l10n.opening : context.l10n.saveAndRead,
           icon: LucideIcons.link,
           primary: true,
           onPressed: _busy ? null : _open,
