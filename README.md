@@ -12,9 +12,32 @@ promises of faster comprehension.
 importing, stars, bookmarks, contents, saved positions and light/dark themes are implemented.
 Conventional page reading, PDF reflow and purchasing remain later milestones.
 
-<img src="docs/screenshots/ios-library.png" alt="Phralio library on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader.png" alt="Measured focal word on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader-dark.png" alt="Reader in dark mode" width="240">
+### The reading aperture
 
-<img src="docs/screenshots/android-library.png" alt="Native Android library" width="200"> <img src="docs/screenshots/android-reader-dark.png" alt="Native Android dark reader on compact display" width="200">
+The approved brandkit gives Phralio its split-P mark, warm Paper (`#F4F0E7`),
+deep Ink (`#182523`) and restrained Vermilion (`#BA4A32`). Brick (`#A73E2A`)
+is the accessible light-mode action color; Ember (`#F29C82`) serves that role
+in dark mode. IBM Plex Sans leads the interface and reader, with Newsreader
+reserved for editorial headings. The active word stays on a plain, fixed
+reading field. See the [app brand guide](docs/brand/brand-guide.md),
+[design contract](DESIGN.md) and [brand artwork](assets/brand/README.md).
+The source `phralio-brandkit` package remains a separate reference in this
+workspace; the app bundles the approved assets and font licenses.
+
+### Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/app-store/01-context.png" alt="Paused reader with nearby passage and current word in focus" width="170">
+  <img src="docs/screenshots/app-store/02-focus.png" alt="Quiet word-by-word playback view" width="170">
+  <img src="docs/screenshots/app-store/03-library.png" alt="Home library showing saved reading progress" width="170">
+  <img src="docs/screenshots/app-store/04-saved.png" alt="Saved readings and word bookmarks" width="170">
+</p>
+
+These are 6.9-inch iPhone App Store frames captured from the simulator with
+synthetic sample text. [More app renders](docs/screenshots/brandkit/README.md)
+cover both themes, iOS and compact Android, plus entry, settings and error
+states. [Paused scrolling captures](docs/screenshots/scrolling-behaviour/README.md)
+show the current word-by-word layout.
 
 ### Read now
 
@@ -96,11 +119,18 @@ usage statistics** to opt in. Builds without these values leave the switch
 disabled and send nothing. Analytics delivery is best effort: offline events are
 dropped, reading never waits for the server, and opting out stops future sends.
 
-Screenshots use synthetic text and the actual native app renderer. Regenerate:
+Development screenshots use synthetic text and the actual app renderer. Regenerate
+the unframed iOS or Android captures with:
 
 ```sh
 flutter drive --driver=test_driver/screenshots.dart --target=integration_test/screenshots_test.dart -d <device-id>
 ```
+
+The framed iPhone images above were made with [Goldie](goldie/goldie.config.ts)
+and the committed [capture flows](.argent/flows/). Goldie's output and app
+preview video live locally in ignored `goldie/out/`; reviewed PNG copies live in
+`docs/screenshots/app-store/` so they render in this README. The simulator build
+used for those captures was Debug with Flutter's debug banner disabled.
 
 ### Architecture
 
@@ -121,8 +151,8 @@ contracts, not a working commercial parser or payment system.
 Phralio was selected after [preliminary public naming research](docs/brand/naming-research.md).
 No material conflicting software use was found in the reviewed sources; this is
 not formal legal clearance. Similar-mark findings and search limitations are
-recorded. [Brand concepts](docs/brand/brand-concepts.md) and
-[brand guide](docs/brand/brand-guide.md) document the original identity.
+recorded. [Earlier brand concepts](docs/brand/brand-concepts.md) are superseded
+by the approved [reading-aperture identity](docs/brand/brand-guide.md).
 
 - Software code: [Mozilla Public License 2.0](LICENSE).
 - Third-party components: their [respective licenses](THIRD_PARTY_NOTICES.md).
@@ -132,12 +162,3 @@ recorded. [Brand concepts](docs/brand/brand-concepts.md) and
 Outside contributions and support requests are not currently accepted; see
 [CONTRIBUTING](CONTRIBUTING.md). No CLA is required or provided.
 [Security/privacy](SECURITY.md) · [Roadmap](docs/development/roadmap.md).
-
-## Approved visual identity
-
-The app implements **The reading aperture** from the workspace's approved
-`phralio-brandkit`: Paper/Ink surfaces, Brick/Ember actions, exact split-P SVGs,
-IBM Plex Sans UI/reader type and selective Newsreader library headings.
-The fonts ship locally with OFL licenses available in Open-source licenses.
-Native iOS glass controls receive the same palette through the existing bridge.
-See [DESIGN.md](DESIGN.md) and [artwork tooling](assets/brand/README.md).

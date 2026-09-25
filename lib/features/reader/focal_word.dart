@@ -32,9 +32,6 @@ class FocalLayout {
                 ? TextStyle(
                     color: focal,
                     fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                    decorationColor: focal,
-                    decorationThickness: 1.5,
                   )
                 : null,
           ),

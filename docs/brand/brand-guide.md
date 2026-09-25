@@ -51,8 +51,8 @@ no branding animations. OS-owned menus retain system typography and behavior.
 
 The fixed reader anchor is 42% of available width. Shaped glyph measurement,
 Unicode graphemes, word fitting, timing, punctuation pauses, seeking and saved
-progress are preserved. Focal emphasis combines accent, weight and underline;
-turning highlight off removes all three. Text scaling expands the word's paint
+progress are preserved. Focal emphasis combines accent and weight;
+turning highlight off removes both. Text scaling expands the word's paint
 area. Whitespace tokenization still does not segment unspaced CJK into words.
 
 Manual physical-device VoiceOver/TalkBack and performance checks remain release
