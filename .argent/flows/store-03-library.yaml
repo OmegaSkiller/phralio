@@ -1,0 +1,6 @@
+steps:
+  - launch: io.github.omegaskiller.phralio
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Continue reading }, timeoutMs: 20000 }
+  - tool: await-screen-idle
+    args: { timeoutMs: 5000 }

@@ -1,0 +1,13 @@
+steps:
+  - launch: io.github.omegaskiller.phralio
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Continue reading }, timeoutMs: 20000 }
+  - echo: The Read button inside the continuation card is centered at (0.5, 0.38) after scene 1 creates it.
+  - tap: { x: 0.5, y: 0.38 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Play reading }, timeoutMs: 10000 }
+  - tool: await-screen-idle
+    args: { timeoutMs: 5000 }
+  - echo: Tap the central Play reading control at (0.5, 0.754).
+  - tap: { x: 0.5, y: 0.754 }
+  - wait: 300

@@ -1,0 +1,15 @@
+executionPrerequisite: The sample is open and paused after playback.
+steps:
+  - echo: Reading actions is the upper-right circle at (0.9, 0.102).
+  - tap: { x: 0.9, y: 0.102 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Bookmark this word } }
+  - echo: Bookmark this word is the first menu row at (0.678, 0.107).
+  - tap: { x: 0.678, y: 0.107 }
+  - echo: Back is the top-left circular control at (0.086, 0.102).
+  - tap: { x: 0.086, y: 0.102 }
+  - echo: Saved is the third bottom tab at (0.61, 0.916).
+  - tap: { x: 0.61, y: 0.916 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Starred readings }, timeoutMs: 10000 }
+  - wait: 1500
