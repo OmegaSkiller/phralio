@@ -3,7 +3,7 @@
 The public Flutter application stands alone. Features own their UI and storage
 operations. Riverpod composes SQLite, persisted settings and premium capabilities.
 There is no private package dependency. Reading needs no network; optional usage
-analytics is the only app-initiated request.
+analytics and user-requested URL/image imports are the only app-initiated requests.
 
 `core/document.dart` tokenizes whitespace-delimited text, preserves source offsets
 and validates paste ingestion (nonblank, no NUL, maximum 200,000 UTF-16 code units).
@@ -15,6 +15,8 @@ pause, replay starts from zero. One cancellable Timer is scheduled against
 Stopwatch's monotonic clock. Deadlines accumulate so ordinary dispatch latency
 does not accumulate into drift. A long stall pauses on the current word instead
 of skipping unread text. Remaining time uses a suffix-duration table.
+Image markers are reading units with their own 1–30 second dwell, separate from
+word speed.
 
 The focal painter measures the highlighted grapheme's actual shaped selection
 box and holds its center at 42% width. Long-word fitting preserves that anchor.
@@ -43,14 +45,23 @@ when opened. Imported normalized text has a SHA-256 fingerprint with a unique
 index; duplicate imports keep the original position and star. Old pasted copies
 retain their separate identities. All migration steps roll back on failure.
 
-`core/file_import.dart` parses TXT and EPUB offline. EPUB container/package XML
+`core/file_import.dart` parses TXT, Markdown and EPUB offline. EPUB container/package XML
 locates the manifest; linear spine order becomes one normalized text stream.
 Hidden/navigation/script/style content is omitted. No markup is rendered or
-executed, no URLs fetched, and no archive paths extracted. Source, inflated ZIP,
+executed by the parser, no URLs fetched inside it, and no archive paths extracted. Source, inflated ZIP,
 per-resource and text limits bound imports. CRC and actual expansion are checked;
 reading-content encryption is rejected. Obfuscated fonts do not prevent text
 reading. The worker returns normalized text, metadata, word count and fingerprint.
 The OS picker grants access only to the file selected by the user.
+
+Schema 3 adds heading metadata, bounded image blobs and per-document word
+bookmarks without resetting existing libraries. Markdown is parsed to markup and
+flattened through the same safe text/heading/image extractor as EPUB.
+`core/remote_import.dart` fetches user-requested HTTPS pages with redirect and
+byte limits, strips non-reading elements, and stores supported same-site images.
+Remote Markdown images are optional; local sibling files are not assumed to be
+available through the mobile picker. The four-tab shell owns primary navigation;
+the reader owns immersive playback and paused word-by-word browsing.
 
 Appearance is persisted alongside reading settings. Semantic colors resolve from
 the active app theme, so explicit dark/light choices override the device setting.

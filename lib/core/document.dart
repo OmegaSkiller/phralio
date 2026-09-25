@@ -1,11 +1,36 @@
 import 'package:characters/characters.dart';
 
+import 'dart:typed_data';
+
+const imageMarker = '\uFFFC';
+
+class ReadingHeading {
+  const ReadingHeading(this.title, this.position, this.level);
+  final String title;
+  final int position;
+  final int level;
+}
+
+class ReadingImage {
+  const ReadingImage({
+    required this.position,
+    required this.alt,
+    this.bytes,
+    this.source,
+  });
+  final int position;
+  final String alt;
+  final Uint8List? bytes;
+  final String? source;
+}
+
 /// UTF-16 source offsets allow future reflow/importers to share a location.
 class ReaderToken {
   const ReaderToken(this.text, this.offset, this.paragraphEnd);
   final String text;
   final int offset;
   final bool paragraphEnd;
+  bool get isImage => text == imageMarker;
   bool get sentenceEnd => RegExp(r'''[.!?…。！？][”’"')\]]*$''').hasMatch(text);
   int get focalIndex {
     final glyphs = text.characters.toList();
@@ -52,13 +77,26 @@ class ReaderDocument {
     required this.text,
     this.position = 0,
     this.openedAt = 0,
+    this.headings = const [],
+    this.images = const [],
   }) : tokens = tokenize(text);
   final int id;
   final String title;
   final String text;
   final int position;
   final int openedAt;
+  final List<ReadingHeading> headings;
+  final List<ReadingImage> images;
   final List<ReaderToken> tokens;
+  ReaderDocument atPosition(int value) => ReaderDocument(
+    id: id,
+    title: title,
+    text: text,
+    position: value,
+    openedAt: openedAt,
+    headings: headings,
+    images: images,
+  );
   double get progress =>
       tokens.isEmpty ? 0 : position.clamp(0, tokens.length) / tokens.length;
 }

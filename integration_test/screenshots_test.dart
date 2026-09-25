@@ -11,6 +11,8 @@ import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/app/providers.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/library/library_screen.dart';
+import 'package:phralio/features/reader/reader_screen.dart';
+import 'package:phralio/app/design.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +45,11 @@ void main() {
         .read(settingsProvider.notifier)
         .update(ReaderSettings(appearance: Appearance.dark));
     await tester.pumpAndSettle();
+    expect(
+      ReaderColors.of(tester.element(find.byType(LibraryScreen))),
+      ReaderColors.dark,
+    );
+    await tester.pump();
     await binding.takeScreenshot('$platform-library-dark');
     await container
         .read(settingsProvider.notifier)
@@ -57,9 +64,27 @@ void main() {
         .read(settingsProvider.notifier)
         .update(ReaderSettings(appearance: Appearance.dark));
     await tester.pumpAndSettle();
+    expect(
+      ReaderColors.of(tester.element(find.byType(ReaderScreen))),
+      ReaderColors.dark,
+    );
+    if (Platform.isIOS) {
+      expect(
+        tester
+            .widgetList<CupertinoPageScaffold>(
+              find.byType(CupertinoPageScaffold),
+            )
+            .any(
+              (page) => page.backgroundColor == ReaderColors.dark.background,
+            ),
+        isTrue,
+      );
+    }
+    await tester.pump();
     await binding.takeScreenshot('$platform-reader-dark');
     await tester.tap(find.bySemanticsLabel('Reader settings'));
     await tester.pumpAndSettle();
+    await tester.pump();
     await binding.takeScreenshot('$platform-settings-dark');
     expect(tester.takeException(), isNull);
     // Android surface restoration is registered by the binding at tearDown.

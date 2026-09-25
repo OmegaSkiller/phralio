@@ -18,6 +18,17 @@ final capabilitiesProvider = Provider<ReaderCapabilities>(
 final libraryProvider = FutureProvider<List<LibraryEntry>>(
   (ref) => ref.watch(storeProvider).all(),
 );
+final savedProvider =
+    FutureProvider<
+      ({List<LibraryEntry> starred, List<BookmarkEntry> bookmarks})
+    >((ref) async {
+      final store = ref.watch(storeProvider);
+      final books = await store.all();
+      return (
+        starred: books.where((book) => book.starred).toList(),
+        bookmarks: await store.bookmarks(),
+      );
+    });
 final settingsProvider = NotifierProvider<SettingsController, ReaderSettings>(
   SettingsController.new,
 );

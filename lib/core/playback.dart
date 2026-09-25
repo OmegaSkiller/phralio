@@ -9,6 +9,7 @@ import 'settings.dart';
 class TimingPolicy {
   const TimingPolicy();
   Duration duration(ReaderToken token, ReaderSettings settings) {
+    if (token.isImage) return Duration(seconds: settings.imageSeconds);
     var weight = 1.0;
     if (settings.pauses != SmartPauses.off) {
       final strength = settings.pauses == SmartPauses.strong ? 1.5 : 1.0;

@@ -7,7 +7,7 @@ without replacing their copyright notices. Flutter also bundles runtime notices
 in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
-characters, path, file_selector, crypto and http (BSD-3-Clause); archive and xml (MIT);
+characters, path, file_selector, crypto, http and markdown (BSD-3-Clause); archive and xml (MIT);
 html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes
@@ -28,6 +28,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | Resolved package | Preserved notice |
 | --- | --- |
 | `archive` | [License](third_party/licenses/archive.txt) |
+| `args` | [License](third_party/licenses/args.txt) |
 | `async` | [License](third_party/licenses/async.txt) |
 | `boolean_selector` | [License](third_party/licenses/boolean_selector.txt) |
 | `characters` | [License](third_party/licenses/characters.txt) |
@@ -69,6 +70,7 @@ Regenerate this inventory with `python3 tool/collect_notices.py` after resolutio
 | `listen` | [License](third_party/licenses/listen.txt) |
 | `logging` | [License](third_party/licenses/logging.txt) |
 | `lucide_icons_flutter` | [License](third_party/licenses/lucide_icons_flutter.txt) |
+| `markdown` | [License](third_party/licenses/markdown.txt) |
 | `matcher` | [License](third_party/licenses/matcher.txt) |
 | `material_color_utilities` | [License](third_party/licenses/material_color_utilities.txt) |
 | `meta` | [License](third_party/licenses/meta.txt) |

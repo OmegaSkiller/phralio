@@ -101,3 +101,21 @@ The newer results below supersede the foundation counts above.
   36 and the iPhone 18 Pro simulator after the analytics code was introduced.
 - Live event delivery remains unverified until a dedicated Phralio Umami property
   and HTTPS server URL are configured. No unrelated website property is used.
+
+## Rich reading update
+
+The results below supersede earlier test counts for the current checkout.
+
+- Dart formatting and `flutter analyze` pass; all 44 unit/widget tests pass.
+  The added coverage checks Markdown headings and image frames, separate image
+  timing, public HTTPS URL validation and article extraction, bounded responses,
+  bookmarks, saved image data, and schema 2 migration.
+- The new native Markdown → Contents → bookmark → Saved → clipboard flow passed
+  on Android API 36 and the iPhone 18 Pro simulator. Existing native reader and
+  library flows passed on both platforms after these features were added.
+- Android and iOS screenshot drivers passed again after the final reader UI
+  edits. The light reader and Home captures were visually reviewed on both
+  platforms; Android's compact display scrolls to the lower reading controls.
+- `git diff --check` passes. URL extraction is unit-tested with a mock client;
+  public-site behavior still needs a manual check with a live site. Manual
+  VoiceOver/TalkBack and physical-device checks remain outstanding.

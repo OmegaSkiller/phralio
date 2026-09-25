@@ -10,8 +10,10 @@ class ReaderSettings {
     this.appearance = Appearance.system,
     this.reduceTransparency = false,
     this.shareUsage = false,
+    int imageSeconds = 5,
     double fontSize = 42,
   }) : wpm = wpm.clamp(100, 1500),
+       imageSeconds = imageSeconds.clamp(1, 60),
        fontSize = fontSize.clamp(24, 72);
   final int wpm;
   final SmartPauses pauses;
@@ -19,6 +21,7 @@ class ReaderSettings {
   final Appearance appearance;
   final bool reduceTransparency;
   final bool shareUsage;
+  final int imageSeconds;
   final double fontSize;
   ReaderSettings copyWith({
     int? wpm,
@@ -27,6 +30,7 @@ class ReaderSettings {
     Appearance? appearance,
     bool? reduceTransparency,
     bool? shareUsage,
+    int? imageSeconds,
     double? fontSize,
   }) => ReaderSettings(
     wpm: wpm ?? this.wpm,
@@ -35,6 +39,7 @@ class ReaderSettings {
     appearance: appearance ?? this.appearance,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
     shareUsage: shareUsage ?? this.shareUsage,
+    imageSeconds: imageSeconds ?? this.imageSeconds,
     fontSize: fontSize ?? this.fontSize,
   );
   Map<String, Object> toJson() => {
@@ -44,6 +49,7 @@ class ReaderSettings {
     'appearance': appearance.name,
     'reduceTransparency': reduceTransparency,
     'shareUsage': shareUsage,
+    'imageSeconds': imageSeconds,
     'fontSize': fontSize,
   };
   factory ReaderSettings.fromJson(Map<String, dynamic> json) => ReaderSettings(
@@ -53,6 +59,7 @@ class ReaderSettings {
     ),
     reduceTransparency: json['reduceTransparency'] == true,
     shareUsage: json['shareUsage'] == true,
+    imageSeconds: json['imageSeconds'] is int ? json['imageSeconds'] as int : 5,
     wpm: json['wpm'] is int ? json['wpm'] as int : 300,
     pauses: SmartPauses.values.firstWhere(
       (p) => p.name == json['pauses'],

@@ -11,6 +11,8 @@ enum UsageScreen {
   reader('/app/reader', 'Reader'),
   settings('/app/settings', 'Settings'),
   addText('/app/add-text', 'Add text'),
+  addUrl('/app/add-url', 'Add URL'),
+  saved('/app/saved', 'Saved'),
   licenses('/app/licenses', 'Licenses');
 
   const UsageScreen(this.path, this.title);
@@ -21,6 +23,9 @@ enum UsageScreen {
 enum ReadingSource {
   txt('txt'),
   epub('epub'),
+  markdown('markdown'),
+  web('web'),
+  clipboard('clipboard'),
   paste('paste'),
   sample('sample');
 
@@ -49,7 +54,11 @@ enum UsageEvent {
   transparencyChanged('transparency_changed'),
   smartPausesChanged('smart_pauses_changed'),
   focalHighlightChanged('focal_highlight_changed'),
-  readerTypeSizeChanged('reader_type_size_changed');
+  readerTypeSizeChanged('reader_type_size_changed'),
+  imageTimeChanged('image_time_changed'),
+  bookmarkAdded('bookmark_added'),
+  bookmarkRemoved('bookmark_removed'),
+  contentsOpened('contents_opened');
 
   const UsageEvent(this.wire);
   final String wire;

@@ -12,7 +12,6 @@ import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/library/library_screen.dart';
-import 'package:phralio/features/reader/focal_word.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../test/import_test.dart' show epub;
@@ -66,15 +65,15 @@ void main() {
       expect(await store.all(), isEmpty);
       picker.next = XFile.fromData(epub(), path: 'fixture.epub');
       await tapText('Import file');
-      expect(find.byType(FocalWord), findsOneWidget);
+      expect(find.byType(ListWheelScrollView), findsOneWidget);
       await tester.tap(find.bySemanticsLabel('Next sentence'));
       await tester.pumpAndSettle();
-      final word = tester.widget<FocalWord>(find.byType(FocalWord)).token.text;
       await tester.tap(find.bySemanticsLabel('Back'));
       await tester.pumpAndSettle();
       final saved = (await store.all()).single;
       expect(saved.wordCount, 8);
       expect(saved.position, greaterThan(0));
+      final word = (await store.document(saved.id)).tokens[saved.position].text;
       expect(saved.progress, lessThan(1));
       await tester.scrollUntilVisible(
         find.bySemanticsLabel('Star A book & a pause'),
@@ -107,7 +106,14 @@ void main() {
       await tapText(
         'Import file',
       ); // Same EPUB resumes, rather than duplicates.
-      expect(tester.widget<FocalWord>(find.byType(FocalWord)).token.text, word);
+      expect(
+        find.text('${saved.position + 1} of ${saved.wordCount} words'),
+        findsOneWidget,
+      );
+      expect(
+        (await store.document(saved.id)).tokens[saved.position].text,
+        word,
+      );
       expect((await store.all()).length, 1);
       await tester.tap(find.bySemanticsLabel('Back'));
       await tester.pumpAndSettle();
@@ -116,7 +122,7 @@ void main() {
         path: 'fresh.txt',
       );
       await tapText('Import file');
-      expect(find.byType(FocalWord), findsOneWidget);
+      expect(find.byType(ListWheelScrollView), findsOneWidget);
       expect((await store.all()).length, 2);
       expect(tester.takeException(), isNull);
     } finally {

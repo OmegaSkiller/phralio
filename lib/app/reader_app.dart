@@ -9,7 +9,7 @@ import 'providers.dart';
 import 'usage_analytics.dart';
 import 'design.dart';
 import 'identity.dart';
-import '../features/library/library_screen.dart';
+import 'reader_shell.dart';
 
 class ReaderApp extends ConsumerStatefulWidget {
   const ReaderApp({super.key});
@@ -85,7 +85,7 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
             darkColor: ReaderColors.dark.accent,
           ),
         ),
-        home: const LibraryScreen(),
+        home: const ReaderShell(),
       );
     }
     return MaterialApp(
@@ -98,7 +98,7 @@ class _ReaderAppState extends ConsumerState<ReaderApp>
         Appearance.light => ThemeMode.light,
         Appearance.dark => ThemeMode.dark,
       },
-      home: const LibraryScreen(),
+      home: const ReaderShell(),
     );
   }
 }

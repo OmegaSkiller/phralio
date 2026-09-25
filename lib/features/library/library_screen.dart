@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -13,9 +14,11 @@ import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
 import '../../core/file_import.dart';
+import '../../core/remote_import.dart';
 import '../reader/reader_screen.dart';
 import '../reader/settings_screen.dart';
 import 'paste_screen.dart';
+import 'url_screen.dart';
 
 const sampleText = '''A little more room for words.
 
@@ -89,10 +92,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         acceptedTypeGroups: const [
           XTypeGroup(
             label: 'Books and text',
-            extensions: ['txt', 'epub'],
-            mimeTypes: ['text/plain', 'application/epub+zip'],
+            extensions: ['txt', 'epub', 'md', 'markdown'],
+            mimeTypes: ['text/plain', 'application/epub+zip', 'text/markdown'],
             uniformTypeIdentifiers: [
               'public.plain-text',
+              'net.daringfireball.markdown',
               'org.idpf.epub-container',
             ],
           ),
@@ -114,23 +118,47 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         }
         bytes.add(chunk);
       }
-      final book = await compute(FileImport.parse, (
+      var book = await compute(FileImport.parse, (
         name: file.name,
         bytes: bytes.takeBytes(),
       ));
+      if (book.format == 'Markdown' && book.images.isNotEmpty) {
+        final importer = RemoteImport();
+        try {
+          book = await importer.hydrateImages(book);
+        } finally {
+          importer.close();
+        }
+      }
       if (!mounted) return;
       final id = await ref.read(storeProvider).importReading(book);
       analytics.record(
         UsageEvent.importSucceeded,
-        source: file.name.toLowerCase().endsWith('.epub')
-            ? ReadingSource.epub
-            : ReadingSource.txt,
+        source: switch (book.format) {
+          'EPUB' => ReadingSource.epub,
+          'Markdown' => ReadingSource.markdown,
+          _ => ReadingSource.txt,
+        },
       );
       if (mounted) await _open(id);
     } catch (_) {
       analytics.record(UsageEvent.importFailed);
       rethrow;
     }
+  });
+
+  Future<void> _clipboard() => _perform(() async {
+    final value = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = value?.text;
+    if (text == null || text.trim().isEmpty) {
+      throw const FormatException('Clipboard has no readable text.');
+    }
+    final id = await ref.read(storeProvider).add('Clipboard reading', text);
+    ref
+        .read(usageAnalyticsProvider)
+        .record(UsageEvent.importSucceeded, source: ReadingSource.clipboard);
+    ref.invalidate(libraryProvider);
+    if (mounted) await _open(id);
   });
 
   @override
@@ -205,6 +233,18 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                                 ? null
                                 : () => pushPage(context, const PasteScreen()),
                           ),
+                          ActionButton(
+                            label: 'Read URL',
+                            icon: LucideIcons.link,
+                            onPressed: _busy
+                                ? null
+                                : () => pushPage(context, const UrlScreen()),
+                          ),
+                          ActionButton(
+                            label: 'Read clipboard',
+                            icon: LucideIcons.clipboard,
+                            onPressed: _busy ? null : _clipboard,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -218,9 +258,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                             child: Semantics(
                               liveRegion: true,
                               child: Text(
-                                _busy
-                                    ? 'Opening your reading…'
-                                    : 'TXT & EPUB · Saved on this device',
+                                _busy ? 'Opening your reading…' : 'TXT, Markdown & EPUB · Saved on this device',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: colors.secondary,
@@ -441,6 +479,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                               : UsageEvent.starAdded,
                         );
                     ref.invalidate(libraryProvider);
+                    ref.invalidate(savedProvider);
                   }),
           ),
         ],

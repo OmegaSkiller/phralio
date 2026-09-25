@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as html;
+import 'package:markdown/markdown.dart' as md;
 import 'package:path/path.dart' as p;
 import 'package:xml/xml.dart';
 
@@ -16,10 +17,37 @@ class ImportedReading {
     required this.text,
     required this.format,
     this.author = '',
+    this.headings = const [],
+    this.images = const [],
   }) : wordCount = RegExp(r'\S+', unicode: true).allMatches(text).length,
-       fingerprint = sha256.convert(utf8.encode(text)).toString();
+       fingerprint = _fingerprint(text, images);
   final String title, text, format, author, fingerprint;
   final int wordCount;
+  final List<ReadingHeading> headings;
+  final List<ReadingImage> images;
+
+  static String _fingerprint(String text, List<ReadingImage> images) {
+    final data = StringBuffer(text);
+    for (final image in images) {
+      data.write('|image:${image.position}:');
+      data.write(
+        image.source ??
+            (image.bytes == null
+                ? ''
+                : sha256.convert(image.bytes!).toString()),
+      );
+    }
+    return sha256.convert(utf8.encode(data.toString())).toString();
+  }
+
+  ImportedReading withImages(List<ReadingImage> resolved) => ImportedReading(
+    title: title,
+    text: text,
+    format: format,
+    author: author,
+    headings: headings,
+    images: resolved,
+  );
 }
 
 /// No archive extraction, networking, or executable markup. Runs in an isolate.
@@ -38,8 +66,22 @@ abstract final class FileImport {
     if (extension == '.txt') {
       return _reading(title, decodeText(input.bytes), 'TXT');
     }
+    if (extension == '.md' || extension == '.markdown') {
+      final markup = md.markdownToHtml(
+        decodeText(input.bytes),
+        extensionSet: md.ExtensionSet.gitHubFlavored,
+      );
+      final extracted = _extractHtml(markup);
+      return _reading(
+        title,
+        extracted.text,
+        'Markdown',
+        headings: extracted.headings,
+        images: extracted.images,
+      );
+    }
     if (extension != '.epub') {
-      throw const FormatException('Choose a TXT or EPUB file.');
+      throw const FormatException('Choose a TXT, Markdown or EPUB file.');
     }
     try {
       return _epub(input.bytes, title);
@@ -55,9 +97,11 @@ abstract final class FileImport {
   static ImportedReading _reading(
     String title,
     String text,
-    String format, [
+    String format, {
     String author = '',
-  ]) {
+    List<ReadingHeading> headings = const [],
+    List<ReadingImage> images = const [],
+  }) {
     final clean = TextImport.validate(
       title,
       text,
@@ -68,6 +112,35 @@ abstract final class FileImport {
       text: clean.text,
       format: format,
       author: author.trim(),
+      headings: headings,
+      images: images,
+    );
+  }
+
+  static ImportedReading parseWeb(String markup, Uri page) {
+    final document = html.parse(markup);
+    final title = document.querySelector('title')?.text.trim() ?? page.host;
+    final root =
+        document.querySelector('article') ??
+        document.querySelector('main') ??
+        document.body;
+    final extracted = _extractHtml(markup, root: root);
+    final images = extracted.images.map((image) {
+      final source = image.source;
+      if (source == null) return image;
+      final resolved = page.resolve(source);
+      return ReadingImage(
+        position: image.position,
+        alt: image.alt,
+        source: resolved.toString(),
+      );
+    }).toList();
+    return _reading(
+      title.isEmpty ? page.host : title,
+      extracted.text,
+      'Web',
+      headings: extracted.headings,
+      images: images,
     );
   }
 
@@ -232,6 +305,10 @@ abstract final class FileImport {
       }
     }
     final text = StringBuffer();
+    final headings = <ReadingHeading>[];
+    final images = <ReadingImage>[];
+    var imageBytes = 0;
+    var wordOffset = 0;
     for (final reference in _elements(package, 'itemref')) {
       if (reference.getAttribute('linear') == 'no') continue;
       final item = manifest[reference.getAttribute('idref')];
@@ -254,8 +331,49 @@ abstract final class FileImport {
           'This EPUB uses a reading format that is not supported.',
         );
       }
-      final chapter = _plainHtml(readText(resource));
-      if (chapter.isNotEmpty) text.writeln('$chapter\n');
+      final chapter = _extractHtml(readText(resource));
+      if (chapter.text.isNotEmpty) text.writeln('${chapter.text}\n');
+      headings.addAll(
+        chapter.headings.map(
+          (heading) => ReadingHeading(
+            heading.title,
+            heading.position + wordOffset,
+            heading.level,
+          ),
+        ),
+      );
+      for (final image in chapter.images) {
+        Uint8List? bytes;
+        if (images.length < 24 && imageBytes < 16 * 1024 * 1024) {
+          try {
+            final imagePath = _path(
+              p.posix.dirname(resource),
+              image.source ?? '',
+            );
+            if (!encrypted.contains(imagePath)) {
+              bytes = _safeImage(read(imagePath));
+              if (bytes != null &&
+                  imageBytes + bytes.length > 16 * 1024 * 1024) {
+                bytes = null;
+              }
+              if (bytes != null) imageBytes += bytes.length;
+            }
+          } catch (_) {
+            // A broken image does not make the book's text unreadable.
+          }
+        }
+        images.add(
+          ReadingImage(
+            position: image.position + wordOffset,
+            alt: image.alt,
+            bytes: bytes,
+          ),
+        );
+      }
+      wordOffset += RegExp(
+        r'\S+',
+        unicode: true,
+      ).allMatches(chapter.text).length;
       if (text.length > maxTextCharacters) {
         throw const FormatException(
           'This book exceeds the 2 million character text limit.',
@@ -266,15 +384,41 @@ abstract final class FileImport {
       titles.isEmpty ? fallbackTitle : titles.first.innerText,
       text.toString(),
       'EPUB',
-      creators.map((e) => e.innerText).join(', '),
+      author: creators.map((e) => e.innerText).join(', '),
+      headings: headings,
+      images: images,
     );
   }
 
-  static String _plainHtml(String source) {
-    final body = html.parse(source).body;
-    if (body == null) return '';
+  static Uint8List? _safeImage(Uint8List bytes) {
+    if (bytes.isEmpty || bytes.length > 2 * 1024 * 1024) return null;
+    final png =
+        bytes.length > 8 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4e &&
+        bytes[3] == 0x47;
+    final jpeg =
+        bytes.length > 3 &&
+        bytes[0] == 0xff &&
+        bytes[1] == 0xd8 &&
+        bytes[2] == 0xff;
+    final gif =
+        bytes.length > 6 && String.fromCharCodes(bytes.take(3)) == 'GIF';
+    final webp =
+        bytes.length > 12 &&
+        String.fromCharCodes(bytes.take(4)) == 'RIFF' &&
+        String.fromCharCodes(bytes.skip(8).take(4)) == 'WEBP';
+    return png || jpeg || gif || webp ? bytes : null;
+  }
+
+  static Uint8List? safeImage(Uint8List bytes) => _safeImage(bytes);
+
+  static _Extracted _extractHtml(String source, {dom.Element? root}) {
+    final body = root ?? html.parse(source).body;
+    if (body == null) return const _Extracted('', [], []);
     for (final element in body.querySelectorAll(
-      'script, style, nav, noscript, template, [hidden], [aria-hidden="true"]',
+      'script, style, nav, noscript, template, header, footer, aside, form, button, iframe, svg, video, audio, canvas, object, embed, [role="navigation"], [role="banner"], [role="complementary"], [hidden], [aria-hidden="true"]',
     )) {
       element.remove();
     }
@@ -301,6 +445,8 @@ abstract final class FileImport {
       'figcaption',
     };
     final out = StringBuffer();
+    final headingOffsets = <({int offset, String title, int level})>[];
+    final imageOffsets = <({int offset, String alt, String? source})>[];
     // Iterative traversal avoids stack exhaustion from deeply nested markup.
     final pending = <({dom.Node node, bool closing})>[
       (node: body, closing: false),
@@ -314,6 +460,25 @@ abstract final class FileImport {
         final block = blocks.contains(node.localName);
         if (block) out.write('\n\n');
         if (!entry.closing) {
+          if (node.localName == 'img') {
+            out.write(' ');
+            imageOffsets.add((
+              offset: out.length,
+              alt: node.attributes['alt'] ?? '',
+              source: node.attributes['src'],
+            ));
+            out.write('$imageMarker ');
+            continue;
+          }
+          final heading = RegExp(r'^h([1-6])$')
+              .firstMatch(node.localName ?? '');
+          if (heading != null) {
+            headingOffsets.add((
+              offset: out.length,
+              title: node.text.trim(),
+              level: int.parse(heading.group(1)!),
+            ));
+          }
           if (block) pending.add((node: node, closing: true));
           for (final child in node.nodes.reversed) {
             pending.add((node: child, closing: false));
@@ -321,13 +486,41 @@ abstract final class FileImport {
         }
       }
     }
-    return out
+    final raw = out.toString();
+    int wordAt(int offset) => RegExp(
+      r'\S+',
+      unicode: true,
+    ).allMatches(raw.substring(0, offset)).length;
+    final clean = raw
         .toString()
         .replaceAll(RegExp(r'[^\S\n]+\n'), '\n')
         .replaceAll(RegExp(r'\n[^\S\n]+'), '\n')
         .replaceAll(RegExp(r'\n{3,}'), '\n\n')
         .trim();
+    return _Extracted(
+      clean,
+      [
+        for (final h in headingOffsets)
+          if (h.title.isNotEmpty)
+            ReadingHeading(h.title, wordAt(h.offset), h.level),
+      ],
+      [
+        for (final i in imageOffsets)
+          ReadingImage(
+            position: wordAt(i.offset),
+            alt: i.alt,
+            source: i.source,
+          ),
+      ],
+    );
   }
+}
+
+class _Extracted {
+  const _Extracted(this.text, this.headings, this.images);
+  final String text;
+  final List<ReadingHeading> headings;
+  final List<ReadingImage> images;
 }
 
 class _LimitedOutput extends OutputMemoryStream {

@@ -7,15 +7,51 @@ import '../../core/document.dart';
 import '../../core/file_import.dart';
 import '../../core/settings.dart';
 
-ReaderDocument _decodeDocument(Map<String, Object?> row) => ReaderDocument(
-  id: row['id'] as int,
-  title: row['title'] as String,
-  text: row['content'] as String,
-  position: row['position'] as int,
-  openedAt: row['opened'] as int,
-);
+ReaderDocument _decodeDocument(
+  (Map<String, Object?>, List<Map<String, Object?>>) input,
+) {
+  final (row, images) = input;
+  final headings = jsonDecode(row['headings'] as String) as List<dynamic>;
+  return ReaderDocument(
+    id: row['id'] as int,
+    title: row['title'] as String,
+    text: row['content'] as String,
+    position: row['position'] as int,
+    openedAt: row['opened'] as int,
+    headings: [
+      for (final value in headings)
+        ReadingHeading(
+          (value as Map<String, dynamic>)['title'] as String,
+          value['position'] as int,
+          value['level'] as int,
+        ),
+    ],
+    images: [
+      for (final image in images)
+        ReadingImage(
+          position: image['position'] as int,
+          alt: image['alt'] as String,
+          bytes: image['content'] as Uint8List?,
+        ),
+    ],
+  );
+}
+
 int _countWords(String text) =>
     RegExp(r'\S+', unicode: true).allMatches(text).length;
+
+class BookmarkEntry {
+  const BookmarkEntry({
+    required this.documentId,
+    required this.position,
+    required this.title,
+    required this.wordCount,
+  });
+  final int documentId;
+  final int position;
+  final String title;
+  final int wordCount;
+}
 
 class LibraryStore {
   LibraryStore._(this.database);
@@ -27,16 +63,22 @@ class LibraryStore {
     final db = await (factory ?? databaseFactory).openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: 2,
+        version: 3,
         onCreate: (db, _) async {
           await db.execute(
-            'CREATE TABLE documents (id INTEGER PRIMARY KEY, title TEXT NOT NULL, content TEXT NOT NULL, position INTEGER NOT NULL DEFAULT 0, opened INTEGER NOT NULL DEFAULT 0, word_count INTEGER NOT NULL DEFAULT 0, starred INTEGER NOT NULL DEFAULT 0, format TEXT NOT NULL DEFAULT \'Text\', author TEXT NOT NULL DEFAULT \'\', fingerprint TEXT)',
+            'CREATE TABLE documents (id INTEGER PRIMARY KEY, title TEXT NOT NULL, content TEXT NOT NULL, position INTEGER NOT NULL DEFAULT 0, opened INTEGER NOT NULL DEFAULT 0, word_count INTEGER NOT NULL DEFAULT 0, starred INTEGER NOT NULL DEFAULT 0, format TEXT NOT NULL DEFAULT \'Text\', author TEXT NOT NULL DEFAULT \'\', fingerprint TEXT, headings TEXT NOT NULL DEFAULT \'[]\')',
           );
           await db.execute(
             'CREATE UNIQUE INDEX imported_fingerprint ON documents(fingerprint)',
           );
           await db.execute(
             'CREATE TABLE preferences (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL)',
+          );
+          await db.execute(
+            'CREATE TABLE document_images (document_id INTEGER NOT NULL, position INTEGER NOT NULL, alt TEXT NOT NULL, content BLOB, PRIMARY KEY(document_id, position), FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE)',
+          );
+          await db.execute(
+            'CREATE TABLE bookmarks (document_id INTEGER NOT NULL, position INTEGER NOT NULL, created INTEGER NOT NULL, PRIMARY KEY(document_id, position), FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE)',
           );
         },
         onUpgrade: (db, old, _) async {
@@ -80,6 +122,17 @@ class LibraryStore {
               );
             }
           }
+          if (old < 3) {
+            await db.execute(
+              "ALTER TABLE documents ADD COLUMN headings TEXT NOT NULL DEFAULT '[]'",
+            );
+            await db.execute(
+              'CREATE TABLE document_images (document_id INTEGER NOT NULL, position INTEGER NOT NULL, alt TEXT NOT NULL, content BLOB, PRIMARY KEY(document_id, position), FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE)',
+            );
+            await db.execute(
+              'CREATE TABLE bookmarks (document_id INTEGER NOT NULL, position INTEGER NOT NULL, created INTEGER NOT NULL, PRIMARY KEY(document_id, position), FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE)',
+            );
+          }
         },
       ),
     );
@@ -108,7 +161,13 @@ class LibraryStore {
       whereArgs: [id],
     );
     if (rows.isEmpty) throw StateError('Reading no longer exists.');
-    final document = await compute(_decodeDocument, rows.single);
+    final imageRows = await database.query(
+      'document_images',
+      where: 'document_id=?',
+      whereArgs: [id],
+      orderBy: 'position ASC',
+    );
+    final document = await compute(_decodeDocument, (rows.single, imageRows));
     await database.update(
       'documents',
       {'opened': DateTime.now().millisecondsSinceEpoch},
@@ -147,16 +206,73 @@ class LibraryStore {
           );
           return id;
         }
-        return txn.insert('documents', {
+        final id = await txn.insert('documents', {
           'title': book.title,
           'content': book.text,
           'word_count': book.wordCount,
           'format': book.format,
           'author': book.author,
           'fingerprint': book.fingerprint,
+          'headings': jsonEncode([
+            for (final h in book.headings)
+              {'title': h.title, 'position': h.position, 'level': h.level},
+          ]),
           'opened': now,
         });
+        for (final image in book.images) {
+          await txn.insert('document_images', {
+            'document_id': id,
+            'position': image.position,
+            'alt': image.alt,
+            'content': image.bytes,
+          });
+        }
+        return id;
       });
+
+  Future<List<int>> bookmarksFor(int documentId) async => (await database.query(
+    'bookmarks',
+    columns: ['position'],
+    where: 'document_id=?',
+    whereArgs: [documentId],
+    orderBy: 'position ASC',
+  )).map((row) => row['position'] as int).toList();
+
+  Future<bool> toggleBookmark(int documentId, int position) async {
+    final existing = await database.query(
+      'bookmarks',
+      where: 'document_id=? AND position=?',
+      whereArgs: [documentId, position],
+    );
+    if (existing.isNotEmpty) {
+      await database.delete(
+        'bookmarks',
+        where: 'document_id=? AND position=?',
+        whereArgs: [documentId, position],
+      );
+      return false;
+    }
+    await database.insert('bookmarks', {
+      'document_id': documentId,
+      'position': position,
+      'created': DateTime.now().millisecondsSinceEpoch,
+    });
+    return true;
+  }
+
+  Future<List<BookmarkEntry>> bookmarks() async =>
+      (await database.rawQuery(
+            'SELECT b.document_id, b.position, d.title, d.word_count FROM bookmarks b JOIN documents d ON d.id=b.document_id ORDER BY b.created DESC',
+          ))
+          .map(
+            (row) => BookmarkEntry(
+              documentId: row['document_id'] as int,
+              position: row['position'] as int,
+              title: row['title'] as String,
+              wordCount: row['word_count'] as int,
+            ),
+          )
+          .toList();
 
   Future<void> setStarred(int id, bool value) async {
     await database.update(

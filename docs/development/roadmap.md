@@ -12,7 +12,11 @@ Library/appearance milestone: TXT and DRM-free EPUB ingestion, recent/starred
 library, whole-book word positions, persisted themes, Lucide icons and restrained
 Flutter glass controls. See `library-and-appearance.md`.
 
-Phase 2 remaining: conventional reflow reader, chapter navigation, deeper
+Rich-reading milestone: Markdown and public HTTPS article imports, bounded
+supported images, EPUB/Markdown heading navigation, bookmarks, clipboard reading,
+four primary tabs and tap-to-focus playback with paused word browsing.
+
+Phase 2 remaining: conventional reflow reader, deeper
 accessibility and performance profiling.
 
 Phase 3: private PDF reflow prototype, scan detection, premium presentation and

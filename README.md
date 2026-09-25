@@ -1,6 +1,6 @@
 <p align="left"><img src="assets/brand/logo-horizontal.svg" alt="Phralio" width="290"></p>
 
-An offline reading app that gives each word a stable point of attention.
+An offline-first reading app that gives each word a stable point of attention.
 Built with Flutter for iOS and Android, with native navigation and controls.
 
 Phralio presents text one word at a time using RSVP (rapid serial visual
@@ -8,8 +8,8 @@ presentation). Its focal character stays in one measured position as words
 change. Pace and punctuation pauses are controls for personal comfort, not
 promises of faster comprehension.
 
-**Status: offline reader with a local book library.** TXT and DRM-free EPUB
-importing, stars, saved positions and explicit light/dark themes are implemented.
+**Status: local reader with optional URL import.** TXT, Markdown and DRM-free EPUB
+importing, stars, bookmarks, contents, saved positions and light/dark themes are implemented.
 Conventional page reading, PDF reflow and purchasing remain later milestones.
 
 <img src="docs/screenshots/ios-library.png" alt="Phralio library on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader.png" alt="Measured focal word on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader-dark.png" alt="Reader in dark mode" width="240">
@@ -18,10 +18,18 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
 
 ### Read now
 
-- Import TXT or DRM-free EPUB, paste text, or try the original sample reading.
+- Use Home, Read, Settings and Saved tabs. Read resumes the most recent reading;
+  Saved holds bookmarks and starred readings.
+- Import TXT, Markdown or DRM-free EPUB; paste text, read the clipboard, save a
+  public HTTPS text/article URL, or try the original sample reading.
 - Browse recent readings or starred favorites; see progress across the whole file.
+- Jump to EPUB or Markdown headings through Contents; bookmark individual words.
 - Importing identical text again resumes its saved place instead of adding a copy.
 - Play, pause, resume, jump ten words, move between sentences or scrub position.
+- Tap the reading surface to play with controls hidden; tap again to pause and
+  browse the words before and after. The paused wheel advances one word per step.
+- View supported PNG/JPEG/GIF/WebP images from EPUB, Markdown or articles. Image
+  frames use a separate 1–30 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.
 - Keep the focal glyph anchored using real text measurement, including composed
   Unicode characters; adjust type size or turn highlighting off.
@@ -29,14 +37,19 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
 - Choose System, Light or Dark appearance, saved across restarts.
 - Lucide icons and restrained glass controls; reduce transparency for solid surfaces.
 
-No account or content upload. Text stays on the device; OS backup behavior
+No account or content upload. Imported text and images stay on the device; OS backup behavior
 still applies. Optional Umami usage statistics are off by default and only
 available in builds configured with an Umami property. They include screen visits
 and fixed app actions, never book text, titles, filenames or reading positions.
 Paste limit: 200,000 UTF-16 code units. File import: 32 MB source,
 64 MB total EPUB expansion, 16 MB per text resource, 2 million text code units.
-EPUB imports the main reading order as text; images, original layout and DRM
-are unsupported. TXT accepts UTF-8 or BOM-marked UTF-16. Tokenization
+EPUB imports the main reading order with headings and supported embedded images;
+original layout and DRM are unsupported. Markdown can load data-URI and public
+HTTPS images; relative images beside a picked file may be unavailable due to
+mobile file-picker access. URL import removes scripts, navigation and forms,
+downloads supported same-site images, and requires a network connection at
+import time. Pages/images are bounded to 4 MB/2 MB, with 24 images and 16 MB
+total image data per reading. TXT accepts UTF-8 or BOM-marked UTF-16. Tokenization
 is whitespace-based; specialized CJK segmentation is not yet provided.
 
 ### Run and test

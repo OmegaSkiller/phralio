@@ -3,7 +3,16 @@
 The app stores reading text and settings in local SQLite. It has no account or
 content upload. SQLite is not additionally encrypted by this app; device security
 and OS backup policies apply. Clipboard content is read only after the user taps
-Paste. Document contents must never be included in diagnostics or telemetry.
+Paste or Read clipboard. Document contents must never be included in diagnostics
+or telemetry.
+
+URL import fetches a user-entered public HTTPS page. Only HTML, Markdown or plain
+text is accepted; executable markup is never rendered. Scripts, navigation,
+forms and hidden content are removed. Redirects, page bytes and image bytes are
+bounded, and only same-host images are fetched for article URLs. Imported text
+and images are then stored locally for offline reading. Markdown image links to
+public HTTPS hosts are fetched when the user imports that file. A remote site
+receives the device's network address and request metadata during import.
 
 Optional Umami analytics is disabled by default and requires both build-time
 configuration and a saved in-app opt-in. It sends fixed screen paths and event

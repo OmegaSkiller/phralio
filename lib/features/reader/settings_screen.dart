@@ -16,6 +16,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  int? _imageSecondsDraft;
   @override
   void initState() {
     super.initState();
@@ -207,6 +208,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             'The reader honors text scaling and fits long words to keep their focal character in view.',
             style: TextStyle(fontSize: 14),
           ),
+          const SizedBox(height: 24),
+          Text(
+            'Image viewing time · ${_imageSecondsDraft ?? settings.imageSeconds} seconds',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          const Text('Images pause the reading flow for this duration.'),
+          isApple(context)
+              ? CupertinoSlider(
+                  value: (_imageSecondsDraft ?? settings.imageSeconds)
+                      .toDouble(),
+                  min: 1,
+                  max: 30,
+                  divisions: 29,
+                  onChanged: (value) =>
+                      setState(() => _imageSecondsDraft = value.round()),
+                  onChangeEnd: (value) async {
+                    await update(
+                      settings.copyWith(imageSeconds: value.round()),
+                      event: UsageEvent.imageTimeChanged,
+                    );
+                    if (mounted) setState(() => _imageSecondsDraft = null);
+                  },
+                )
+              : Slider(
+                  value: (_imageSecondsDraft ?? settings.imageSeconds)
+                      .toDouble(),
+                  min: 1,
+                  max: 30,
+                  divisions: 29,
+                  label: '${settings.imageSeconds} seconds',
+                  onChanged: (value) =>
+                      setState(() => _imageSecondsDraft = value.round()),
+                  onChangeEnd: (value) async {
+                    await update(
+                      settings.copyWith(imageSeconds: value.round()),
+                      event: UsageEvent.imageTimeChanged,
+                    );
+                    if (mounted) setState(() => _imageSecondsDraft = null);
+                  },
+                ),
           const SizedBox(height: 24),
           const Text(
             'Usage statistics',

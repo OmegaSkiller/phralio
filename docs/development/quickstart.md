@@ -104,19 +104,20 @@ for commands while the app runs. Start with one platform at a time.
 
 ## 5. Try the app manually
 
-1. Tap **Try a short reading**, then open **A little more room** from the library.
-2. Play, pause, adjust WPM and use the sentence / ten-word navigation controls.
-3. Scroll to the progress slider if needed and move to another point in the text.
-4. Return to the library and reopen the reading; it should resume at its saved
-   word, paused. Quit and relaunch to check the same behavior across launches.
-5. Open Reading settings. Change smart pauses, focal highlighting and type size.
+1. On **Home**, tap **Try a short reading**, then open **A little more room**.
+2. Tap the reading surface to play with controls hidden. Tap again to pause,
+   then swipe the word wheel to move one word at a time. The current word stays
+   highlighted.
+3. Adjust WPM, use the sentence / ten-word controls, and scroll to the progress
+   slider if needed. Bookmark the current word and find it under **Saved**.
+4. Return to **Home** and reopen the reading. It should resume at its saved word,
+   paused. Quit and relaunch to check the same behavior across launches.
+5. Open **Settings** and change smart pauses, focal highlighting, type size,
+   image viewing time and appearance. Check light/dark and larger system text.
 6. Use **Add text** to save your own passage. Empty text should show an error.
-7. Check light/dark appearance and larger system text sizes on the simulator.
 
-The first milestone supports pasted text and a sample reading. TXT/EPUB import,
-normal reading and PDF/OCR are not implemented yet. WPM is a pacing setting, not
-a comprehension score. Emulator data stays local; uninstalling the app or erasing
-a simulator removes its local library.
+WPM is a pacing setting, not a comprehension score. Emulator data stays local;
+uninstalling the app or erasing a simulator removes its local library.
 
 ## 6. Automated checks
 
@@ -128,8 +129,9 @@ flutter test
 ```
 
 `analyze` checks source-code problems. `test` runs the unit/widget suite; it does
-not need a running emulator. The current baseline is 18 passing tests. The suite
-checks timing, text parsing, focal alignment, SQLite persistence and UI/accessibility.
+not need a running emulator. The current baseline is 44 passing tests. The suite
+checks timing, imports, URL extraction, bookmarks, SQLite persistence, focal
+alignment and UI/accessibility.
 
 For the real device flow, keep the selected simulator/emulator booted and run one
 of these commands, then let it finish before starting another device test:
@@ -188,8 +190,8 @@ Official references: [iOS setup](https://docs.flutter.dev/platform-integration/i
 5. Open **Reading settings** and try **Light**, **Dark**, and **System**. Try
    **Reduce transparency** for solid controls. Settings survive an app restart.
 
-EPUB imports text in book order. Pictures, original page layout and DRM are not
-supported. TXT supports UTF-8 and BOM-marked UTF-16. Import errors leave your
+EPUB imports text and supported embedded images in book order. Original page
+layout and DRM are not supported. TXT supports UTF-8 and BOM-marked UTF-16. Import errors leave your
 existing library unchanged. Do not uninstall the app to test restarting:
 uninstalling can remove the local database.
 
@@ -199,6 +201,33 @@ SQLite, reading and the interface are real):
 ```sh
 flutter test integration_test/library_flow_test.dart -d <device-id>
 ```
+
+## Try the new reading features
+
+1. On **Home**, import a `.md`/`.markdown` file, or tap **Read URL** and enter a
+   public HTTPS article. A network connection is needed only while importing a
+   URL or a Markdown image linked to a remote site. **Read clipboard** reads
+   plain text after you tap it.
+2. Open an EPUB or Markdown reading. Tap **Contents** to jump to a heading;
+   tap the bookmark icon to save the current word. The **Saved** tab shows both
+   bookmarks and starred readings.
+3. Tap the word area or Play. Controls disappear while the reading advances.
+   Tap again to pause; swipe the word wheel to move one word at a time.
+4. In **Settings**, adjust **Image viewing time** independently of words per
+   minute. Supported embedded EPUB and public HTTPS/data-URI Markdown images
+   appear as timed frames. Local sibling images beside a selected Markdown file
+   may not be accessible through the mobile file picker.
+
+The automated flow for these features is:
+
+```sh
+flutter test integration_test/rich_reading_flow_test.dart -d <device-id>
+```
+
+It selects a synthetic Markdown file through a test picker, then exercises real
+parsing, SQLite storage, contents, bookmarks, Saved navigation and clipboard.
+The URL fetch parser uses a mock HTTP client in unit tests; live URL behavior
+depends on the site and is a separate manual check.
 
 ## Test optional usage statistics
 

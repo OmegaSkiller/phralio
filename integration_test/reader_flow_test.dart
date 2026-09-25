@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
@@ -48,18 +49,22 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save and read'));
     await tester.pumpAndSettle();
-    expect(find.byType(FocalWord), findsOneWidget);
+    expect(find.byType(ListWheelScrollView), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Play reading'));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
+    expect(find.byType(FocalWord), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 650));
-    await tester.tap(find.bySemanticsLabel('Pause reading'));
+    await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pumpAndSettle();
+    expect(find.byType(ListWheelScrollView), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Forward ten words'));
     await tester.pumpAndSettle();
-    final focal = tester.widget<FocalWord>(find.byType(FocalWord)).token.text;
     await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
     final saved = (await store.all()).single;
     expect(saved.position, greaterThanOrEqualTo(10));
+    final focal = (await store.document(saved.id)).tokens[saved.position].text;
     // Destroy app state and reopen the database: restoration cannot use memory.
     await tester.pumpWidget(const SizedBox.shrink());
     await store.close();
@@ -69,7 +74,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('A device reading'));
     await tester.pumpAndSettle();
-    expect(tester.widget<FocalWord>(find.byType(FocalWord)).token.text, focal);
+    expect(
+      find.text('${saved.position + 1} of ${saved.wordCount} words'),
+      findsOneWidget,
+    );
+    expect((await store.document(saved.id)).tokens[saved.position].text, focal);
     expect(find.bySemanticsLabel('Play reading'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Reader settings'));
     await tester.pumpAndSettle();

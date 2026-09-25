@@ -15,11 +15,17 @@ import '../../core/playback.dart';
 import '../../core/settings.dart';
 import '../library/library_store.dart';
 import 'focal_word.dart';
+import 'contents_screen.dart';
 import 'settings_screen.dart';
 
 class ReaderScreen extends ConsumerStatefulWidget {
-  const ReaderScreen({super.key, required this.document});
+  const ReaderScreen({
+    super.key,
+    required this.document,
+    this.onImmersiveChanged,
+  });
   final ReaderDocument document;
+  final ValueChanged<bool>? onImmersiveChanged;
   @override
   ConsumerState<ReaderScreen> createState() => _ReaderScreenState();
 }
@@ -34,6 +40,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   bool _saveFailed = false;
   bool _completionReported = false;
   bool _seeking = false;
+  bool _scrolling = false;
+  bool _immersive = false;
+  Set<int> _bookmarks = {};
+  late final FixedExtentScrollController _wordScroll;
   int _lastCheckpoint = -1;
   @override
   void initState() {
@@ -45,6 +55,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       position: widget.document.position,
     );
     _completionReported = _engine.completed;
+    _wordScroll = FixedExtentScrollController(
+      initialItem: _engine.position.clamp(0, _engine.tokens.length - 1),
+    );
+    unawaited(_loadBookmarks());
     ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
     WidgetsBinding.instance.addObserver(this);
     _subscription = _engine.changes.listen((_) {
@@ -56,11 +70,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       } else if (!_engine.completed) {
         _completionReported = false;
       }
+      if (_engine.completed && _immersive) {
+        _leaveImmersive();
+      }
       if (_playing != _engine.playing && mounted) {
         setState(() => _playing = _engine.playing);
       }
-      if (!_engine.playing ||
-          (_engine.position - _lastCheckpoint).abs() >= 10) {
+      if (!_scrolling &&
+          (!_engine.playing ||
+              (_engine.position - _lastCheckpoint).abs() >= 10)) {
         unawaited(_save());
       }
     });
@@ -85,6 +103,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) {
       _engine.pause();
+      if (_immersive) _leaveImmersive();
       unawaited(_save());
     }
   }
@@ -93,6 +112,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _subscription.cancel();
+    _wordScroll.dispose();
     unawaited(_save());
     _engine.dispose();
     super.dispose();
@@ -103,6 +123,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final wasPlaying = _engine.playing;
     wasPlaying ? _engine.pause() : _engine.play();
     if (wasPlaying != _engine.playing) {
+      setState(() => _immersive = _engine.playing);
+      widget.onImmersiveChanged?.call(_immersive);
+      if (!_immersive) _alignPausedWords();
       ref
           .read(usageAnalyticsProvider)
           .record(
@@ -110,6 +133,155 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             screen: UsageScreen.reader,
           );
     }
+  }
+
+  void _leaveImmersive() {
+    if (!mounted) return;
+    setState(() => _immersive = false);
+    widget.onImmersiveChanged?.call(false);
+    _alignPausedWords();
+  }
+
+  void _alignPausedWords() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _wordScroll.hasClients) {
+        _wordScroll.jumpToItem(
+          _engine.position.clamp(0, _engine.tokens.length - 1),
+        );
+      }
+    });
+  }
+
+  Future<void> _loadBookmarks() async {
+    final values = await _store.bookmarksFor(widget.document.id);
+    if (mounted) setState(() => _bookmarks = values.toSet());
+  }
+
+  Future<void> _toggleBookmark() async {
+    final position = _engine.position.clamp(0, _engine.tokens.length - 1);
+    final wasSaved = _bookmarks.contains(position);
+    setState(() {
+      _bookmarks = {..._bookmarks};
+      if (wasSaved) {
+        _bookmarks.remove(position);
+      } else {
+        _bookmarks.add(position);
+      }
+    });
+    try {
+      await _store.toggleBookmark(widget.document.id, position);
+      ref
+          .read(usageAnalyticsProvider)
+          .record(
+            wasSaved ? UsageEvent.bookmarkRemoved : UsageEvent.bookmarkAdded,
+            screen: UsageScreen.reader,
+          );
+      ref.invalidate(savedProvider);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          if (wasSaved) {
+            _bookmarks.add(position);
+          } else {
+            _bookmarks.remove(position);
+          }
+        });
+        showProblem(context, 'Bookmark could not be saved. Please try again.');
+      }
+    }
+  }
+
+  Future<void> _contents() async {
+    ref
+        .read(usageAnalyticsProvider)
+        .record(UsageEvent.contentsOpened, screen: UsageScreen.reader);
+    final position = await pushPage<int>(
+      context,
+      ContentsScreen(
+        headings: widget.document.headings,
+        bookmarks: _bookmarks.toList()..sort(),
+      ),
+    );
+    if (position == null || !mounted) return;
+    _seek(position);
+  }
+
+  Widget _wordOrImage(BuildContext context) {
+    final token = _engine.current;
+    if (token == null) {
+      return const Center(child: Text('A good place to pause.'));
+    }
+    if (!token.isImage) {
+      return FocalWord(
+        token: token,
+        fontSize: _engine.settings.fontSize,
+        highlight: _engine.settings.highlight,
+      );
+    }
+    ReadingImage? image;
+    for (final candidate in widget.document.images) {
+      if (candidate.position == _engine.position) {
+        image = candidate;
+        break;
+      }
+    }
+    if (image?.bytes case final bytes?) {
+      return Image.memory(
+        bytes,
+        fit: BoxFit.contain,
+        height: 260,
+        errorBuilder: (_, _, _) => const Text('Image unavailable'),
+      );
+    }
+    return Center(
+      child: Text(
+        image?.alt.isNotEmpty == true ? image!.alt : 'Image unavailable',
+      ),
+    );
+  }
+
+  Widget _pausedWords(BuildContext context) {
+    if (_engine.tokens.isEmpty) return const SizedBox.shrink();
+    final colors = ReaderColors.of(context);
+    return SizedBox(
+      height: 260,
+      child: NotificationListener<ScrollEndNotification>(
+        onNotification: (_) {
+          _scrolling = false;
+          unawaited(_save());
+          return false;
+        },
+        child: ListWheelScrollView.useDelegate(
+          controller: _wordScroll,
+          itemExtent: 48,
+          physics: const FixedExtentScrollPhysics(),
+          onSelectedItemChanged: (index) {
+            if (index == _engine.position) return;
+            _scrolling = true;
+            _scrub(index);
+          },
+          childDelegate: ListWheelChildBuilderDelegate(
+            childCount: _engine.tokens.length,
+            builder: (context, index) {
+              final token = _engine.tokens[index];
+              final current = index == _engine.position;
+              return Center(
+                child: Text(
+                  token.isImage ? 'Image' : token.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: current ? 24 : 18,
+                    fontWeight: current ? FontWeight.w700 : FontWeight.normal,
+                    color: current ? colors.accent : colors.secondary,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   void _seek(int position) {
@@ -124,6 +296,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     _seeking = true;
     try {
       _engine.seek(position);
+      if (_wordScroll.hasClients &&
+          _wordScroll.selectedItem != _engine.position &&
+          !_scrolling) {
+        _wordScroll.jumpToItem(
+          _engine.position.clamp(0, _engine.tokens.length - 1),
+        );
+      }
+      if (mounted && !_engine.playing) setState(() {});
     } finally {
       _seeking = false;
     }
@@ -164,6 +344,28 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       _engine.configure(next);
       setState(() {});
     });
+    if (_immersive) {
+      final focus = GestureDetector(
+        key: const ValueKey('immersive-reader'),
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggle,
+        child: Center(
+          child: StreamBuilder<void>(
+            stream: _engine.changes,
+            builder: (_, _) => _wordOrImage(context),
+          ),
+        ),
+      );
+      return isApple(context)
+          ? CupertinoPageScaffold(
+              backgroundColor: colors.background,
+              child: SafeArea(child: focus),
+            )
+          : Scaffold(
+              backgroundColor: colors.background,
+              body: SafeArea(child: focus),
+            );
+    }
     return PopScope<void>(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
@@ -172,20 +374,37 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         }
       },
       child: PlatformPage(
-        title: 'Focus reader',
-        trailing: IconAction(
-          label: 'Reader settings',
-          icon: LucideIcons.slidersHorizontal,
-          onPressed: () async {
-            _engine.pause();
-            await _save();
-            if (context.mounted) {
-              await pushPage(context, const SettingsScreen());
-              if (mounted) {
-                ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
-              }
-            }
-          },
+        title: 'Read',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconAction(
+              label: _bookmarks.contains(_engine.position)
+                  ? 'Remove bookmark'
+                  : 'Bookmark this word',
+              icon: LucideIcons.bookmark,
+              onPressed: _toggleBookmark,
+            ),
+            IconAction(
+              label: 'Contents',
+              icon: LucideIcons.list,
+              onPressed: _contents,
+            ),
+            IconAction(
+              label: 'Reader settings',
+              icon: LucideIcons.slidersHorizontal,
+              onPressed: () async {
+                _engine.pause();
+                await _save();
+                if (context.mounted) {
+                  await pushPage(context, const SettingsScreen());
+                  if (mounted) {
+                    ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
+                  }
+                }
+              },
+            ),
+          ],
         ),
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -207,7 +426,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   Text(
                     _playing
                         ? 'Follow the fixed point.'
-                        : 'Settle in. Start when you are ready.',
+                        : 'Tap to read · Swipe to move one word at a time.',
                     style: TextStyle(fontSize: 14, color: colors.secondary),
                   ),
                 ],
@@ -219,44 +438,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               onTap: _toggle,
               child: Column(
                 children: [
-                  ExcludeSemantics(
-                    child: Align(
-                      alignment: const Alignment(Measures.anchor * 2 - 1, 0),
-                      child: Container(
-                        width: 2,
-                        height: 16,
-                        color: colors.accent,
-                      ),
-                    ),
-                  ),
-                  StreamBuilder<void>(
-                    stream: _engine.changes,
-                    builder: (context, _) => _engine.current == null
-                        ? const SizedBox(
-                            height: 180,
-                            child: Center(
-                              child: Text(
-                                'A good place to pause.',
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            ),
-                          )
-                        : FocalWord(
-                            token: _engine.current!,
-                            fontSize: _engine.settings.fontSize,
-                            highlight: _engine.settings.highlight,
-                          ),
-                  ),
-                  ExcludeSemantics(
-                    child: Align(
-                      alignment: const Alignment(Measures.anchor * 2 - 1, 0),
-                      child: Container(
-                        width: 2,
-                        height: 16,
-                        color: colors.accent,
-                      ),
-                    ),
-                  ),
+                  _pausedWords(context),
+                  if (_engine.current?.isImage == true)
+                    SizedBox(height: 220, child: _wordOrImage(context)),
                 ],
               ),
             ),
