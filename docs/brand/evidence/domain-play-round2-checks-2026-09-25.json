@@ -1,0 +1,31 @@
+[
+  {
+    "url": "https://rdap.verisign.com/com/v1/domain/phralio.com",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://pubapi.registry.google/rdap/domain/phralio.app",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://rdap.nic.io/domain/phralio.io",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://phralio.com",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://phralio.app",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://phralio.io",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://play.google.com/store/search?q=Phralio&c=apps&hl=en&gl=US",
+    "status": 200,
+    "final_url": "https://play.google.com/store/search?q=Phralio&c=apps&hl=en&gl=US"
+  }
+]

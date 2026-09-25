@@ -1,0 +1,31 @@
+[
+  {
+    "url": "https://rdap.verisign.com/com/v1/domain/liltleaf.com",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://pubapi.registry.google/rdap/domain/liltleaf.app",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "url": "https://rdap.nic.io/domain/liltleaf.io",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://liltleaf.com",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://liltleaf.app",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://liltleaf.io",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "url": "https://play.google.com/store/search?q=Liltleaf&c=apps&hl=en&gl=US",
+    "status": 200,
+    "final_url": "https://play.google.com/store/search?q=Liltleaf&c=apps&hl=en&gl=US"
+  }
+]

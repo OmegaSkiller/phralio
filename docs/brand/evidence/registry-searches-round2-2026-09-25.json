@@ -1,0 +1,865 @@
+{
+  "date": "2026-09-25",
+  "checks": [
+    {
+      "name": "Metrune",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Metrune&entity=software&country=us&limit=25",
+      "result": {
+        "count": 1,
+        "items": [
+          {
+            "name": "WordRune",
+            "url": "https://apps.apple.com/us/app/wordrune/id6766302738?uo=4",
+            "seller": "muhammet gulden"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Metrune",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Metrune+in:name&per_page=10",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "TREAFREE/Metrune",
+            "url": "https://github.com/TREAFREE/Metrune",
+            "description": "Local-first Mac notch workspace for Focus, Codex, GitHub, music, badges, and activity reports."
+          },
+          {
+            "name": "cloudant42/metrune",
+            "url": "https://github.com/cloudant42/metrune",
+            "description": "Track AI coding agent usage across teams and organizations with a self-hosted client, server, and dashboard for token usage, costs, model breakdowns, and session trends."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Metrune",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Metrune&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Metrune",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Metrune",
+      "result": {
+        "packages": [
+          {
+            "package": "cricket_run_map"
+          },
+          {
+            "package": "js_widget_runtime"
+          },
+          {
+            "package": "truemetrics_flutter_sdk"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Phralio",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Phralio&entity=software&country=us&limit=25",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Phralio",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Phralio+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Phralio",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Phralio&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Phralio",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Phralio",
+      "result": {
+        "packages": [
+          {
+            "package": "mineral_ioc"
+          },
+          {
+            "package": "flutter_ali_oauth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Quillune",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Quillune&entity=software&country=us&limit=25",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "QT EMA",
+            "url": "https://apps.apple.com/us/app/qt-ema/id1105449638?uo=4",
+            "seller": "QuikTrip Corporation"
+          },
+          {
+            "name": "Quincy - Quinceanera Planner",
+            "url": "https://apps.apple.com/us/app/quincy-quinceanera-planner/id1491304785?uo=4",
+            "seller": "Vasilii Aleksandrov"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Quillune",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Quillune+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Quillune",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Quillune&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Quillune",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Quillune",
+      "result": {
+        "packages": [
+          {
+            "package": "flutter_quill"
+          },
+          {
+            "package": "synquill_utils"
+          },
+          {
+            "package": "quill_native_bridge"
+          },
+          {
+            "package": "flutter_quill_delta_from_html"
+          },
+          {
+            "package": "vsc_quill_delta_to_html"
+          },
+          {
+            "package": "dart_quill_delta"
+          },
+          {
+            "package": "markdown_quill"
+          },
+          {
+            "package": "flutter_quill_to_pdf"
+          },
+          {
+            "package": "flutter_quill_extensions"
+          },
+          {
+            "package": "quill_html_editor"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Quillune&page=2"
+      }
+    },
+    {
+      "name": "Orpelo",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Orpelo&entity=software&country=us&limit=25",
+      "result": {
+        "count": 4,
+        "items": [
+          {
+            "name": "OrvietoViva",
+            "url": "https://apps.apple.com/us/app/orvietoviva/id1661666942?uo=4",
+            "seller": "CREITALIA GROUP SNC DI FEDERICA ROMAGNOLI & C"
+          },
+          {
+            "name": "CentoZeri: Numeri Giganti",
+            "url": "https://apps.apple.com/us/app/centozeri-numeri-giganti/id6791565354?uo=4",
+            "seller": "Francesco Sarpellon"
+          },
+          {
+            "name": "Outsoon",
+            "url": "https://apps.apple.com/us/app/outsoon/id6670389052?uo=4",
+            "seller": "Gianluca Orpello"
+          },
+          {
+            "name": "OPO Corrector de tildes",
+            "url": "https://apps.apple.com/us/app/opo-corrector-de-tildes/id944171541?uo=4",
+            "seller": "Oscar Rodriguez"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Orpelo",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Orpelo+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Orpelo",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Orpelo&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Orpelo",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Orpelo",
+      "result": {
+        "packages": [
+          {
+            "package": "flutter_performance_monitor_plus"
+          },
+          {
+            "package": "fepe_logs"
+          },
+          {
+            "package": "fepe_logcat"
+          },
+          {
+            "package": "changelog_proccessor_poc"
+          },
+          {
+            "package": "frame_locator_pin"
+          },
+          {
+            "package": "fancy_dio_inspector_personal"
+          },
+          {
+            "package": "offset_iterator_persist"
+          },
+          {
+            "package": "flutter_peluhttp"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tenvell",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Tenvell&entity=software&country=us&limit=25",
+      "result": {
+        "count": 1,
+        "items": [
+          {
+            "name": "Payvel",
+            "url": "https://apps.apple.com/us/app/payvel/id6762797351?uo=4",
+            "seller": "Payvel PTY LTD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tenvell",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Tenvell+in:name&per_page=10",
+      "result": {
+        "count": 1,
+        "items": [
+          {
+            "name": "Tenvell/user_warehouse",
+            "url": "https://github.com/Tenvell/user_warehouse",
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tenvell",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Tenvell&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Tenvell",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Tenvell",
+      "result": {
+        "packages": []
+      }
+    },
+    {
+      "name": "Cadivra",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Cadivra&entity=software&country=us&limit=25",
+      "result": {
+        "count": 7,
+        "items": [
+          {
+            "name": "Lab Costa Caribe PR",
+            "url": "https://apps.apple.com/us/app/lab-costa-caribe-pr/id6738395773?uo=4",
+            "seller": "Healthcare Information Management Technologies, Inc"
+          },
+          {
+            "name": "Dr. Luevano",
+            "url": "https://apps.apple.com/us/app/dr-luevano/id1542261888?uo=4",
+            "seller": "Upgrade Diseno Interactivo, S.A.S. de C.V."
+          },
+          {
+            "name": "Pinilla",
+            "url": "https://apps.apple.com/us/app/pinilla/id6445887139?uo=4",
+            "seller": "CONSORCIO PINILLA SL"
+          },
+          {
+            "name": "CCR Net",
+            "url": "https://apps.apple.com/us/app/ccr-net/id6737723451?uo=4",
+            "seller": "Eduardo Felipe Silva de Amorim"
+          },
+          {
+            "name": "Calivita Business & More",
+            "url": "https://apps.apple.com/us/app/calivita-business-more/id6471897643?uo=4",
+            "seller": "CaliProducts Kereskedelmi es Szolgaltato Korlatolt Felelossegu Tarsasag"
+          },
+          {
+            "name": "Gerena",
+            "url": "https://apps.apple.com/us/app/gerena/id6760479911?uo=4",
+            "seller": "Gerena Distribuidora, S.A. de C.V."
+          },
+          {
+            "name": "Cadugo App",
+            "url": "https://apps.apple.com/us/app/cadugo-app/id6618150608?uo=4",
+            "seller": "Eduardo Felipe Silva de Amorim"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cadivra",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Cadivra+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Cadivra",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Cadivra&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Cadivra",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Cadivra",
+      "result": {
+        "packages": []
+      }
+    },
+    {
+      "name": "Lecavo",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Lecavo&entity=software&country=us&limit=25",
+      "result": {
+        "count": 11,
+        "items": [
+          {
+            "name": "Registar Lekova",
+            "url": "https://apps.apple.com/us/app/registar-lekova/id1342211232?uo=4",
+            "seller": "SOTEX MS DOO NOVI SAD"
+          },
+          {
+            "name": "Farmasi Adriatic",
+            "url": "https://apps.apple.com/us/app/farmasi-adriatic/id1396430626?uo=4",
+            "seller": "EUROBIT d.o.o. Sarajevo"
+          },
+          {
+            "name": "Kolib\u00ebr",
+            "url": "https://apps.apple.com/us/app/kolib%C3%ABr/id6763759661?uo=4",
+            "seller": "EDLIR VELAJ"
+          },
+          {
+            "name": "\u041c\u043e\u0458 \u041b\u0435\u043a",
+            "url": "https://apps.apple.com/us/app/%D0%BC%D0%BE%D1%98-%D0%BB%D0%B5%D0%BA/id1344937859?uo=4",
+            "seller": "Kodeks kompjuteri DOO"
+          },
+          {
+            "name": "Mladina",
+            "url": "https://apps.apple.com/us/app/mladina/id1143126660?uo=4",
+            "seller": "MLADINA d.d. Ljubljana"
+          },
+          {
+            "name": "La Gentleman's Lazarevac",
+            "url": "https://apps.apple.com/us/app/la-gentlemans-lazarevac/id6739692455?uo=4",
+            "seller": "Cutlio d.o.o"
+          },
+          {
+            "name": "Laivo teis\u0117s",
+            "url": "https://apps.apple.com/us/app/laivo-teis%C4%97s/id1516380600?uo=4",
+            "seller": "Matas Pocevicius"
+          },
+          {
+            "name": "Lekarska komora Srbije",
+            "url": "https://apps.apple.com/us/app/lekarska-komora-srbije/id6769014114?uo=4",
+            "seller": "Ivana Vukcevic"
+          },
+          {
+            "name": "LIKRA Farm",
+            "url": "https://apps.apple.com/us/app/likra-farm/id6780770481?uo=4",
+            "seller": "Matej Cok"
+          },
+          {
+            "name": "Pravo u CENTAR",
+            "url": "https://apps.apple.com/us/app/pravo-u-centar/id6759305485?uo=4",
+            "seller": "WYRA LLC"
+          },
+          {
+            "name": "Lepinje Somuni",
+            "url": "https://apps.apple.com/us/app/lepinje-somuni/id6741737087?uo=4",
+            "seller": "Acebears DOO"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lecavo",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Lecavo+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Lecavo",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Lecavo&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Lecavo",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Lecavo",
+      "result": {
+        "packages": [
+          {
+            "package": "expansion_tile_card"
+          },
+          {
+            "package": "flutter_simple_calculator"
+          },
+          {
+            "package": "flutter_map_tile_caching"
+          },
+          {
+            "package": "table_calendar"
+          },
+          {
+            "package": "simple_candlestick_chart"
+          },
+          {
+            "package": "swipeable_card_stack"
+          },
+          {
+            "package": "flutter_customizable_calendar"
+          },
+          {
+            "package": "expandable_cardview"
+          },
+          {
+            "package": "an_lifecycle_cancellable"
+          },
+          {
+            "package": "jalali_table_calendar_plus"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Lecavo&page=2"
+      }
+    },
+    {
+      "name": "Lunect",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Lunect&entity=software&country=us&limit=25",
+      "result": {
+        "count": 16,
+        "items": [
+          {
+            "name": "Lutron App",
+            "url": "https://apps.apple.com/us/app/lutron-app/id886753021?uo=4",
+            "seller": "Lutron Electronics Co., Inc."
+          },
+          {
+            "name": "Lumos: Sun and Moon Tracker",
+            "url": "https://apps.apple.com/us/app/lumos-sun-and-moon-tracker/id725106192?uo=4",
+            "seller": "Luminous Labs LLC"
+          },
+          {
+            "name": "Lumy",
+            "url": "https://apps.apple.com/us/app/lumy/id908905093?uo=4",
+            "seller": "Raja Vijayaraman"
+          },
+          {
+            "name": "Lutron Vive",
+            "url": "https://apps.apple.com/us/app/lutron-vive/id1229744416?uo=4",
+            "seller": "Lutron Electronics Co., Inc."
+          },
+          {
+            "name": "Luminos Map: Twilight Nav Tool",
+            "url": "https://apps.apple.com/us/app/luminos-map-twilight-nav-tool/id490077695?uo=4",
+            "seller": "Mapnitude Company Limited"
+          },
+          {
+            "name": "Energi Savr",
+            "url": "https://apps.apple.com/us/app/energi-savr/id368253173?uo=4",
+            "seller": "Lutron Electronics Co., Inc."
+          },
+          {
+            "name": "Light Meter - Lux Camera",
+            "url": "https://apps.apple.com/us/app/light-meter-lux-camera/id947202507?uo=4",
+            "seller": "Tu Anh Do"
+          },
+          {
+            "name": "Lumia Stream Link",
+            "url": "https://apps.apple.com/us/app/lumia-stream-link/id1599901960?uo=4",
+            "seller": "Lumia Stream LLC"
+          },
+          {
+            "name": "Moon Phase Calendar - Lumoon",
+            "url": "https://apps.apple.com/us/app/moon-phase-calendar-lumoon/id6739889469?uo=4",
+            "seller": "Samira Sadeghi"
+          },
+          {
+            "name": "Lume Health: Lux Tracker",
+            "url": "https://apps.apple.com/us/app/lume-health-lux-tracker/id6751324875?uo=4",
+            "seller": "Lume Health Technologies Inc."
+          },
+          {
+            "name": "LuminShack",
+            "url": "https://apps.apple.com/us/app/luminshack/id1580029101?uo=4",
+            "seller": "Dongguan Boyun Electronic Technology Co., Ltd."
+          },
+          {
+            "name": "Lunisolar sun moonphase",
+            "url": "https://apps.apple.com/us/app/lunisolar-sun-moonphase/id844772953?uo=4",
+            "seller": "\u660a\u7f61 \u59da"
+          },
+          {
+            "name": "Lumos Sleep",
+            "url": "https://apps.apple.com/us/app/lumos-sleep/id6446206092?uo=4",
+            "seller": "LumosTech, Inc."
+          },
+          {
+            "name": "Lupine Light Control 3.0",
+            "url": "https://apps.apple.com/us/app/lupine-light-control-3-0/id1582228436?uo=4",
+            "seller": "Lupine lighting systems GmbH"
+          },
+          {
+            "name": "Moongres",
+            "url": "https://apps.apple.com/us/app/moongres/id6742413260?uo=4",
+            "seller": "Oleh Honcharenko"
+          },
+          {
+            "name": "Lupin meter",
+            "url": "https://apps.apple.com/us/app/lupin-meter/id1256856500?uo=4",
+            "seller": "ENDO LIGHTING CORPORATION"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lunect",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Lunect+in:name&per_page=10",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "lunect/python_learn",
+            "url": "https://github.com/lunect/python_learn",
+            "description": null
+          },
+          {
+            "name": "lunect/python_t",
+            "url": "https://github.com/lunect/python_t",
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lunect",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Lunect&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Lunect",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Lunect",
+      "result": {
+        "packages": [
+          {
+            "package": "masamune_model_firebase_data_connect"
+          },
+          {
+            "package": "masamune_model_firebase_data_connect_builder"
+          },
+          {
+            "package": "connectivity_plus"
+          },
+          {
+            "package": "internet_connection_checker_plus"
+          },
+          {
+            "package": "html_unescape"
+          },
+          {
+            "package": "internet_connection_checker"
+          },
+          {
+            "package": "watch_connectivity"
+          },
+          {
+            "package": "ftpconnect"
+          },
+          {
+            "package": "nearby_connections"
+          },
+          {
+            "package": "vpn_connection_detector"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Lunect&page=2"
+      }
+    },
+    {
+      "name": "Phravo",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Phravo&entity=software&country=us&limit=25",
+      "result": {
+        "count": 3,
+        "items": [
+          {
+            "name": "Redbo Pho Mobile",
+            "url": "https://apps.apple.com/us/app/redbo-pho-mobile/id6764670616?uo=4",
+            "seller": "Farhang Hodjat"
+          },
+          {
+            "name": "Paphos Live",
+            "url": "https://apps.apple.com/us/app/paphos-live/id6776296466?uo=4",
+            "seller": "Conna Lee"
+          },
+          {
+            "name": "PafosPress",
+            "url": "https://apps.apple.com/us/app/pafospress/id1617841353?uo=4",
+            "seller": "Vasilkoff Ltd"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Phravo",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Phravo+in:name&per_page=10",
+      "result": {
+        "count": 1,
+        "items": [
+          {
+            "name": "mahbod5959/phravora",
+            "url": "https://github.com/mahbod5959/phravora",
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Phravo",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Phravo&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Phravo",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Phravo",
+      "result": {
+        "packages": [
+          {
+            "package": "phrase"
+          },
+          {
+            "package": "fluttering_phrases"
+          },
+          {
+            "package": "passphrase"
+          },
+          {
+            "package": "ultravox_client"
+          },
+          {
+            "package": "mnemonic_phrase"
+          },
+          {
+            "package": "flutter_avo_inspector"
+          },
+          {
+            "package": "geophrase_flutter"
+          },
+          {
+            "package": "passphrase_generator"
+          },
+          {
+            "package": "adsbravo_flutter"
+          },
+          {
+            "package": "fakhravari"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Phravo&page=2"
+      }
+    },
+    {
+      "name": "Verlilt",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Verlilt&entity=software&country=us&limit=25",
+      "result": {
+        "count": 8,
+        "items": [
+          {
+            "name": "Jumli - Buy. Sell. Simple.",
+            "url": "https://apps.apple.com/us/app/jumli-buy-sell-simple/id6743526765?uo=4",
+            "seller": "KROMOTION LLC"
+          },
+          {
+            "name": "Slagerij Konijn",
+            "url": "https://apps.apple.com/us/app/slagerij-konijn/id1559883730?uo=4",
+            "seller": "Trinite Soft BV"
+          },
+          {
+            "name": "#Venray",
+            "url": "https://apps.apple.com/us/app/venray/id6745415447?uo=4",
+            "seller": "Mediabureau Apeldoorn BV"
+          },
+          {
+            "name": "#Venlo",
+            "url": "https://apps.apple.com/us/app/venlo/id6738728846?uo=4",
+            "seller": "Mediabureau Apeldoorn BV"
+          },
+          {
+            "name": "#Hasselt",
+            "url": "https://apps.apple.com/us/app/hasselt/id6742106972?uo=4",
+            "seller": "Mediabureau Apeldoorn BV"
+          },
+          {
+            "name": "CKTech",
+            "url": "https://apps.apple.com/us/app/cktech/id6771088221?uo=4",
+            "seller": "caner karagulle"
+          },
+          {
+            "name": "Verkeer",
+            "url": "https://apps.apple.com/us/app/verkeer/id678095391?uo=4",
+            "seller": "VERJO B.V."
+          },
+          {
+            "name": "Mein Veolia Mitarbeitenden-App",
+            "url": "https://apps.apple.com/us/app/mein-veolia-mitarbeitenden-app/id6744648707?uo=4",
+            "seller": "Haiilo GmbH"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Verlilt",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Verlilt+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Verlilt",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Verlilt&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Verlilt",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Verlilt",
+      "result": {
+        "packages": [
+          {
+            "package": "super_sliver_list"
+          },
+          {
+            "package": "filter_list"
+          },
+          {
+            "package": "diffutil_sliverlist"
+          },
+          {
+            "package": "expandable_sliver_list"
+          },
+          {
+            "package": "analysis_server_lib"
+          },
+          {
+            "package": "flutter_listfilter"
+          },
+          {
+            "package": "screen_retriever_linux"
+          },
+          {
+            "package": "tabbed_sliverlist"
+          },
+          {
+            "package": "battery_saver_listener"
+          },
+          {
+            "package": "all_observer_lint"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Verlilt&page=2"
+      }
+    }
+  ]
+}

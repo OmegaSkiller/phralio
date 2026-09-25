@@ -1,0 +1,975 @@
+{
+  "date": "2026-09-25",
+  "checks": [
+    {
+      "name": "Syllume",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Syllume&entity=software&country=us&limit=25",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "SyllySync",
+            "url": "https://apps.apple.com/us/app/syllysync/id6742455642?uo=4",
+            "seller": "SyllySync LLC"
+          },
+          {
+            "name": "MPALSALOOM",
+            "url": "https://apps.apple.com/us/app/mpalsaloom/id1658260276?uo=4",
+            "seller": "Syskode Technologies W.L.L"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Syllume",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Syllume+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Syllume",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Syllume&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Syllume",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Syllume",
+      "result": {
+        "packages": [
+          {
+            "package": "illume"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cadrel",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Cadrel&entity=software&country=us&limit=25",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Cadrel",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Cadrel+in:name&per_page=10",
+      "result": {
+        "count": 17,
+        "items": [
+          {
+            "name": "Aki-Tomoya/CaDReL",
+            "url": "https://github.com/Aki-Tomoya/CaDReL",
+            "description": "The official repository of DRL-Net."
+          },
+          {
+            "name": "div7777777/cadrelumineu",
+            "url": "https://github.com/div7777777/cadrelumineu",
+            "description": null
+          },
+          {
+            "name": "FeiSiPub/LightningCADReleases",
+            "url": "https://github.com/FeiSiPub/LightningCADReleases",
+            "description": "\u95ea\u7535\u56f4\u62a4Public"
+          },
+          {
+            "name": "lazyw1zard/CADRelay",
+            "url": "https://github.com/lazyw1zard/CADRelay",
+            "description": null
+          },
+          {
+            "name": "Cadrella/Cadrella_Backend",
+            "url": "https://github.com/Cadrella/Cadrella_Backend",
+            "description": null
+          },
+          {
+            "name": "Aadhithya1718/FabrigramCADRelease",
+            "url": "https://github.com/Aadhithya1718/FabrigramCADRelease",
+            "description": null
+          },
+          {
+            "name": "GabrielPontin/CadRelatorio",
+            "url": "https://github.com/GabrielPontin/CadRelatorio",
+            "description": null
+          },
+          {
+            "name": "Muthesh5/NewtonsCadrel2",
+            "url": "https://github.com/Muthesh5/NewtonsCadrel2",
+            "description": null
+          },
+          {
+            "name": "Cadrella/Cadrella.dz",
+            "url": "https://github.com/Cadrella/Cadrella.dz",
+            "description": null
+          },
+          {
+            "name": "PrettyCADStudio/PrettyCADReleases",
+            "url": "https://github.com/PrettyCADStudio/PrettyCADReleases",
+            "description": "PrettyCAD \u7248\u672c\u4ed3\u5e93"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cadrel",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Cadrel&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Cadrel",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Cadrel",
+      "result": {
+        "packages": [
+          {
+            "package": "macadress_gen"
+          },
+          {
+            "package": "mac_address_plus"
+          },
+          {
+            "package": "get_mac_address"
+          },
+          {
+            "package": "lazy_load_refresh_indicator"
+          },
+          {
+            "package": "mac_address"
+          },
+          {
+            "package": "btc_address_validate_swan"
+          },
+          {
+            "package": "public_address_wallet"
+          },
+          {
+            "package": "query_ad_revenue"
+          },
+          {
+            "package": "g2x_positioned_relative_to_child"
+          },
+          {
+            "package": "hot_reload_runner"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Cadrel&page=2"
+      }
+    },
+    {
+      "name": "Liltleaf",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Liltleaf&entity=software&country=us&limit=25",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Liltleaf",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Liltleaf+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Liltleaf",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Liltleaf&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Liltleaf",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Liltleaf",
+      "result": {
+        "packages": [
+          {
+            "package": "dartleaf"
+          },
+          {
+            "package": "jetleaf_build"
+          },
+          {
+            "package": "jetleaf"
+          },
+          {
+            "package": "jetleaf_core"
+          },
+          {
+            "package": "jetleaf_pod"
+          },
+          {
+            "package": "jetleaf_env"
+          },
+          {
+            "package": "jetleaf_utils"
+          },
+          {
+            "package": "jetleaf_logging"
+          },
+          {
+            "package": "jetleaf_convert"
+          },
+          {
+            "package": "jetleaf_devtool"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Liltleaf&page=2"
+      }
+    },
+    {
+      "name": "Folivra",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Folivra&entity=software&country=us&limit=25",
+      "result": {
+        "count": 7,
+        "items": [
+          {
+            "name": "Foleja",
+            "url": "https://apps.apple.com/us/app/foleja/id6751587091?uo=4",
+            "seller": "3P d.o.o."
+          },
+          {
+            "name": "MyVe",
+            "url": "https://apps.apple.com/us/app/myve/id1540502326?uo=4",
+            "seller": "MyVe Ltd OOD"
+          },
+          {
+            "name": "Koupali\u0161t\u011b Petynka",
+            "url": "https://apps.apple.com/us/app/koupali%C5%A1t%C4%9B-petynka/id1375925065?uo=4",
+            "seller": "Eternal, s.r.o."
+          },
+          {
+            "name": "\u0412\u044a\u0437\u0434\u0443\u0445 \u0411\u0413 - \u0427\u0438\u0441\u0442\u043e\u0442\u0430 \u043d\u0430 \u0432\u044a\u0437\u0434\u0443\u0445\u0430",
+            "url": "https://apps.apple.com/us/app/%D0%B2%D1%8A%D0%B7%D0%B4%D1%83%D1%85-%D0%B1%D0%B3-%D1%87%D0%B8%D1%81%D1%82%D0%BE%D1%82%D0%B0-%D0%BD%D0%B0-%D0%B2%D1%8A%D0%B7%D0%B4%D1%83%D1%85%D0%B0/id1565137583?uo=4",
+            "seller": "Tihomir Radev"
+          },
+          {
+            "name": "Agama \u2014 \u043f\u043e\u0441\u043b\u0443\u0433\u0438 \u043f\u043e\u0440\u0443\u0447",
+            "url": "https://apps.apple.com/us/app/agama-%D0%BF%D0%BE%D1%81%D0%BB%D1%83%D0%B3%D0%B8-%D0%BF%D0%BE%D1%80%D1%83%D1%87/id6779793330?uo=4",
+            "seller": "Vladyslav Kovach"
+          },
+          {
+            "name": "Ypi.bg",
+            "url": "https://apps.apple.com/us/app/ypi-bg/id6458266724?uo=4",
+            "seller": "WAA FZE LLC"
+          },
+          {
+            "name": "Vesalius.ai",
+            "url": "https://apps.apple.com/us/app/vesalius-ai/id6786656236?uo=4",
+            "seller": "Endare bvba"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Folivra",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Folivra+in:name&per_page=10",
+      "result": {
+        "count": 1,
+        "items": [
+          {
+            "name": "ozdenkayra01-web/folivra",
+            "url": "https://github.com/ozdenkayra01-web/folivra",
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Folivra",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Folivra&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Folivra",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Folivra",
+      "result": {
+        "packages": [
+          {
+            "package": "dolivroo"
+          },
+          {
+            "package": "mercado_livre"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Syllora",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Syllora&entity=software&country=us&limit=25",
+      "result": {
+        "count": 5,
+        "items": [
+          {
+            "name": "Syllora",
+            "url": "https://apps.apple.com/us/app/syllora/id6799329836?uo=4",
+            "seller": "NICHOLAS D POWER"
+          },
+          {
+            "name": "SORA: Virtual Health Clinic",
+            "url": "https://apps.apple.com/us/app/sora-virtual-health-clinic/id1522155246?uo=4",
+            "seller": "Syrona Limited"
+          },
+          {
+            "name": "syrostoday",
+            "url": "https://apps.apple.com/us/app/syrostoday/id504968286?uo=4",
+            "seller": "Stylianos Skiathitis"
+          },
+          {
+            "name": "Silvera",
+            "url": "https://apps.apple.com/us/app/silvera/id6758348177?uo=4",
+            "seller": "ABDULLAH SALEH ABDULHAMID AL-BALOUSHI ESTABLISHMENT"
+          },
+          {
+            "name": "Syranot",
+            "url": "https://apps.apple.com/us/app/syranot/id6781308102?uo=4",
+            "seller": "Solal Toumayan"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Syllora",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Syllora+in:name&per_page=10",
+      "result": {
+        "count": 12,
+        "items": [
+          {
+            "name": "shauryakadlag/Syllora",
+            "url": "https://github.com/shauryakadlag/Syllora",
+            "description": "AI-powered syllabus companion that turns university curricula into structured learning paths and curated resources."
+          },
+          {
+            "name": "mangesh7827-sudo/syllora",
+            "url": "https://github.com/mangesh7827-sudo/syllora",
+            "description": null
+          },
+          {
+            "name": "shr0829/Syllora",
+            "url": "https://github.com/shr0829/Syllora",
+            "description": "Syllora is an AI learning workspace that turns any topic into a simple, systematic, low-cost learning path."
+          },
+          {
+            "name": "Syllora-app/syllora",
+            "url": "https://github.com/Syllora-app/syllora",
+            "description": "Privacy policy and support pages for Syllora"
+          },
+          {
+            "name": "vaishnaviras12-bot/syllora",
+            "url": "https://github.com/vaishnaviras12-bot/syllora",
+            "description": "Syllora is an AI-powered platform designed to transform and simplify educational content into engaging, accessible, and easy-to-understand learning experiences."
+          },
+          {
+            "name": "arnoreli53/Syllora",
+            "url": "https://github.com/arnoreli53/Syllora",
+            "description": "Assignment and grade tracking app for students."
+          },
+          {
+            "name": "Shrestha-ijarwal/syllora_",
+            "url": "https://github.com/Shrestha-ijarwal/syllora_",
+            "description": "Syllora is an AI-powered platform designed to transform and simplify educational content into engaging, accessible, and easy-to-understand learning experiences."
+          },
+          {
+            "name": "Thuhina957/Syllora-frontend",
+            "url": "https://github.com/Thuhina957/Syllora-frontend",
+            "description": null
+          },
+          {
+            "name": "divyanshtomaar-commits/syllora-visual-studio",
+            "url": "https://github.com/divyanshtomaar-commits/syllora-visual-studio",
+            "description": null
+          },
+          {
+            "name": "UditSinghChauhan/syllora-edtech",
+            "url": "https://github.com/UditSinghChauhan/syllora-edtech",
+            "description": "A production-ready, full-stack EdTech platform. Built with the MERN stack (React, Node.js, Express, MongoDB), integrated with Razorpay and Cloudinary."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Syllora",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Syllora&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Syllora",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Syllora",
+      "result": {
+        "packages": [
+          {
+            "package": "snowfall_or_anythings"
+          },
+          {
+            "package": "hello_ray"
+          },
+          {
+            "package": "hello_rafa"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tembrio",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Tembrio&entity=software&country=us&limit=25",
+      "result": {
+        "count": 5,
+        "items": [
+          {
+            "name": "Tempedia: TemTem Helper",
+            "url": "https://apps.apple.com/us/app/tempedia-temtem-helper/id1498405604?uo=4",
+            "seller": "Todd Kelly"
+          },
+          {
+            "name": "Recurret",
+            "url": "https://apps.apple.com/us/app/recurret/id6790108777?uo=4",
+            "seller": "Lorenzo Garbo"
+          },
+          {
+            "name": "CIM TKT",
+            "url": "https://apps.apple.com/us/app/cim-tkt/id6788928104?uo=4",
+            "seller": "Rafael Delgado"
+          },
+          {
+            "name": "Fortissimo",
+            "url": "https://apps.apple.com/us/app/fortissimo/id6761335977?uo=4",
+            "seller": "Jason Ruby"
+          },
+          {
+            "name": "Pommidoro",
+            "url": "https://apps.apple.com/us/app/pommidoro/id6792380327?uo=4",
+            "seller": "Giacomo Barbieri"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tembrio",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Tembrio+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Tembrio",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Tembrio&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Tembrio",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Tembrio",
+      "result": {
+        "packages": []
+      }
+    },
+    {
+      "name": "Lineva",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Lineva&entity=software&country=us&limit=25",
+      "result": {
+        "count": 3,
+        "items": [
+          {
+            "name": "Proliner V-App",
+            "url": "https://apps.apple.com/us/app/proliner-v-app/id6777052637?uo=4",
+            "seller": "Prodim International BV"
+          },
+          {
+            "name": "Stena Line Life",
+            "url": "https://apps.apple.com/us/app/stena-line-life/id1618941594?uo=4",
+            "seller": "Stena Line Scandinavia AB"
+          },
+          {
+            "name": "Davivienda Miami",
+            "url": "https://apps.apple.com/us/app/davivienda-miami/id1583707836?uo=4",
+            "seller": "GRUPO BOLIVAR S A"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lineva",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Lineva+in:name&per_page=10",
+      "result": {
+        "count": 95,
+        "items": [
+          {
+            "name": "dzangfan/lineva",
+            "url": "https://github.com/dzangfan/lineva",
+            "description": "Linear evaluation macro system for Common Lisp"
+          },
+          {
+            "name": "ocicl/lineva",
+            "url": "https://github.com/ocicl/lineva",
+            "description": null
+          },
+          {
+            "name": "LineVall/linevall_vendor_linevall",
+            "url": "https://github.com/LineVall/linevall_vendor_linevall",
+            "description": null
+          },
+          {
+            "name": "LineVall/linevall_hardware_linevall_interfaces",
+            "url": "https://github.com/LineVall/linevall_hardware_linevall_interfaces",
+            "description": null
+          },
+          {
+            "name": "LineVall/linevall_device_linevall_sepolicy",
+            "url": "https://github.com/LineVall/linevall_device_linevall_sepolicy",
+            "description": null
+          },
+          {
+            "name": "LineVall/linevall_packages_apps_LineVall",
+            "url": "https://github.com/LineVall/linevall_packages_apps_LineVall",
+            "description": null
+          },
+          {
+            "name": "linevael/linevael",
+            "url": "https://github.com/linevael/linevael",
+            "description": "test"
+          },
+          {
+            "name": "KsDevasenapathi/linevasool",
+            "url": "https://github.com/KsDevasenapathi/linevasool",
+            "description": null
+          },
+          {
+            "name": "LineVA/zoo",
+            "url": "https://github.com/LineVA/zoo",
+            "description": null
+          },
+          {
+            "name": "LineVA/boxtal",
+            "url": "https://github.com/LineVA/boxtal",
+            "description": "Exercice de recrutement"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lineva",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Lineva&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Lineva",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Lineva",
+      "result": {
+        "packages": [
+          {
+            "package": "flutter_outline_vpn_sdk"
+          },
+          {
+            "package": "event_timeline_view"
+          },
+          {
+            "package": "fixed_line_view"
+          },
+          {
+            "package": "spline_view"
+          },
+          {
+            "package": "spline_viewer"
+          },
+          {
+            "package": "offline_vector_maps"
+          },
+          {
+            "package": "dotted_line"
+          },
+          {
+            "package": "timelines_plus"
+          },
+          {
+            "package": "timeline_tile"
+          },
+          {
+            "package": "flutter_line_sdk"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Lineva&page=2"
+      }
+    },
+    {
+      "name": "Vellune",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Vellune&entity=software&country=us&limit=25",
+      "result": {
+        "count": 14,
+        "items": [
+          {
+            "name": "Vellune: Secret Messages",
+            "url": "https://apps.apple.com/us/app/vellune-secret-messages/id6768811970?uo=4",
+            "seller": "Kenroy McLeish"
+          },
+          {
+            "name": "Rev for Vercel",
+            "url": "https://apps.apple.com/us/app/rev-for-vercel/id6740740427?uo=4",
+            "seller": "FF Vision SRL"
+          },
+          {
+            "name": "VeriforceOne",
+            "url": "https://apps.apple.com/us/app/veriforceone/id6761485070?uo=4",
+            "seller": "Veriforce, LLC"
+          },
+          {
+            "name": "Velovita Vibe",
+            "url": "https://apps.apple.com/us/app/velovita-vibe/id1546020462?uo=4",
+            "seller": "Gara Group Inc."
+          },
+          {
+            "name": "Stacksy",
+            "url": "https://apps.apple.com/us/app/stacksy/id6782694853?uo=4",
+            "seller": "Velor4 LLC"
+          },
+          {
+            "name": "VX-VeSion",
+            "url": "https://apps.apple.com/us/app/vx-vesion/id1631280470?uo=4",
+            "seller": "VeEX Inc"
+          },
+          {
+            "name": "VeroPro",
+            "url": "https://apps.apple.com/us/app/veropro/id6766299597?uo=4",
+            "seller": "Veropro LLC"
+          },
+          {
+            "name": "#Venray",
+            "url": "https://apps.apple.com/us/app/venray/id6745415447?uo=4",
+            "seller": "Mediabureau Apeldoorn BV"
+          },
+          {
+            "name": "VellBill",
+            "url": "https://apps.apple.com/us/app/vellbill/id6769314153?uo=4",
+            "seller": "VELLMONT SERVICES (OPC) PRIVATE LIMITED"
+          },
+          {
+            "name": "#Venlo",
+            "url": "https://apps.apple.com/us/app/venlo/id6738728846?uo=4",
+            "seller": "Mediabureau Apeldoorn BV"
+          },
+          {
+            "name": "RepHeft",
+            "url": "https://apps.apple.com/us/app/repheft/id6762901174?uo=4",
+            "seller": "Martin Vesper"
+          },
+          {
+            "name": "Rosehip",
+            "url": "https://apps.apple.com/us/app/rosehip/id6780781978?uo=4",
+            "seller": "Project Velar SRL"
+          },
+          {
+            "name": "TK Ve\u00edculos",
+            "url": "https://apps.apple.com/us/app/tk-ve%C3%ADculos/id6784846893?uo=4",
+            "seller": "Eduardo Rocha Ferreira"
+          },
+          {
+            "name": "Zunto",
+            "url": "https://apps.apple.com/us/app/zunto/id6788026466?uo=4",
+            "seller": "Siva Kumar Vemula"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vellune",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Vellune+in:name&per_page=10",
+      "result": {
+        "count": 9,
+        "items": [
+          {
+            "name": "lyvellune/Vellune",
+            "url": "https://github.com/lyvellune/Vellune",
+            "description": null
+          },
+          {
+            "name": "PRIYADHARSHIKA-02/Vellune",
+            "url": "https://github.com/PRIYADHARSHIKA-02/Vellune",
+            "description": "A full-stack collaborative book-tracking platform utilizing Next.js, Express, PostgreSQL, and Redis to organize personal libraries and manage spoiler-protected reading circles via client-side OCR scanning and spaced-repetition reviews."
+          },
+          {
+            "name": "bonnyancestral7-cmd/Vellune_Hotel",
+            "url": "https://github.com/bonnyancestral7-cmd/Vellune_Hotel",
+            "description": "Website premium para hotel boutique, desenvolvido em React + TypeScript, com experi\u00eancia editorial, apresenta\u00e7\u00e3o de su\u00edtes, experi\u00eancias e fluxo de reservas."
+          },
+          {
+            "name": "matheusortolano/ClinicaVellune",
+            "url": "https://github.com/matheusortolano/ClinicaVellune",
+            "description": "ClinicaVellune"
+          },
+          {
+            "name": "tonyhuyy/VELLUNE-DESIGN-LLC",
+            "url": "https://github.com/tonyhuyy/VELLUNE-DESIGN-LLC",
+            "description": null
+          },
+          {
+            "name": "thfqkqh/vellune-landing",
+            "url": "https://github.com/thfqkqh/vellune-landing",
+            "description": "VELLUNE company introduction landing page (Next.js MVP)"
+          },
+          {
+            "name": "thfqkqh/vellune-admin",
+            "url": "https://github.com/thfqkqh/vellune-admin",
+            "description": null
+          },
+          {
+            "name": "justteshi/vellune-wp-theme",
+            "url": "https://github.com/justteshi/vellune-wp-theme",
+            "description": "Vellune is a custom classic WordPress theme for a focused, one-product WooCommerce store. "
+          },
+          {
+            "name": "pauloxyz/aurea-vellune-landing",
+            "url": "https://github.com/pauloxyz/aurea-vellune-landing",
+            "description": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vellune",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Vellune&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Vellune",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Vellune",
+      "result": {
+        "packages": []
+      }
+    },
+    {
+      "name": "Versiq",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Versiq&entity=software&country=us&limit=25",
+      "result": {
+        "count": 9,
+        "items": [
+          {
+            "name": "Soliq",
+            "url": "https://apps.apple.com/us/app/soliq/id1518038410?uo=4",
+            "seller": "Scientific Information Center Of New Technologies"
+          },
+          {
+            "name": "VeriforceOne",
+            "url": "https://apps.apple.com/us/app/veriforceone/id6761485070?uo=4",
+            "seller": "Veriforce, LLC"
+          },
+          {
+            "name": "Verisurf Companion",
+            "url": "https://apps.apple.com/us/app/verisurf-companion/id1487561072?uo=4",
+            "seller": "Verisurf Software, Inc."
+          },
+          {
+            "name": "VersiClock Admin",
+            "url": "https://apps.apple.com/us/app/versiclock-admin/id1629723408?uo=4",
+            "seller": "Versicom Corporation"
+          },
+          {
+            "name": "VeroPro",
+            "url": "https://apps.apple.com/us/app/veropro/id6766299597?uo=4",
+            "seller": "Veropro LLC"
+          },
+          {
+            "name": "SLUZBEN VESNIK",
+            "url": "https://apps.apple.com/us/app/sluzben-vesnik/id1476542787?uo=4",
+            "seller": "SLUZBEN VESNIK NA REPUBLIKA MAKEDONIJA C.O."
+          },
+          {
+            "name": "Vylor Daksh",
+            "url": "https://apps.apple.com/us/app/vylor-daksh/id6793628693?uo=4",
+            "seller": "Pioneer Hi-Bred International, Inc"
+          },
+          {
+            "name": "USJE-SESJ",
+            "url": "https://apps.apple.com/us/app/usje-sesj/id1627331005?uo=4",
+            "seller": "Public Service Alliance of Canada"
+          },
+          {
+            "name": "Verkeer",
+            "url": "https://apps.apple.com/us/app/verkeer/id678095391?uo=4",
+            "seller": "VERJO B.V."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Versiq",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Versiq+in:name&per_page=10",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "Suganthan23/Versiq-Lite",
+            "url": "https://github.com/Suganthan23/Versiq-Lite",
+            "description": null
+          },
+          {
+            "name": "Suganthan23/Versiq-E-Commerce-Website",
+            "url": "https://github.com/Suganthan23/Versiq-E-Commerce-Website",
+            "description": "High-performance e-commerce platform featuring a custom design system, fluid animations, and a scalable Supabase backend."
+          }
+        ]
+      }
+    },
+    {
+      "name": "Versiq",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Versiq&size=10",
+      "result": {
+        "count": 1,
+        "items": [
+          "@gamaro.io/widget"
+        ]
+      }
+    },
+    {
+      "name": "Versiq",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Versiq",
+      "result": {
+        "packages": [
+          {
+            "package": "flutter_upgrade_version"
+          },
+          {
+            "package": "version"
+          },
+          {
+            "package": "app_version_update"
+          },
+          {
+            "package": "new_version_plus"
+          },
+          {
+            "package": "build_version"
+          },
+          {
+            "package": "pub_version_plus"
+          },
+          {
+            "package": "versionarte"
+          },
+          {
+            "package": "qonversion_flutter"
+          },
+          {
+            "package": "dart_flutter_version"
+          },
+          {
+            "package": "flutter_in_store_app_version_checker"
+          }
+        ],
+        "next": "https://pub.dev/api/search?q=Versiq&page=2"
+      }
+    },
+    {
+      "name": "Foliohm",
+      "source": "apple",
+      "url": "https://itunes.apple.com/search?term=Foliohm&entity=software&country=us&limit=25",
+      "result": {
+        "count": 2,
+        "items": [
+          {
+            "name": "Folio Mobile",
+            "url": "https://apps.apple.com/us/app/folio-mobile/id1518202154?uo=4",
+            "seller": "Cellboard Media Corporation"
+          },
+          {
+            "name": "Tipsbladet",
+            "url": "https://apps.apple.com/us/app/tipsbladet/id464678739?uo=4",
+            "seller": "Better Collective ApS"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Foliohm",
+      "source": "github",
+      "url": "https://api.github.com/search/repositories?q=Foliohm+in:name&per_page=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Foliohm",
+      "source": "npm",
+      "url": "https://registry.npmjs.org/-/v1/search?text=Foliohm&size=10",
+      "result": {
+        "count": 0,
+        "items": []
+      }
+    },
+    {
+      "name": "Foliohm",
+      "source": "pub",
+      "url": "https://pub.dev/api/search?q=Foliohm",
+      "result": {
+        "packages": [
+          {
+            "package": "folio"
+          },
+          {
+            "package": "zeba_academy_portfolio"
+          },
+          {
+            "package": "mango_folio"
+          }
+        ]
+      }
+    }
+  ]
+}
