@@ -21,6 +21,11 @@ word speed.
 The focal painter measures the highlighted grapheme's actual shaped selection
 box and holds its center at 42% width. Long-word fitting preserves that anchor.
 Word/progress stream builders keep frequent updates away from the full page.
+The reading font ID is stored in the existing JSON preferences row; missing or
+unknown IDs use IBM Plex Sans. Ten licensed font files load from the app bundle.
+The choice affects the focused word and paused word list, while the brandkit
+continues to own interface typography. Noto Sans and platform fonts supply
+missing glyphs; font selection does not change tokenization or playback timing.
 
 The original SQLite schema 1 stored original normalized text, title, word position, last-opened
 and a JSON preferences row. Parameterized writes retain text locally. Progress

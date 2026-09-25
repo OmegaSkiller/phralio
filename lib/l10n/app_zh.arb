@@ -140,6 +140,7 @@
   "continueReading": "继续阅读",
   "libraryFilter": "书库筛选",
   "readingActions": "阅读操作",
+  "readingFont": "阅读字体",
   "typeSize": "字号",
   "imageDuration": "图片显示时长"
 }

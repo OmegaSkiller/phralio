@@ -140,6 +140,7 @@
   "continueReading": "Продолжить чтение",
   "libraryFilter": "Фильтр библиотеки",
   "readingActions": "Действия чтения",
+  "readingFont": "Шрифт для чтения",
   "typeSize": "Размер текста",
   "imageDuration": "Время показа изображений"
 }

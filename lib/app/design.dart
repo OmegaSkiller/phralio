@@ -111,6 +111,11 @@ abstract final class ReaderTypography {
           'sans-serif',
         ]
       : const ['PingFang SC', 'Noto Sans CJK SC', 'Noto Sans SC', 'sans-serif'];
+  static List<String> readingFallbacks(String language) => [
+    ui,
+    'Noto Sans',
+    ...fallbacks(language),
+  ];
   static TextStyle body({Color? color, double size = 17}) => TextStyle(
     fontFamily: ui,
     fontFamilyFallback: fallbacks(),
@@ -547,6 +552,7 @@ class SettingRow extends StatelessWidget {
     required this.title,
     required this.icon,
     this.subtitle,
+    this.titleStyle,
     this.value,
     this.trailing,
     this.onTap,
@@ -555,6 +561,7 @@ class SettingRow extends StatelessWidget {
   final String title;
   final IconData? icon;
   final String? subtitle, value;
+  final TextStyle? titleStyle;
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool? selected;
@@ -577,7 +584,12 @@ class SettingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 16, color: colors.text)),
+                Text(
+                  title,
+                  style: (titleStyle ?? const TextStyle(fontSize: 16)).copyWith(
+                    color: colors.text,
+                  ),
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 5),
                   Text(

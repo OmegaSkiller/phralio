@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/design.dart';
 import '../../core/document.dart';
+import '../../core/settings.dart';
 
 /// Uses the shaped glyph selection box, preserving kerning and grapheme offsets.
 class FocalLayout {
@@ -73,10 +74,12 @@ class FocalWord extends StatelessWidget {
     super.key,
     required this.token,
     required this.fontSize,
+    required this.readingFont,
     required this.highlight,
   });
   final ReaderToken token;
   final double fontSize;
+  final ReadingFont readingFont;
   final bool highlight;
   @override
   Widget build(BuildContext context) {
@@ -89,8 +92,8 @@ class FocalWord extends StatelessWidget {
             token,
             DefaultTextStyle.of(context).style.copyWith(
               fontSize: fontSize,
-              fontFamily: ReaderTypography.ui,
-              fontFamilyFallback: ReaderTypography.fallbacks(
+              fontFamily: readingFont.family,
+              fontFamilyFallback: ReaderTypography.readingFallbacks(
                 Localizations.localeOf(context).languageCode,
               ),
               fontWeight: FontWeight.w500,

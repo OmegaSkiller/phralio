@@ -22,9 +22,26 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
-    final loader = FontLoader(ReaderTypography.ui)
-      ..addFont(rootBundle.load('assets/fonts/IBMPlexSans.ttf'));
-    await loader.load();
+    for (final font in ReadingFont.values) {
+      await (FontLoader(
+        font.family,
+      )..addFont(rootBundle.load('assets/fonts/${font.assetStem}.ttf'))).load();
+    }
+  });
+  test('reading font setting keeps old libraries on the brand default', () {
+    expect(ReadingFont.values, hasLength(10));
+    expect(ReaderSettings.fromJson({}).readingFont, ReadingFont.ibmPlexSans);
+    expect(
+      ReaderSettings.fromJson({'readingFont': 'not-installed'}).readingFont,
+      ReadingFont.ibmPlexSans,
+    );
+    for (final font in ReadingFont.values) {
+      expect(
+        ReaderSettings.fromJson(ReaderSettings(readingFont: font).toJson())
+            .readingFont,
+        font,
+      );
+    }
   });
   test('semantic text and filled controls retain accessible contrast', () {
     double contrast(Color a, Color b) {
@@ -50,38 +67,40 @@ void main() {
   testWidgets(
     'shaped focal glyph remains anchored, including long Unicode words',
     (tester) async {
-      for (final word in [
-        'I',
-        '“Focus,”',
-        'е́то',
-        '意識',
-        '読む',
-        'extraordinarily-longword',
-        '👩‍💻',
-      ]) {
-        for (final scale in [1.0, 2.0, 3.0]) {
-          final layout = FocalLayout(
-            ReaderToken(word, 0, false),
-            const TextStyle(
-              fontSize: 42,
-              fontFamily: ReaderTypography.ui,
-              fontWeight: FontWeight.w500,
-            ),
-            Colors.teal,
-            true,
-            320,
-            TextScaler.linear(scale),
-          );
-          expect(
-            layout.left + layout.focalCenter * layout.scale,
-            closeTo(320 * Measures.anchor, 0.01),
-          );
-          expect(layout.left, greaterThanOrEqualTo(15.99));
-          expect(
-            layout.left + layout.painter.width * layout.scale,
-            lessThanOrEqualTo(304.01),
-          );
-          layout.dispose();
+      for (final font in ReadingFont.values) {
+        for (final word in [
+          'I',
+          '“Focus,”',
+          'е́то',
+          '意識',
+          '読む',
+          'extraordinarily-longword',
+          '👩‍💻',
+        ]) {
+          for (final scale in [1.0, 2.0, 3.0]) {
+            final layout = FocalLayout(
+              ReaderToken(word, 0, false),
+              TextStyle(
+                fontSize: 42,
+                fontFamily: font.family,
+                fontWeight: FontWeight.w500,
+              ),
+              Colors.teal,
+              true,
+              320,
+              TextScaler.linear(scale),
+            );
+            expect(
+              layout.left + layout.focalCenter * layout.scale,
+              closeTo(320 * Measures.anchor, 0.01),
+            );
+            expect(layout.left, greaterThanOrEqualTo(15.99));
+            expect(
+              layout.left + layout.painter.width * layout.scale,
+              lessThanOrEqualTo(304.01),
+            );
+            layout.dispose();
+          }
         }
       }
     },

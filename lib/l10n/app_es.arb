@@ -140,6 +140,7 @@
   "continueReading": "Continuar leyendo",
   "libraryFilter": "Filtro de biblioteca",
   "readingActions": "Opciones de lectura",
+  "readingFont": "Fuente de lectura",
   "typeSize": "Tamaño del texto",
   "imageDuration": "Duración de imágenes"
 }

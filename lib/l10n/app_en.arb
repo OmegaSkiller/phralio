@@ -230,6 +230,7 @@
   "continueReading": "Continue reading",
   "libraryFilter": "Library filter",
   "readingActions": "Reading actions",
+  "readingFont": "Reading font",
   "typeSize": "Type size",
   "imageDuration": "Image duration"
 }

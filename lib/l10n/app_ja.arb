@@ -140,6 +140,7 @@
   "continueReading": "続きを読む",
   "libraryFilter": "ライブラリの絞り込み",
   "readingActions": "読書の操作",
+  "readingFont": "読むときのフォント",
   "typeSize": "文字サイズ",
   "imageDuration": "画像の表示時間"
 }

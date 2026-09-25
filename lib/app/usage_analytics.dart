@@ -56,6 +56,7 @@ enum UsageEvent {
   smartPausesChanged('smart_pauses_changed'),
   focalHighlightChanged('focal_highlight_changed'),
   readerTypeSizeChanged('reader_type_size_changed'),
+  readingFontChanged('reading_font_changed'),
   imageTimeChanged('image_time_changed'),
   bookmarkAdded('bookmark_added'),
   bookmarkRemoved('bookmark_removed'),
