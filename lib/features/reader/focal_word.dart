@@ -30,10 +30,7 @@ class FocalLayout {
           TextSpan(
             text: character,
             style: highlight
-                ? TextStyle(
-                    color: focal,
-                    fontWeight: FontWeight.w700,
-                  )
+                ? TextStyle(color: focal, fontWeight: FontWeight.w700)
                 : null,
           ),
           TextSpan(text: glyphs.skip(index + 1).join()),
