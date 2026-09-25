@@ -1,0 +1,8 @@
+{
+  "display_name": "Phralio",
+  "package_name": "phralio",
+  "apple_bundle_id": "io.github.omegaskiller.phralio",
+  "android_application_id": "io.github.omegaskiller.phralio",
+  "tagline": "A little more room for words.",
+  "copyright": "Copyright © 2026 [Project owner]"
+}
