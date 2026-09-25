@@ -22,3 +22,16 @@ For validation, an isolated `Phralio_API_36` ARM64 Google APIs emulator was crea
 Its initial image uses a compact 320 × 640 / 160 dpi display. The first Android build
 also installed the Flutter-required NDK 28.2.13676358 and platform 36 through official
 SDK tooling. Existing user emulators and SDK installations were not removed.
+
+## Permanent SDK setup — 25 September 2026
+
+After the same `Operation not permitted` error occurred in the user's terminal,
+the verified temporary SDK was moved to `/Users/omegaskiller/development/flutter`.
+Only the Flutter PATH entry in `~/.zprofile` was replaced; a timestamped backup
+was preserved. The original Documents SDK and OS privacy settings were left
+unchanged. A fresh login shell resolves the new executable; `flutter doctor -v`
+reports no issues. Project dependencies were refreshed for the new SDK path.
+
+Xcode 27 renamed Simulator to **Device Hub**, located at
+`/Applications/Xcode.app/Contents/Applications/DeviceHub.app`. Launch with
+`open -a DeviceHub`. See [the beginner run/test guide](quickstart.md).

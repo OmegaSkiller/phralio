@@ -12,14 +12,22 @@ dependencies:
   sqflite: ^2.4.4
   characters: ^1.4.1
   path: ^1.9.1
-  cupertino_icons: ^1.0.9
+  lucide_icons_flutter: ^3.1.20
+  file_selector: ^1.1.0
+  archive: ^4.3.0
+  xml: ^7.0.1
+  html: ^0.15.7
+  crypto: ^3.0.7
 dev_dependencies:
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
+  file_selector_platform_interface: ^2.7.0
   flutter_lints: ^6.0.0
   fake_async: ^1.3.3
   sqflite_common_ffi: ^2.4.3
 flutter:
   uses-material-design: true
+  assets:
+    - third_party/licenses/lucide-upstream.txt

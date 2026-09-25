@@ -1,3 +1,10 @@
+import 'dart:ui';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import 'providers.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -71,7 +78,10 @@ class ReaderColors {
     destructive: Color(0xFFFFB2B8),
   );
   static ReaderColors of(BuildContext context) =>
-      MediaQuery.platformBrightnessOf(context) == Brightness.dark
+      (isApple(context)
+              ? CupertinoTheme.brightnessOf(context)
+              : Theme.of(context).brightness) ==
+          Brightness.dark
       ? dark
       : light;
 }
@@ -81,7 +91,7 @@ bool isApple(BuildContext context) =>
     Theme.of(context).platform == TargetPlatform.macOS;
 
 /// Navigation remains owned by the platform. Brand treatments stay in content.
-class PlatformPage extends StatelessWidget {
+class PlatformPage extends ConsumerWidget {
   const PlatformPage({
     super.key,
     required this.title,
@@ -92,23 +102,47 @@ class PlatformPage extends StatelessWidget {
   final Widget child;
   final Widget? trailing;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = ReaderColors.of(context);
+    final solid =
+        ref.watch(settingsProvider).reduceTransparency ||
+        MediaQuery.highContrastOf(context);
+    final back = Navigator.canPop(context)
+        ? IconAction(
+            label: 'Back',
+            icon: LucideIcons.arrowLeft,
+            onPressed: () => Navigator.maybePop(context),
+          )
+        : null;
     if (isApple(context)) {
       return CupertinoPageScaffold(
         backgroundColor: colors.background,
         navigationBar: CupertinoNavigationBar(
           middle: Text(title),
+          automaticallyImplyLeading: false,
+          leading: back,
           trailing: trailing,
-          backgroundColor: colors.background,
-          border: null,
+          backgroundColor: solid
+              ? colors.surface
+              : colors.surface.withValues(alpha: .88),
+          enableBackgroundFilterBlur: !solid,
+          border: Border(
+            bottom: BorderSide(color: colors.separator.withValues(alpha: .5)),
+          ),
         ),
         child: SafeArea(child: child),
       );
     }
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: AppBar(title: Text(title), actions: [?trailing]),
+      appBar: AppBar(
+        title: Text(title),
+        automaticallyImplyLeading: false,
+        leading: back,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: const GlassSurface(radius: 0, child: SizedBox.expand()),
+        actions: [?trailing],
+      ),
       body: SafeArea(child: child),
     );
   }
@@ -127,11 +161,13 @@ class ActionButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.primary = false,
+    this.selected,
     this.icon,
   });
   final String label;
   final VoidCallback? onPressed;
   final bool primary;
+  final bool? selected;
   final IconData? icon;
   @override
   Widget build(BuildContext context) {
@@ -145,14 +181,28 @@ class ActionButton extends StatelessWidget {
               Flexible(child: Text(label)),
             ],
           );
+    Widget button;
     if (isApple(context)) {
-      return primary
+      button = primary
           ? CupertinoButton.filled(onPressed: onPressed, child: content)
           : CupertinoButton(onPressed: onPressed, child: content);
+    } else {
+      button = primary
+          ? FilledButton(onPressed: onPressed, child: content)
+          : TextButton(onPressed: onPressed, child: content);
     }
-    return primary
-        ? FilledButton(onPressed: onPressed, child: content)
-        : TextButton(onPressed: onPressed, child: content);
+    return Semantics(
+      selected: selected,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected == true
+              ? ReaderColors.of(context).accent.withValues(alpha: .12)
+              : null,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: button,
+      ),
+    );
   }
 }
 
@@ -162,13 +212,16 @@ class IconAction extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.selected,
   });
   final String label;
   final IconData icon;
+  final bool? selected;
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) => Semantics(
     label: label,
+    selected: selected,
     button: true,
     enabled: onPressed != null,
     onTap: onPressed,
@@ -260,4 +313,45 @@ class _BrandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BrandPainter old) => old.color != color;
+}
+
+/// Restrained Flutter glass, inspired by Apple materials (not UIGlassEffect).
+/// A near-opaque tint keeps controls legible over arbitrary scrolled content.
+class GlassSurface extends ConsumerWidget {
+  const GlassSurface({super.key, required this.child, this.radius = 24});
+  final Widget child;
+  final double radius;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = ReaderColors.of(context);
+    final solid =
+        ref.watch(settingsProvider).reduceTransparency ||
+        MediaQuery.highContrastOf(context);
+    final surface = DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors.surface.withValues(alpha: solid ? 1 : .94),
+            colors.elevated.withValues(alpha: solid ? 1 : .88),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: colors.separator.withValues(alpha: solid ? 1 : .65),
+        ),
+      ),
+      child: child,
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: solid
+          ? surface
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: surface,
+            ),
+    );
+  }
 }

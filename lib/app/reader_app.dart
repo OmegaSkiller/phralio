@@ -2,14 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/settings.dart';
+import 'providers.dart';
 import 'design.dart';
 import 'identity.dart';
 import '../features/library/library_screen.dart';
 
-class ReaderApp extends StatelessWidget {
+class ReaderApp extends ConsumerWidget {
   const ReaderApp({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appearance = ref.watch(settingsProvider.select((s) => s.appearance));
     ThemeData theme(ReaderColors colors, Brightness brightness) => ThemeData(
       brightness: brightness,
       colorScheme: ColorScheme.fromSeed(
@@ -39,6 +44,11 @@ class ReaderApp extends StatelessWidget {
         title: ProductIdentity.displayName,
         debugShowCheckedModeBanner: false,
         theme: CupertinoThemeData(
+          brightness: switch (appearance) {
+            Appearance.system => null,
+            Appearance.light => Brightness.light,
+            Appearance.dark => Brightness.dark,
+          },
           primaryContrastingColor: CupertinoDynamicColor.withBrightness(
             color: ReaderColors.light.onAccent,
             darkColor: ReaderColors.dark.onAccent,
@@ -56,6 +66,11 @@ class ReaderApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme(ReaderColors.light, Brightness.light),
       darkTheme: theme(ReaderColors.dark, Brightness.dark),
+      themeMode: switch (appearance) {
+        Appearance.system => ThemeMode.system,
+        Appearance.light => ThemeMode.light,
+        Appearance.dark => ThemeMode.dark,
+      },
       home: const LibraryScreen(),
     );
   }

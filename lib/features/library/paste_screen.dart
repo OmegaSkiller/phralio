@@ -30,7 +30,7 @@ class _PasteScreenState extends ConsumerState<PasteScreen> {
     try {
       final LibraryStore store = ref.read(storeProvider);
       final id = await store.add(_title.text, _text.text);
-      final document = (await store.all()).firstWhere((d) => d.id == id);
+      final document = await store.document(id);
       ref.invalidate(libraryProvider);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement<void, void>(

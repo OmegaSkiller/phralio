@@ -65,13 +65,17 @@ class ReaderDocument {
 
 /// The paste boundary is shared by the UI and future plain-text importers.
 class TextImport {
-  static const maxCharacters = 200000;
-  static ({String title, String text}) validate(String title, String text) {
+  static const maxPasteCharacters = 200000;
+  static ({String title, String text}) validate(
+    String title,
+    String text, {
+    int maxCharacters = maxPasteCharacters,
+  }) {
     final clean = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
     if (clean.isEmpty) throw const FormatException('Add some text to read.');
     if (clean.length > maxCharacters) {
-      throw const FormatException(
-        'Please split this text into sections under 200,000 characters.',
+      throw FormatException(
+        'This text exceeds the $maxCharacters character limit.',
       );
     }
     if (clean.contains('\u0000')) {
@@ -85,4 +89,33 @@ class TextImport {
       text: clean,
     );
   }
+}
+
+/// A shelf row contains no book text or eagerly allocated tokens.
+class LibraryEntry {
+  const LibraryEntry({
+    required this.id,
+    required this.title,
+    required this.wordCount,
+    required this.position,
+    required this.openedAt,
+    required this.starred,
+    required this.format,
+    required this.author,
+  });
+  final int id, wordCount, position, openedAt;
+  final String title, format, author;
+  final bool starred;
+  double get progress =>
+      wordCount == 0 ? 0 : position.clamp(0, wordCount) / wordCount;
+  factory LibraryEntry.fromRow(Map<String, Object?> row) => LibraryEntry(
+    id: row['id'] as int,
+    title: row['title'] as String,
+    wordCount: row['word_count'] as int,
+    position: row['position'] as int,
+    openedAt: row['opened'] as int,
+    starred: row['starred'] == 1,
+    format: row['format'] as String,
+    author: row['author'] as String,
+  );
 }

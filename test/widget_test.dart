@@ -1,3 +1,6 @@
+import 'package:phralio/core/settings.dart';
+import 'package:phralio/features/library/library_screen.dart';
+
 import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/cupertino.dart';
@@ -69,6 +72,49 @@ void main() {
       }
     },
   );
+  testWidgets(
+    'populated library exposes numeric progress and independent star action',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            libraryProvider.overrideWith(
+              (ref) async => [
+                const LibraryEntry(
+                  id: 1,
+                  title: 'Book',
+                  wordCount: 100,
+                  position: 42,
+                  openedAt: 1,
+                  starred: false,
+                  format: 'EPUB',
+                  author: 'Author',
+                ),
+              ],
+            ),
+          ],
+          child: const ReaderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('42% read'), 150);
+      await tester.pumpAndSettle();
+      final bar = tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator),
+      );
+      expect(bar.semanticsValue, '42');
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('Star Book'))
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        true,
+      );
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
   testWidgets('reader remains usable with double text scaling in dark mode', (
     tester,
   ) async {
@@ -85,7 +131,9 @@ void main() {
       );
       return store;
     }))!;
-    final document = (await tester.runAsync(store.all))!.single;
+    final document = (await tester.runAsync(
+      () async => store.document((await store.all()).single.id),
+    ))!;
     tester.view.physicalSize = const Size(320, 700);
     tester.view.devicePixelRatio = 1;
     tester.platformDispatcher.textScaleFactorTestValue = 2;
@@ -97,7 +145,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [storeProvider.overrideWithValue(store)],
-        child: MaterialApp(home: ReaderScreen(document: document)),
+        child: MaterialApp(
+          theme: ThemeData.dark(),
+          home: ReaderScreen(document: document),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -127,6 +178,41 @@ void main() {
     });
     semantics.dispose();
   });
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    testWidgets(
+      '$platform explicit appearance overrides OS and solid surfaces disable blur',
+      (tester) async {
+        debugDefaultTargetPlatformOverride = platform;
+        addTearDown(() => debugDefaultTargetPlatformOverride = null);
+        tester.platformDispatcher.platformBrightnessTestValue =
+            Brightness.light;
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              libraryProvider.overrideWith((ref) async => []),
+              initialSettingsProvider.overrideWithValue(
+                ReaderSettings(
+                  appearance: Appearance.dark,
+                  reduceTransparency: true,
+                ),
+              ),
+            ],
+            child: const ReaderApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final context = tester.element(find.byType(LibraryScreen));
+        expect(ReaderColors.of(context), ReaderColors.dark);
+        expect(
+          find.byWidgetPredicate((w) => w is BackdropFilter && w.enabled),
+          findsNothing,
+        );
+        debugDefaultTargetPlatformOverride = null;
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
     testWidgets(
       '$platform library adapts and handles large type on narrow screen',

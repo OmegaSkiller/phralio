@@ -14,7 +14,7 @@ final initialSettingsProvider = Provider<ReaderSettings>(
 final capabilitiesProvider = Provider<ReaderCapabilities>(
   (ref) => const ReaderCapabilities(),
 );
-final libraryProvider = FutureProvider<List<ReaderDocument>>(
+final libraryProvider = FutureProvider<List<LibraryEntry>>(
   (ref) => ref.watch(storeProvider).all(),
 );
 final settingsProvider = NotifierProvider<SettingsController, ReaderSettings>(

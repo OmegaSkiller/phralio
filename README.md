@@ -8,8 +8,9 @@ presentation). Its focal character stays in one measured position as words
 change. Pace and punctuation pauses are controls for personal comfort, not
 promises of faster comprehension.
 
-**Status: Phase 1 foundation.** A usable paste-to-RSVP reader. Conventional reading,
-TXT/EPUB importing, PDF reflow and purchasing are later milestones.
+**Status: offline reader with a local book library.** TXT and DRM-free EPUB
+importing, stars, saved positions and explicit light/dark themes are implemented.
+Conventional page reading, PDF reflow and purchasing remain later milestones.
 
 <img src="docs/screenshots/ios-library.png" alt="Phralio library on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader.png" alt="Measured focal word on iPhone simulator" width="240"> <img src="docs/screenshots/ios-reader-dark.png" alt="Reader in dark mode" width="240">
 
@@ -17,19 +18,27 @@ TXT/EPUB importing, PDF reflow and purchasing are later milestones.
 
 ### Read now
 
-- Paste text or add the original sample reading to a local library.
+- Import TXT or DRM-free EPUB, paste text, or try the original sample reading.
+- Browse recent readings or starred favorites; see progress across the whole file.
+- Importing identical text again resumes its saved place instead of adding a copy.
 - Play, pause, resume, jump ten words, move between sentences or scrub position.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.
 - Keep the focal glyph anchored using real text measurement, including composed
   Unicode characters; adjust type size or turn highlighting off.
 - Restore document position and settings from local SQLite. Reopening starts paused.
-- Follow system light/dark appearance with platform-specific native controls.
+- Choose System, Light or Dark appearance, saved across restarts.
+- Lucide icons and restrained glass controls; reduce transparency for solid surfaces.
 
 No account, backend or analytics. Text stays on the device; OS backup behavior
-still applies. The current paste limit is 200,000 UTF-16 code units. Tokenization
+still applies. Paste limit: 200,000 UTF-16 code units. File import: 32 MB source,
+64 MB total EPUB expansion, 16 MB per text resource, 2 million text code units.
+EPUB imports the main reading order as text; images, original layout and DRM
+are unsupported. TXT accepts UTF-8 or BOM-marked UTF-16. Tokenization
 is whitespace-based; specialized CJK segmentation is not yet provided.
 
 ### Run and test
+
+New to Flutter? Start with the [step-by-step emulator and testing guide](docs/development/quickstart.md).
 
 Use Flutter 3.47.5 stable / Dart 3.13.4 or a compatible newer stable SDK.
 Install Xcode for iOS or Android Studio/SDK with an emulator for Android.
@@ -40,7 +49,7 @@ flutter run
 dart format --output=none --set-exit-if-changed lib test integration_test test_driver
 flutter analyze
 flutter test
-flutter test integration_test/reader_flow_test.dart -d <device-id>
+flutter test integration_test -d <device-id>
 ```
 
 See [environment](docs/development/environment.md) and

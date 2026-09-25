@@ -56,7 +56,7 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Forward ten words'));
     await tester.pumpAndSettle();
     final focal = tester.widget<FocalWord>(find.byType(FocalWord)).token.text;
-    await tester.pageBack();
+    await tester.tap(find.bySemanticsLabel('Back'));
     await tester.pumpAndSettle();
     final saved = (await store.all()).single;
     expect(saved.position, greaterThanOrEqualTo(10));

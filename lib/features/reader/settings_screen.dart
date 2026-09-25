@@ -1,3 +1,4 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,60 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           const Text(
+            'Appearance',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          GlassSurface(
+            child: Wrap(
+              spacing: 4,
+              children: [
+                for (final appearance in Appearance.values)
+                  ActionButton(
+                    label: switch (appearance) {
+                      Appearance.system => 'System',
+                      Appearance.light => 'Light',
+                      Appearance.dark => 'Dark',
+                    },
+                    icon: switch (appearance) {
+                      Appearance.system => LucideIcons.monitor,
+                      Appearance.light => LucideIcons.sun,
+                      Appearance.dark => LucideIcons.moon,
+                    },
+                    selected: settings.appearance == appearance,
+                    onPressed: () =>
+                        update(settings.copyWith(appearance: appearance)),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Expanded(child: Text('Reduce transparency')),
+              Semantics(
+                label: 'Reduce transparency',
+                child: isApple(context)
+                    ? CupertinoSwitch(
+                        value: settings.reduceTransparency,
+                        onChanged: (v) =>
+                            update(settings.copyWith(reduceTransparency: v)),
+                      )
+                    : Switch(
+                        value: settings.reduceTransparency,
+                        onChanged: (v) =>
+                            update(settings.copyWith(reduceTransparency: v)),
+                      ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Use solid controls instead of glass. High contrast also uses solid surfaces.',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 32),
+          const Text(
             'Smart pauses',
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
@@ -55,8 +110,9 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           for (final pause in SmartPauses.values)
             ActionButton(
-              label:
-                  '${settings.pauses == pause ? '✓  ' : ''}${pause.name[0].toUpperCase()}${pause.name.substring(1)}',
+              label: '${pause.name[0].toUpperCase()}${pause.name.substring(1)}',
+              selected: settings.pauses == pause,
+              icon: settings.pauses == pause ? LucideIcons.check : null,
               onPressed: () => update(settings.copyWith(pauses: pause)),
             ),
           const SizedBox(height: 24),
@@ -84,7 +140,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               IconAction(
                 label: 'Smaller reader type',
-                icon: isApple(context) ? CupertinoIcons.minus : Icons.remove,
+                icon: LucideIcons.minus,
                 onPressed: settings.fontSize <= 24
                     ? null
                     : () => update(
@@ -101,7 +157,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               IconAction(
                 label: 'Larger reader type',
-                icon: isApple(context) ? CupertinoIcons.add : Icons.add,
+                icon: LucideIcons.plus,
                 onPressed: settings.fontSize >= 72
                     ? null
                     : () => update(
@@ -112,7 +168,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Appearance follows your device. The reader honors text scaling and fits very long words to keep their focal character in view.',
+            'The reader honors text scaling and fits long words to keep their focal character in view.',
             style: TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 24),

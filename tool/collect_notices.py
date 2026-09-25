@@ -34,13 +34,15 @@ without replacing their copyright notices. Flutter also bundles runtime notices
 in its asset license registry, accessible from Reading settings.
 
 Direct dependencies: Riverpod (MIT), sqflite/native SQLite plugins (BSD-2-Clause),
-characters and path (BSD-3-Clause), Cupertino icons (MIT). Flutter/Dart SDK code
+characters, path, file_selector and crypto (BSD-3-Clause); archive and xml (MIT);
+html (MIT, additional notices retained); lucide_icons_flutter (MIT). Flutter/Dart SDK code
 uses BSD-style licenses with separately attributed components. The SQLite engine
 is public domain with wrapper notices preserved. Development tooling includes
 fake_async (Apache-2.0) and sqflite_common_ffi (BSD-2-Clause).
 
-No font files or external brand assets are bundled. Material/Cupertino icon fonts
-are provided through the maintained Flutter packages with their notices. Original
+Lucide icon fonts ship through the community Flutter port. The upstream Lucide
+ISC and Feather MIT notices are retained in `third_party/licenses/lucide-upstream.txt`
+and bundled in the in-app license registry. Framework assets keep SDK notices. Original
 Phralio artwork is governed by TRADEMARKS.md.
 
 The optional icon generation tool uses Pillow12.3.0, whose HPND license applies

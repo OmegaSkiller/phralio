@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,11 @@ import 'features/library/library_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Lucide icons (upstream)',
+    ], await rootBundle.loadString('third_party/licenses/lucide-upstream.txt'));
+  });
   await launchReader();
 }
 
@@ -53,10 +59,13 @@ Future<void> launchReader() async {
       ),
     );
     runApp(
-      defaultTargetPlatform == TargetPlatform.iOS ||
-              defaultTargetPlatform == TargetPlatform.macOS
-          ? CupertinoApp(home: recovery)
-          : MaterialApp(home: recovery),
+      ProviderScope(
+        child:
+            defaultTargetPlatform == TargetPlatform.iOS ||
+                defaultTargetPlatform == TargetPlatform.macOS
+            ? CupertinoApp(home: recovery)
+            : MaterialApp(home: recovery),
+      ),
     );
   }
 }

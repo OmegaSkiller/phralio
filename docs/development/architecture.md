@@ -19,7 +19,7 @@ The focal painter measures the highlighted grapheme's actual shaped selection
 box and holds its center at 42% width. Long-word fitting preserves that anchor.
 Word/progress stream builders keep frequent updates away from the full page.
 
-SQLite schema 1 stores original normalized text, title, word position, last-opened
+The original SQLite schema 1 stored original normalized text, title, word position, last-opened
 and a JSON preferences row. Parameterized writes retain text locally. Progress
 is checkpointed every 10 words and on pause/seek/lifecycle exit/disposal. Abrupt
 process termination can lose up to the last checkpoint; normal restoration starts
@@ -34,3 +34,25 @@ Entitlement and parser implementations are not duplicated into arbitrary widgets
 Native routes/buttons/text fields are Cupertino on Apple and Material on Android.
 The shared RSVP surface owns its own visual identity. No router dependency is
 needed for the current shallow navigation stack.
+
+The library/appearance update uses schema 2 with a transactional migration from
+schema 1. Shelf queries select only metadata, cached word counts, global word
+position, stars and format. Full text is loaded and tokenized in a worker isolate
+when opened. Imported normalized text has a SHA-256 fingerprint with a unique
+index; duplicate imports keep the original position and star. Old pasted copies
+retain their separate identities. All migration steps roll back on failure.
+
+`core/file_import.dart` parses TXT and EPUB offline. EPUB container/package XML
+locates the manifest; linear spine order becomes one normalized text stream.
+Hidden/navigation/script/style content is omitted. No markup is rendered or
+executed, no URLs fetched, and no archive paths extracted. Source, inflated ZIP,
+per-resource and text limits bound imports. CRC and actual expansion are checked;
+reading-content encryption is rejected. Obfuscated fonts do not prevent text
+reading. The worker returns normalized text, metadata, word count and fingerprint.
+The OS picker grants access only to the file selected by the user.
+
+Appearance is persisted alongside reading settings. Semantic colors resolve from
+the active app theme, so explicit dark/light choices override the device setting.
+Glass uses clipped Flutter blur with a strong tint; high contrast or the in-app
+reduce-transparency setting removes blur. App-owned icons use Lucide. Cupertino
+and Material continue to own routes, dialogs, fields and controls.

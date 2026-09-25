@@ -8,8 +8,12 @@ Phase 1: offline paste/sample library, SQLite, adaptive native UI, RSVP timing,
 focal positioning, settings, original identity, tests and CI source. See
 `validation.md` for actual runs and their limits.
 
-Phase 2: conventional reflow reader, TXT/DRM-free EPUB ingestion, chapter metadata,
-shared reading-location model, deeper accessibility and performance profiling.
+Library/appearance milestone: TXT and DRM-free EPUB ingestion, recent/starred
+library, whole-book word positions, persisted themes, Lucide icons and restrained
+Flutter glass controls. See `library-and-appearance.md`.
+
+Phase 2 remaining: conventional reflow reader, chapter navigation, deeper
+accessibility and performance profiling.
 
 Phase 3: private PDF reflow prototype, scan detection, premium presentation and
 commercial entitlements. No PDF processing is implemented in the current app.

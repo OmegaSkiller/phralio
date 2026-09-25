@@ -1,3 +1,5 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -119,9 +121,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         title: 'Focus reader',
         trailing: IconAction(
           label: 'Reader settings',
-          icon: isApple(context)
-              ? CupertinoIcons.slider_horizontal_3
-              : Icons.tune,
+          icon: LucideIcons.slidersHorizontal,
           onPressed: () async {
             _engine.pause();
             await _save();
@@ -208,67 +208,68 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconAction(
-                        label: 'Previous sentence',
-                        icon: isApple(context)
-                            ? CupertinoIcons.backward_end
-                            : Icons.skip_previous,
-                        onPressed: () => _engine.sentence(-1),
-                      ),
-                      IconAction(
-                        label: 'Back ten words',
-                        icon: isApple(context)
-                            ? CupertinoIcons.gobackward_10
-                            : Icons.replay_10,
-                        onPressed: () => _engine.seek(_engine.position - 10),
-                      ),
-                      Semantics(
-                        button: true,
-                        label: _playing ? 'Pause reading' : 'Play reading',
-                        onTap: _toggle,
-                        child: ExcludeSemantics(
-                          child: SizedBox(
-                            width: 72,
-                            height: 64,
-                            child: isApple(context)
-                                ? CupertinoButton.filled(
-                                    padding: EdgeInsets.zero,
-                                    onPressed: _toggle,
-                                    child: Icon(
-                                      _playing
-                                          ? CupertinoIcons.pause_fill
-                                          : CupertinoIcons.play_fill,
-                                      size: 28,
-                                    ),
-                                  )
-                                : FilledButton(
-                                    onPressed: _toggle,
-                                    child: Icon(
-                                      _playing ? Icons.pause : Icons.play_arrow,
-                                      size: 28,
-                                    ),
-                                  ),
+                  GlassSurface(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          IconAction(
+                            label: 'Previous sentence',
+                            icon: LucideIcons.skipBack,
+                            onPressed: () => _engine.sentence(-1),
                           ),
-                        ),
+                          IconAction(
+                            label: 'Back ten words',
+                            icon: LucideIcons.rotateCcw,
+                            onPressed: () =>
+                                _engine.seek(_engine.position - 10),
+                          ),
+                          Semantics(
+                            button: true,
+                            label: _playing ? 'Pause reading' : 'Play reading',
+                            onTap: _toggle,
+                            child: ExcludeSemantics(
+                              child: SizedBox(
+                                width: 72,
+                                height: 64,
+                                child: isApple(context)
+                                    ? CupertinoButton.filled(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: _toggle,
+                                        child: Icon(
+                                          _playing
+                                              ? LucideIcons.pause
+                                              : LucideIcons.play,
+                                          size: 28,
+                                        ),
+                                      )
+                                    : FilledButton(
+                                        onPressed: _toggle,
+                                        child: Icon(
+                                          _playing
+                                              ? LucideIcons.pause
+                                              : LucideIcons.play,
+                                          size: 28,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          IconAction(
+                            label: 'Forward ten words',
+                            icon: LucideIcons.rotateCw,
+                            onPressed: () =>
+                                _engine.seek(_engine.position + 10),
+                          ),
+                          IconAction(
+                            label: 'Next sentence',
+                            icon: LucideIcons.skipForward,
+                            onPressed: () => _engine.sentence(1),
+                          ),
+                        ],
                       ),
-                      IconAction(
-                        label: 'Forward ten words',
-                        icon: isApple(context)
-                            ? CupertinoIcons.goforward_10
-                            : Icons.forward_10,
-                        onPressed: () => _engine.seek(_engine.position + 10),
-                      ),
-                      IconAction(
-                        label: 'Next sentence',
-                        icon: isApple(context)
-                            ? CupertinoIcons.forward_end
-                            : Icons.skip_next,
-                        onPressed: () => _engine.sentence(1),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 30),
                   Text(
@@ -336,7 +337,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                               runSpacing: 8,
                               children: [
                                 Text(
-                                  '${(_engine.progress * 100).round()}% read',
+                                  '${_engine.completed ? 100 : (_engine.progress * 100).floor()}% read',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: colors.secondary,
