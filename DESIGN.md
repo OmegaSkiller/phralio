@@ -139,9 +139,10 @@ study above still informs interaction and spacing, not color or logo geometry.
 - Exact base tokens: Paper #F4F0E7, Ink #182523, Vermilion #BA4A32,
   Mist #C9D1CB, Brick #A73E2A and Ember #F29C82. Brick/Paper and Ember/Ink
   own functional contrast; Vermilion is not used for small text.
-- IBM Plex Sans owns UI, controls, input and reading. Newsreader is reserved
-  for editorial library headings; Chinese/Japanese use language-aware system
-  fallbacks. Both supplied variable TTFs and OFL notices ship locally.
+- IBM Plex Sans owns UI, controls and input, and is the default reading font.
+  Reader-selected bundled fonts affect the paused passage and focused word.
+  Newsreader is reserved for editorial library headings by default;
+  Chinese/Japanese use language-aware system fallbacks. Font licenses ship locally.
 - Use the supplied split-P SVG assets unchanged. Keep clear space and an empty
   aperture. No logo, texture or decorative animation in the reading field.
 - Glass remains native on iOS with palette and type shared from Flutter.
@@ -151,6 +152,9 @@ study above still informs interaction and spacing, not color or logo geometry.
   surfaces and a still, centered mark.
 - Keep the 0.42 focal anchor, glyph-based alignment, timing, seeking, pause/resume,
   engine, SQLite data and privacy contracts unchanged. Only presentation changes.
+- In the paused reader, show quiet paragraph context above and below a prominent
+  current word. Fit excerpts to the available width and text scale; vertical
+  movement advances by words. Keep the surface plain in Paper and Ink themes.
 - Verify actual fonts at phone sizes in both themes, persisted add/read/resume,
   imports/Saved/settings, 2× text, all locales, and native controls. Simulator
   evidence is distinct from physical-device accessibility/performance proof.

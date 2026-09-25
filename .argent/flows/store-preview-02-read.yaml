@@ -1,0 +1,11 @@
+executionPrerequisite: The sample is open and paused at word 21.
+steps:
+  - wait: 700
+  - echo: Tap the central Play reading control at (0.5, 0.754).
+  - tap: { x: 0.5, y: 0.754 }
+  - wait: 2400
+  - echo: The center of the immersive reading field pauses playback.
+  - tap: { x: 0.5, y: 0.5 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Reading actions }, timeoutMs: 10000 }
+  - wait: 1100

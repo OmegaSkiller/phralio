@@ -8,6 +8,8 @@
 build/
 lib/l10n/app_localizations*.dart
 coverage/
+goldie/out/
+.argent/recordings/
 *.log
 .env*
 *.jks

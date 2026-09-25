@@ -33,9 +33,6 @@ class FocalLayout {
                 ? TextStyle(
                     color: focal,
                     fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                    decorationColor: focal,
-                    decorationThickness: 1.5,
                   )
                 : null,
           ),
@@ -76,11 +73,13 @@ class FocalWord extends StatelessWidget {
     required this.fontSize,
     required this.readingFont,
     required this.highlight,
+    this.minimumHeight = 180,
   });
   final ReaderToken token;
   final double fontSize;
   final ReadingFont readingFont;
   final bool highlight;
+  final double minimumHeight;
   @override
   Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
@@ -107,7 +106,7 @@ class FocalWord extends StatelessWidget {
           size: Size(
             double.infinity,
             math.max(
-              180,
+              minimumHeight,
               MediaQuery.textScalerOf(context).scale(fontSize) * 1.6,
             ),
           ),

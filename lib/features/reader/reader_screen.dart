@@ -15,6 +15,7 @@ import '../../core/playback.dart';
 import '../../core/settings.dart';
 import '../library/library_store.dart';
 import 'focal_word.dart';
+import 'word_context_view.dart';
 import 'contents_screen.dart';
 import 'settings_screen.dart';
 import '../../l10n/l10n.dart';
@@ -44,7 +45,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   bool _scrolling = false;
   bool _immersive = false;
   Set<int> _bookmarks = {};
-  late final FixedExtentScrollController _wordScroll;
   int _lastCheckpoint = -1;
   @override
   void initState() {
@@ -56,9 +56,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       position: widget.document.position,
     );
     _completionReported = _engine.completed;
-    _wordScroll = FixedExtentScrollController(
-      initialItem: _engine.position.clamp(0, _engine.tokens.length - 1),
-    );
     unawaited(_loadBookmarks());
     ref.read(usageAnalyticsProvider).view(UsageScreen.reader);
     WidgetsBinding.instance.addObserver(this);
@@ -113,7 +110,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _subscription.cancel();
-    _wordScroll.dispose();
     unawaited(_save());
     _engine.dispose();
     super.dispose();
@@ -126,7 +122,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     if (wasPlaying != _engine.playing) {
       setState(() => _immersive = _engine.playing);
       widget.onImmersiveChanged?.call(_immersive);
-      if (!_immersive) _alignPausedWords();
       ref
           .read(usageAnalyticsProvider)
           .record(
@@ -140,17 +135,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     if (!mounted) return;
     setState(() => _immersive = false);
     widget.onImmersiveChanged?.call(false);
-    _alignPausedWords();
-  }
-
-  void _alignPausedWords() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _wordScroll.hasClients) {
-        _wordScroll.jumpToItem(
-          _engine.position.clamp(0, _engine.tokens.length - 1),
-        );
-      }
-    });
   }
 
   Future<void> _loadBookmarks() async {
@@ -244,54 +228,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     );
   }
 
-  Widget _pausedWords(BuildContext context, {double height = 260}) {
-    if (_engine.tokens.isEmpty) return const SizedBox.shrink();
-    final colors = ReaderColors.of(context);
-    return SizedBox(
-      height: height,
-      child: NotificationListener<ScrollEndNotification>(
-        onNotification: (_) {
-          _scrolling = false;
-          unawaited(_save());
-          return false;
-        },
-        child: ListWheelScrollView.useDelegate(
-          controller: _wordScroll,
-          itemExtent: 48,
-          physics: const FixedExtentScrollPhysics(),
-          onSelectedItemChanged: (index) {
-            if (index == _engine.position) return;
-            _scrolling = true;
-            _scrub(index);
-          },
-          childDelegate: ListWheelChildBuilderDelegate(
-            childCount: _engine.tokens.length,
-            builder: (context, index) {
-              final token = _engine.tokens[index];
-              final current = index == _engine.position;
-              return Center(
-                child: Text(
-                  token.isImage ? context.l10n.image : token.text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: _engine.settings.readingFont.family,
-                    fontFamilyFallback: ReaderTypography.readingFallbacks(
-                      Localizations.localeOf(context).languageCode,
-                    ),
-                    fontSize: current ? 28 : 18,
-                    fontWeight: current ? FontWeight.w700 : FontWeight.normal,
-                    color: current ? colors.accent : colors.secondary,
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
   void _seek(int position) {
     if (position.clamp(0, _engine.tokens.length) == _engine.position) return;
     _scrub(position);
@@ -301,16 +237,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   }
 
   void _scrub(int position) {
+    if (position.clamp(0, _engine.tokens.length) == _engine.position) return;
     _seeking = true;
     try {
       _engine.seek(position);
-      if (_wordScroll.hasClients &&
-          _wordScroll.selectedItem != _engine.position &&
-          !_scrolling) {
-        _wordScroll.jumpToItem(
-          _engine.position.clamp(0, _engine.tokens.length - 1),
-        );
-      }
       if (mounted && !_engine.playing) setState(() {});
     } finally {
       _seeking = false;
@@ -322,7 +252,6 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     _seeking = true;
     _engine.sentence(direction);
     _seeking = false;
-    _alignPausedWords();
     setState(() {});
     if (_engine.position != position) {
       ref
@@ -426,9 +355,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             final bottom =
                 MediaQuery.paddingOf(context).bottom +
                 (widget.onImmersiveChanged != null ? 100 : 24);
-            final wordHeight = (constraints.maxHeight - 360 - bottom).clamp(
-              170.0,
-              320.0,
+            final wordHeight = (constraints.maxHeight * .43).clamp(
+              280.0,
+              460.0,
             );
             return ListView(
               padding: EdgeInsets.fromLTRB(24, 12, 24, bottom),
@@ -455,17 +384,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   style: TextStyle(fontSize: 13, color: colors.secondary),
                 ),
                 const SizedBox(height: 20),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                WordContextView(
+                  document: widget.document,
+                  position: _engine.position,
+                  fontSize: _engine.settings.fontSize,
+                  readingFont: _engine.settings.readingFont,
+                  highlight: _engine.settings.highlight,
+                  height: wordHeight,
                   onTap: _toggle,
-                  child: Column(
-                    children: [
-                      _pausedWords(context, height: wordHeight),
-                      if (_engine.current?.isImage == true)
-                        SizedBox(height: 200, child: _wordOrImage(context)),
-                    ],
-                  ),
+                  onStep: (delta) => _scrub(_engine.position + delta),
+                  onScrollStart: () => _scrolling = true,
+                  onScrollEnd: () {
+                    _scrolling = false;
+                    unawaited(_save());
+                  },
                 ),
+                if (_engine.current?.isImage == true)
+                  GestureDetector(
+                    onTap: _toggle,
+                    child: SizedBox(height: 200, child: _wordOrImage(context)),
+                  ),
                 const SizedBox(height: 16),
                 StreamBuilder<void>(
                   stream: _engine.changes,

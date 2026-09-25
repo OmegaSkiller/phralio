@@ -1,0 +1,26 @@
+steps:
+  - launch: io.github.omegaskiller.phralio
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Continue reading }, timeoutMs: 20000 }
+  - echo: The Read button inside the continuation card is at (0.5, 0.38).
+  - tap: { x: 0.5, y: 0.38 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Reading actions }, timeoutMs: 10000 }
+  - echo: Reading actions is the upper-right circle at (0.9, 0.102).
+  - tap: { x: 0.9, y: 0.102 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Bookmark this word } }
+  - echo: Bookmark this word is the first menu row, centered at (0.678, 0.107).
+  - tap: { x: 0.678, y: 0.107 }
+  - echo: Back is the top-left circular control at (0.086, 0.102).
+  - tap: { x: 0.086, y: 0.102 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Star A little more room }, timeoutMs: 10000 }
+  - echo: Star on the sample library card is centered at (0.89, 0.582).
+  - tap: { x: 0.89, y: 0.582 }
+  - echo: Saved is the third bottom tab, centered at (0.61, 0.916).
+  - tap: { x: 0.61, y: 0.916 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Starred readings }, timeoutMs: 10000 }
+  - tool: await-screen-idle
+    args: { timeoutMs: 5000 }

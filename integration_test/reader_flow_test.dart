@@ -11,6 +11,7 @@ import 'package:phralio/app/providers.dart';
 import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/reader/focal_word.dart';
+import 'package:phralio/features/reader/word_context_view.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +53,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save and read'));
     await tester.pumpAndSettle();
-    expect(find.byType(ListWheelScrollView), findsOneWidget);
+    expect(find.byType(WordContextView), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Play reading'));
     await tester.pump();
     expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
@@ -60,7 +61,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 650));
     await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pumpAndSettle();
-    expect(find.byType(ListWheelScrollView), findsOneWidget);
+    expect(find.byType(WordContextView), findsOneWidget);
     await tapIcon(tester, 'Forward ten words');
     await tester.pumpAndSettle();
     await tapIcon(tester, 'Back');

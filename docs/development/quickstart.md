@@ -106,8 +106,8 @@ for commands while the app runs. Start with one platform at a time.
 
 1. On **Home**, tap **Try a short reading** to open the sample.
 2. Tap the reading surface to play with controls hidden. Tap again to pause,
-   then swipe the word wheel to move one word at a time. The current word stays
-   highlighted.
+   then swipe the passage around the large word to move one word at a time.
+   The current word stays highlighted.
 3. Tap the speed label to adjust WPM. The **…** reader menu holds sentence jumps,
    bookmarks, contents and reader settings. Ten-word controls and the progress
    slider remain directly available. Find your bookmarks under **Saved**.
@@ -215,7 +215,8 @@ flutter test integration_test/library_flow_test.dart -d <device-id>
    tap the bookmark icon to save the current word. The **Saved** tab shows both
    bookmarks and starred readings.
 3. Tap the word area or Play. Controls disappear while the reading advances.
-   Tap again to pause; swipe the word wheel to move one word at a time.
+   Tap again to pause; swipe the passage around the large word to move one
+   word at a time.
 4. In **Settings**, adjust **Image viewing time** independently of words per
    minute. Supported embedded EPUB and public HTTPS/data-URI Markdown images
    appear as timed frames. Local sibling images beside a selected Markdown file

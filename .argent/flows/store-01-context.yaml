@@ -1,0 +1,16 @@
+steps:
+  - launch: io.github.omegaskiller.phralio
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Try a short reading }, timeoutMs: 20000 }
+  - echo: Tap the Try a short reading button at the center of its AX frame (0.055, 0.466, 0.891, 0.059).
+  - tap: { x: 0.5, y: 0.495 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: Forward ten words }, timeoutMs: 10000 }
+  - echo: The forward-ten-word control is centered at (0.714, 0.754) on the 6.9-inch simulator.
+  - tap: { x: 0.714, y: 0.754 }
+  - tap: { x: 0.714, y: 0.754 }
+  - tap: { x: 0.714, y: 0.754 }
+  - tool: await-ui-element
+    args: { condition: visible, selector: { text: 31 of 140 words } }
+  - tool: await-screen-idle
+    args: { timeoutMs: 5000 }
