@@ -74,10 +74,12 @@ class FocalWord extends StatelessWidget {
     required this.token,
     required this.fontSize,
     required this.highlight,
+    this.minimumHeight = 180,
   });
   final ReaderToken token;
   final double fontSize;
   final bool highlight;
+  final double minimumHeight;
   @override
   Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
@@ -104,7 +106,7 @@ class FocalWord extends StatelessWidget {
           size: Size(
             double.infinity,
             math.max(
-              180,
+              minimumHeight,
               MediaQuery.textScalerOf(context).scale(fontSize) * 1.6,
             ),
           ),

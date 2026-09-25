@@ -151,6 +151,9 @@ study above still informs interaction and spacing, not color or logo geometry.
   surfaces and a still, centered mark.
 - Keep the 0.42 focal anchor, glyph-based alignment, timing, seeking, pause/resume,
   engine, SQLite data and privacy contracts unchanged. Only presentation changes.
+- In the paused reader, show quiet paragraph context above and below a prominent
+  current word. Fit excerpts to the available width and text scale; vertical
+  movement advances by words. Keep the surface plain in Paper and Ink themes.
 - Verify actual fonts at phone sizes in both themes, persisted add/read/resume,
   imports/Saved/settings, 2× text, all locales, and native controls. Simulator
   evidence is distinct from physical-device accessibility/performance proof.

@@ -27,7 +27,8 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
 - Importing identical text again resumes its saved place instead of adding a copy.
 - Play, pause, resume, jump ten words, move between sentences or scrub position.
 - Tap the reading surface to play with controls hidden; tap again to pause and
-  browse the words before and after. The paused wheel advances one word per step.
+  see nearby prose around the large current word. Swipe vertically to move one
+  word at a time; desktop pointer scrolling and screen-reader actions also seek.
 - View supported PNG/JPEG/GIF/WebP images from EPUB, Markdown or articles. Image
   frames use a separate 1–30 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.

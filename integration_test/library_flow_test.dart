@@ -14,6 +14,7 @@ import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/library/library_screen.dart';
+import 'package:phralio/features/reader/word_context_view.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../test/import_test.dart' show epub;
@@ -67,7 +68,7 @@ void main() {
       expect(await store.all(), isEmpty);
       picker.next = XFile.fromData(epub(), path: 'fixture.epub');
       await tapText('Import file');
-      expect(find.byType(ListWheelScrollView), findsOneWidget);
+      expect(find.byType(WordContextView), findsOneWidget);
       await chooseMenu(tester, 'Reading actions', 'Next sentence');
       await tester.pumpAndSettle();
       await tapIcon(tester, 'Back');
@@ -129,7 +130,7 @@ void main() {
         path: 'fresh.txt',
       );
       await chooseMenu(tester, 'Add reading', 'Import file');
-      expect(find.byType(ListWheelScrollView), findsOneWidget);
+      expect(find.byType(WordContextView), findsOneWidget);
       expect((await store.all()).length, 2);
       expect(tester.takeException(), isNull);
     } finally {

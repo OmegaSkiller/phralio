@@ -69,6 +69,10 @@ byte limits, strips non-reading elements, and stores supported same-site images.
 Remote Markdown images are optional; local sibling files are not assumed to be
 available through the mobile picker. The four-tab shell owns primary navigation;
 the reader owns immersive playback and paused word-by-word browsing.
+The paused view fits nearby token text into short paragraph excerpts above and
+below the selected word. Touch drag, pointer scrolling and accessibility scroll
+actions seek in word steps; playback and saved positions still use the same
+token index. The focused playback painter and its 42% anchor are unchanged.
 
 Appearance is persisted alongside reading settings. Semantic colors resolve from
 the active app theme, so explicit dark/light choices override the device setting.
