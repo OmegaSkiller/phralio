@@ -92,6 +92,26 @@ void main() {
     await tester.pump();
     expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
     expect(find.text('Read'), findsNothing);
+    expect(find.text('25% read'), findsOneWidget);
+    final topMark = find.byKey(const ValueKey('scope-mark-top'));
+    final bottomMark = find.byKey(const ValueKey('scope-mark-bottom'));
+    final track = find.byKey(const ValueKey('focused-progress-track'));
+    final fill = find.byKey(const ValueKey('focused-progress-fill'));
+    expect(topMark, findsOneWidget);
+    expect(bottomMark, findsOneWidget);
+    expect(tester.getCenter(topMark).dx, tester.getCenter(bottomMark).dx);
+    expect(
+      tester.getCenter(bottomMark).dy - tester.getCenter(topMark).dy,
+      lessThan(140),
+    );
+    expect(
+      tester.getTopLeft(track).dy,
+      greaterThan(tester.getBottomRight(bottomMark).dy),
+    );
+    expect(
+      tester.getSize(fill).width,
+      closeTo(tester.getSize(track).width * .25, .1),
+    );
     expect(
       tester.widget<FocalWord>(find.byType(FocalWord)).readingFont,
       ReadingFont.inter,
@@ -99,6 +119,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pump();
     expect(find.byType(WordContextView), findsOneWidget);
+    expect(topMark, findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(store.close);
     semantics.dispose();

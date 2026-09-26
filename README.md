@@ -52,6 +52,8 @@ show the current word-by-word layout.
 - Tap the reading surface to play with controls hidden; tap again to pause and
   see nearby prose around the large current word. Swipe vertically to move one
   word at a time; desktop pointer scrolling and screen-reader actions also seek.
+- Focused playback keeps two short scope marks close to the focal letter, with
+  a thin whole-reading progress bar and percentage below.
 - View supported PNG/JPEG/GIF/WebP images from EPUB, Markdown or articles. Image
   frames use a separate 1–30 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.

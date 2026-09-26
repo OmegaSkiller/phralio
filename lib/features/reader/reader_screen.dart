@@ -1,6 +1,7 @@
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   bool _immersive = false;
   Set<int> _bookmarks = {};
   int _lastCheckpoint = -1;
+  int get _percentRead =>
+      _engine.completed ? 100 : (_engine.progress * 100).floor();
   @override
   void initState() {
     super.initState();
@@ -228,6 +231,106 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     );
   }
 
+  Widget _focusedField(BuildContext context, BoxConstraints constraints) {
+    final colors = ReaderColors.of(context);
+    final width = constraints.maxWidth;
+    final height = constraints.maxHeight;
+    final focalX = width * Measures.anchor;
+    final centerY = height / 2;
+    final scaledWordSize = MediaQuery.textScalerOf(context)
+        .scale(_engine.settings.fontSize);
+    final labelHeight = MediaQuery.textScalerOf(context).scale(13) * 1.4;
+    const markHeight = 16.0;
+    final availableOffset = centerY - labelHeight - markHeight / 2 - 32;
+    final showScope =
+        _engine.current?.isImage == false &&
+        availableOffset > scaledWordSize * .65 + 12;
+    final markOffset = math.min(scaledWordSize * .65 + 22, availableOffset);
+    final progressTop = showScope
+        ? centerY + markOffset + markHeight / 2 + 18
+        : height - labelHeight - 29;
+    final meterWidth = math.min(240.0, math.max(0.0, width - 48));
+    final meterLeft = (focalX - meterWidth / 2)
+        .clamp(24.0, math.max(24.0, width - meterWidth - 24))
+        .toDouble();
+    final percentRead = context.l10n.percentRead(_percentRead);
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Center(child: _wordOrImage(context)),
+        if (showScope) ...[
+          Positioned(
+            left: focalX - 1,
+            top: centerY - markOffset - markHeight / 2,
+            child: SizedBox(
+              key: const ValueKey('scope-mark-top'),
+              width: 2,
+              height: markHeight,
+              child: ColoredBox(color: colors.accent),
+            ),
+          ),
+          Positioned(
+            left: focalX - 1,
+            top: centerY + markOffset - markHeight / 2,
+            child: SizedBox(
+              key: const ValueKey('scope-mark-bottom'),
+              width: 2,
+              height: markHeight,
+              child: ColoredBox(color: colors.accent),
+            ),
+          ),
+        ],
+        Positioned(
+          left: meterLeft,
+          top: progressTop,
+          width: meterWidth,
+          child: Semantics(
+            label: context.l10n.readingPosition,
+            value: percentRead,
+            child: ExcludeSemantics(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(1),
+                    child: SizedBox(
+                      key: const ValueKey('focused-progress-track'),
+                      width: meterWidth,
+                      height: 2,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: ColoredBox(color: colors.separator),
+                          ),
+                          SizedBox(
+                            key: const ValueKey('focused-progress-fill'),
+                            width: meterWidth * _engine.progress,
+                            height: 2,
+                            child: ColoredBox(color: colors.accent),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    percentRead,
+                    textAlign: TextAlign.center,
+                    style: ReaderTypography.body(
+                      color: colors.accent,
+                      size: 13,
+                    ).copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _seek(int position) {
     if (position.clamp(0, _engine.tokens.length) == _engine.position) return;
     _scrub(position);
@@ -285,10 +388,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         key: const ValueKey('immersive-reader'),
         behavior: HitTestBehavior.opaque,
         onTap: _toggle,
-        child: Center(
-          child: StreamBuilder<void>(
+        child: LayoutBuilder(
+          builder: (context, constraints) => StreamBuilder<void>(
             stream: _engine.changes,
-            builder: (_, _) => _wordOrImage(context),
+            builder: (context, _) => _focusedField(context, constraints),
           ),
         ),
       );
@@ -448,11 +551,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                           children: [
                             Flexible(
                               child: Text(
-                                context.l10n.percentRead(
-                                  _engine.completed
-                                      ? 100
-                                      : (_engine.progress * 100).floor(),
-                                ),
+                                context.l10n.percentRead(_percentRead),
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: colors.secondary,
