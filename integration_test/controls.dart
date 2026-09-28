@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:phralio/app/design.dart';
 import 'package:phralio/app/native_controls.dart';
 
-// Flutter's test pointer injection cannot operate UIKit-owned UIMenu children.
-// On iOS these helpers exercise the same Dart callbacks as the native channel;
-// physical UIKit hit testing and menu presentation are checked separately in
-// Device Hub. Android exercises the visible fallback controls end to end.
+// Flutter test pointer injection cannot operate UIKit/AppKit menu children.
+// On Apple platforms these helpers exercise the native channel's Dart callbacks;
+// native hit testing and menu presentation are checked separately on the device.
+// Android exercises the visible fallback controls end to end.
 Future<void> tapIcon(WidgetTester tester, String label) async {
   if (NativeControl.available) {
     tester
@@ -32,7 +32,7 @@ Future<void> tapTab(WidgetTester tester, String label) async {
     );
     tabs.onSelect(item['id'] as String);
   } else {
-    await tester.tap(find.text(label).last);
+    await tester.tap(find.byTooltip(label));
   }
   await tester.pumpAndSettle();
 }

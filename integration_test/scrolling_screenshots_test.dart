@@ -26,7 +26,12 @@ void main() {
     await store.savePosition(await store.document(id), 25);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [storeProvider.overrideWithValue(store)],
+        overrides: [
+          storeProvider.overrideWithValue(store),
+          initialSettingsProvider.overrideWithValue(
+            ReaderSettings(onboardingComplete: true),
+          ),
+        ],
         child: const ReaderApp(),
       ),
     );
@@ -48,7 +53,9 @@ void main() {
     await binding.takeScreenshot('scrolling-behaviour/$platform-light');
     await container
         .read(settingsProvider.notifier)
-        .update(ReaderSettings(appearance: Appearance.dark));
+        .update(
+          ReaderSettings(onboardingComplete: true, appearance: Appearance.dark),
+        );
     await tester.pumpAndSettle();
     await binding.endOfFrame;
     await binding.takeScreenshot('scrolling-behaviour/$platform-dark');

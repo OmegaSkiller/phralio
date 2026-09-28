@@ -39,6 +39,7 @@ flutter:
   assets:
     - third_party/licenses/lucide-upstream.txt
     - assets/brand/
+    - assets/onboarding/
     - assets/fonts/IBMPlexSans-OFL.txt
     - assets/fonts/Newsreader-OFL.txt
     - assets/fonts/Inter-OFL.txt

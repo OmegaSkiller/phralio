@@ -36,7 +36,10 @@ void main() {
         overrides: [
           storeProvider.overrideWithValue(store!),
           initialSettingsProvider.overrideWithValue(
-            ReaderSettings(readingFont: ReadingFont.inter),
+            ReaderSettings(
+              onboardingComplete: true,
+              readingFont: ReadingFont.inter,
+            ),
           ),
         ],
         child: MaterialApp(
@@ -92,7 +95,7 @@ void main() {
     await tester.pump();
     expect(find.byKey(const ValueKey('immersive-reader')), findsOneWidget);
     expect(find.text('Read'), findsNothing);
-    expect(find.text('25% read'), findsOneWidget);
+    expect(find.text('25% read'), findsNothing);
     final topMark = find.byKey(const ValueKey('scope-mark-top'));
     final bottomMark = find.byKey(const ValueKey('scope-mark-bottom'));
     final track = find.byKey(const ValueKey('focused-progress-track'));
@@ -119,6 +122,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('immersive-reader')));
     await tester.pump();
     expect(find.byType(WordContextView), findsOneWidget);
+    expect(find.text('25% read'), findsNothing);
     expect(topMark, findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(store.close);
@@ -131,6 +135,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          initialSettingsProvider.overrideWithValue(
+            ReaderSettings(onboardingComplete: true),
+          ),
           libraryProvider.overrideWith((ref) async => []),
           savedProvider.overrideWith(
             (ref) async =>
@@ -142,9 +149,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     for (final label in ['Home', 'Read', 'Settings', 'Saved']) {
-      expect(find.text(label), findsWidgets);
+      expect(find.byTooltip(label), findsOneWidget);
     }
-    await tester.tap(find.text('Saved').last);
+    await tester.tap(find.byTooltip('Saved'));
     await tester.pumpAndSettle();
     expect(find.text('Bookmarks'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'providers.dart';
+import 'accent.dart';
+import 'adaptive_layout.dart';
 import 'native_controls.dart';
 import '../l10n/l10n.dart';
 
@@ -51,6 +53,24 @@ class ReaderColors {
       destructive;
   Color get focal => accent;
   Color get interactive => accent;
+  bool get isDark => background == ink;
+  ReaderColors withAccent(Color value) => value == accent
+      ? this
+      : ReaderColors(
+          background: background,
+          surface: surface,
+          elevated: elevated,
+          text: text,
+          secondary: secondary,
+          subtle: subtle,
+          accent: value,
+          onAccent: onAccent,
+          separator: separator,
+          disabled: disabled,
+          positive: positive,
+          warning: warning,
+          destructive: destructive,
+        );
   // Exact core tokens from the approved brandkit; supporting shades are
   // neutral Paper/Ink blends, never additional accent families.
   static const ink = Color(0xFF182523);
@@ -89,13 +109,17 @@ class ReaderColors {
     warning: Color(0xFFE6C675),
     destructive: ember,
   );
-  static ReaderColors of(BuildContext context) =>
-      (isApple(context)
-              ? CupertinoTheme.brightnessOf(context)
-              : Theme.of(context).brightness) ==
-          Brightness.dark
-      ? dark
-      : light;
+  static ReaderColors of(BuildContext context) {
+    final isDark =
+        (isApple(context)
+            ? CupertinoTheme.brightnessOf(context)
+            : Theme.of(context).brightness) ==
+        Brightness.dark;
+    final preset = AccentPalette.of(context);
+    return (isDark ? dark : light).withAccent(
+      isDark ? preset.dark : preset.light,
+    );
+  }
 }
 
 abstract final class ReaderTypography {
@@ -150,70 +174,98 @@ class PlatformPage extends StatelessWidget {
     this.trailing,
     this.largeTitle,
     this.showBrand = false,
+    this.contentWidth = 760,
+    this.centerInWindow = false,
   });
   final String title;
   final Widget child;
   final Widget? trailing;
   final bool? largeTitle;
   final bool showBrand;
+  final double contentWidth;
+  final bool centerInWindow;
   @override
   Widget build(BuildContext context) {
     final colors = ReaderColors.of(context);
     final canPop = Navigator.canPop(context);
     final large = largeTitle ?? !canPop;
-    final content = SafeArea(
-      bottom: false,
-      child: Column(
-        children: [
-          if (showBrand)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 10, 24, 0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: BrandLockup(),
-              ),
-            ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(large ? 24 : 14, 12, 20, 12),
-            child: Row(
-              children: [
-                if (canPop) ...[
-                  IconAction(
-                    label: context.l10n.back,
-                    icon: LucideIcons.chevronLeft,
-                    onPressed: () => Navigator.maybePop(context),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: large ? 32 : 20,
-                      letterSpacing: large ? -.6 : 0,
-                      fontWeight: FontWeight.w500,
-                      color: colors.text,
-                    ),
+    final content = Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: contentWidth),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              if (showBrand &&
+                  (ReaderLayout.maybeOf(context)?.navigation ??
+                          NavigationLayout.tabs) ==
+                      NavigationLayout.tabs)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 10, 24, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: BrandLockup(),
                   ),
                 ),
-                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
-              ],
-            ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(large ? 24 : 14, 12, 20, 12),
+                child: Row(
+                  children: [
+                    if (canPop) ...[
+                      IconAction(
+                        label: context.l10n.back,
+                        icon: LucideIcons.chevronLeft,
+                        onPressed: () => Navigator.maybePop(context),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 2,
+                        style: TextStyle(
+                          fontSize: large ? 32 : 20,
+                          letterSpacing: large ? -.6 : 0,
+                          fontWeight: FontWeight.w500,
+                          color: colors.text,
+                        ),
+                      ),
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 12),
+                      trailing!,
+                    ],
+                  ],
+                ),
+              ),
+              Expanded(child: child),
+            ],
           ),
-          Expanded(child: child),
-        ],
+        ),
       ),
+    );
+    final navigation = ReaderLayout.maybeOf(context)?.navigation;
+    final windowInset =
+        centerInWindow && Theme.of(context).platform == TargetPlatform.macOS
+        ? switch (navigation) {
+            NavigationLayout.sidebar => 240.0,
+            NavigationLayout.rail => 88.0,
+            _ => 0.0,
+          }
+        : 0.0;
+    final centeredContent = Padding(
+      padding: EdgeInsets.only(right: windowInset),
+      child: content,
     );
     return isApple(context)
         ? CupertinoPageScaffold(
             backgroundColor: colors.background,
             child: DefaultTextStyle(
               style: ReaderTypography.body(color: colors.text),
-              child: content,
+              child: centeredContent,
             ),
           )
-        : Scaffold(backgroundColor: colors.background, body: content);
+        : Scaffold(backgroundColor: colors.background, body: centeredContent);
   }
 }
 
@@ -413,7 +465,7 @@ class IconAction extends ConsumerWidget {
 }
 
 Map<String, Object?> nativeStyle(BuildContext context, WidgetRef ref) => {
-  'dark': ReaderColors.of(context) == ReaderColors.dark,
+  'dark': ReaderColors.of(context).isDark,
   'solid':
       ref.watch(settingsProvider.select((s) => s.reduceTransparency)) ||
       MediaQuery.highContrastOf(context),
@@ -422,6 +474,7 @@ Map<String, Object?> nativeStyle(BuildContext context, WidgetRef ref) => {
   'text': ReaderColors.of(context).text.toARGB32(),
   'secondary': ReaderColors.of(context).secondary.toARGB32(),
   'surface': ReaderColors.of(context).surface.toARGB32(),
+  'background': ReaderColors.of(context).background.toARGB32(),
 };
 
 class MenuChoice {
@@ -719,6 +772,23 @@ Future<T?> showReaderSheet<T>(
     );
   }
 
+  if (MediaQuery.sizeOf(context).width >= 700 ||
+      Theme.of(context).platform == TargetPlatform.macOS) {
+    return showDialog<T>(
+      context: context,
+      builder: (context) => Dialog(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 560,
+            maxHeight: MediaQuery.sizeOf(context).height * .85,
+          ),
+          child: content(context, null),
+        ),
+      ),
+    );
+  }
   if (isApple(context)) {
     return showCupertinoSheet<T>(
       context: context,
@@ -811,7 +881,7 @@ class BrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
     child: SvgPicture.asset(
-      'assets/brand/mark-${ReaderColors.of(context) == ReaderColors.dark ? 'paper' : 'ink'}.svg',
+      'assets/brand/mark-${ReaderColors.of(context).isDark ? 'paper' : 'ink'}.svg',
       width: size * 104 / 120,
       height: size,
     ),
@@ -822,7 +892,7 @@ class BrandLockup extends StatelessWidget {
   const BrandLockup({super.key});
   @override
   Widget build(BuildContext context) => SvgPicture.asset(
-    'assets/brand/logo-${ReaderColors.of(context) == ReaderColors.dark ? 'paper' : 'ink'}.svg',
+    'assets/brand/logo-${ReaderColors.of(context).isDark ? 'paper' : 'ink'}.svg',
     width: 140,
     semanticsLabel: 'Phralio',
   );

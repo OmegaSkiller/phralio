@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/design.dart';
+import '../../app/adaptive_layout.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../reader/reader_screen.dart';
@@ -64,7 +65,7 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
             20,
             0,
             20,
-            MediaQuery.paddingOf(context).bottom + 110,
+            ReaderLayout.bottomInset(context),
           ),
           children: [
             SectionLabel(context.l10n.starredReadings),

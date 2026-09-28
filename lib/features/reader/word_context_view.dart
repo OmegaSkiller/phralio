@@ -91,12 +91,13 @@ class _WordContextViewState extends State<WordContextView> {
     TextScaler scaler,
     TextDirection direction,
     double width,
+    int lines,
   ) {
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
       textDirection: direction,
       textScaler: scaler,
-      maxLines: 3,
+      maxLines: lines,
     )..layout(maxWidth: width);
     final fits = !painter.didExceedMaxLines;
     painter.dispose();
@@ -111,6 +112,7 @@ class _WordContextViewState extends State<WordContextView> {
     TextScaler scaler,
     TextDirection direction,
     double width,
+    int lines,
   ) {
     var first = math.max(0, position - 32);
     var last = position;
@@ -118,7 +120,7 @@ class _WordContextViewState extends State<WordContextView> {
     while (first <= last) {
       final middle = (first + last) ~/ 2;
       final text = _excerpt(tokens, middle, position, image);
-      if (_fits(text, style, scaler, direction, width)) {
+      if (_fits(text, style, scaler, direction, width, lines)) {
         best = middle;
         last = middle - 1;
       } else {
@@ -136,6 +138,7 @@ class _WordContextViewState extends State<WordContextView> {
     TextScaler scaler,
     TextDirection direction,
     double width,
+    int lines,
   ) {
     var first = position + 1;
     var last = math.min(tokens.length, position + 33);
@@ -143,7 +146,7 @@ class _WordContextViewState extends State<WordContextView> {
     while (first <= last) {
       final middle = (first + last) ~/ 2;
       final text = _excerpt(tokens, position + 1, middle, image);
-      if (_fits(text, style, scaler, direction, width)) {
+      if (_fits(text, style, scaler, direction, width, lines)) {
         best = middle;
         first = middle + 1;
       } else {
@@ -167,11 +170,18 @@ class _WordContextViewState extends State<WordContextView> {
     final colors = ReaderColors.of(context);
     final scaler = MediaQuery.textScalerOf(context);
     final contextSize = scaler.scale(16);
-    final activeHeight = math.max(100.0, scaler.scale(widget.fontSize) * 1.6);
-    final contextHeight = contextSize * 1.4 * 3;
+    final compact = widget.height < 260;
+    final minimumActiveHeight = compact ? 72.0 : 100.0;
+    final gap = compact ? 8.0 : 14.0;
+    final activeHeight = math.max(
+      minimumActiveHeight,
+      scaler.scale(widget.fontSize) * 1.6,
+    );
+    final contextLines = compact ? 1 : 3;
+    final contextHeight = contextSize * 1.4 * contextLines;
     final panelHeight = math.max(
       widget.height,
-      activeHeight + contextHeight * 2 + 28,
+      activeHeight + contextHeight * 2 + gap * 2,
     );
     final contextStyle =
         ReaderTypography.body(color: colors.secondary, size: 16).copyWith(
@@ -193,6 +203,7 @@ class _WordContextViewState extends State<WordContextView> {
                 scaler,
                 direction,
                 constraints.maxWidth,
+                contextLines,
               )
             : '';
         final after = position < tokens.length - 1
@@ -204,6 +215,7 @@ class _WordContextViewState extends State<WordContextView> {
                 scaler,
                 direction,
                 constraints.maxWidth,
+                contextLines,
               )
             : '';
         return Semantics(
@@ -260,13 +272,13 @@ class _WordContextViewState extends State<WordContextView> {
                         alignment: Alignment.bottomLeft,
                         child: Text(
                           before,
-                          maxLines: 3,
+                          maxLines: contextLines,
                           overflow: TextOverflow.ellipsis,
                           style: contextStyle,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: gap),
                     active.isImage
                         ? SizedBox(
                             height: activeHeight,
@@ -285,15 +297,15 @@ class _WordContextViewState extends State<WordContextView> {
                             fontSize: widget.fontSize,
                             readingFont: widget.readingFont,
                             highlight: widget.highlight,
-                            minimumHeight: 100,
+                            minimumHeight: minimumActiveHeight,
                           ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: gap),
                     Expanded(
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Text(
                           after,
-                          maxLines: 3,
+                          maxLines: contextLines,
                           overflow: TextOverflow.ellipsis,
                           style: contextStyle,
                         ),

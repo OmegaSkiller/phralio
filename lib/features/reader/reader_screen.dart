@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
+import '../../app/adaptive_layout.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
@@ -47,6 +48,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   bool _immersive = false;
   Set<int> _bookmarks = {};
   int _lastCheckpoint = -1;
+  ValueChanged<bool>? _shellFocusChanged;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _shellFocusChanged = ReaderLayout.maybeOf(context)?.onImmersiveChanged;
+  }
+
+  void _reportImmersive() {
+    _shellFocusChanged?.call(_immersive);
+    widget.onImmersiveChanged?.call(_immersive);
+  }
+
   int get _percentRead =>
       _engine.completed ? 100 : (_engine.progress * 100).floor();
   @override
@@ -111,6 +124,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
 
   @override
   void dispose() {
+    if (_immersive) {
+      final notify = _shellFocusChanged;
+      WidgetsBinding.instance.addPostFrameCallback((_) => notify?.call(false));
+    }
     WidgetsBinding.instance.removeObserver(this);
     _subscription.cancel();
     unawaited(_save());
@@ -124,7 +141,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     wasPlaying ? _engine.pause() : _engine.play();
     if (wasPlaying != _engine.playing) {
       setState(() => _immersive = _engine.playing);
-      widget.onImmersiveChanged?.call(_immersive);
+      _reportImmersive();
       ref
           .read(usageAnalyticsProvider)
           .record(
@@ -137,7 +154,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   void _leaveImmersive() {
     if (!mounted) return;
     setState(() => _immersive = false);
-    widget.onImmersiveChanged?.call(false);
+    _reportImmersive();
   }
 
   Future<void> _loadBookmarks() async {
@@ -239,16 +256,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
     final centerY = height / 2;
     final scaledWordSize = MediaQuery.textScalerOf(context)
         .scale(_engine.settings.fontSize);
-    final labelHeight = MediaQuery.textScalerOf(context).scale(13) * 1.4;
     const markHeight = 16.0;
-    final availableOffset = centerY - labelHeight - markHeight / 2 - 32;
+    final availableOffset = centerY - markHeight / 2 - 32;
     final showScope =
         _engine.current?.isImage == false &&
         availableOffset > scaledWordSize * .65 + 12;
     final markOffset = math.min(scaledWordSize * .65 + 22, availableOffset);
     final progressTop = showScope
         ? centerY + markOffset + markHeight / 2 + 18
-        : height - labelHeight - 29;
+        : height - 29;
     final meterWidth = math.min(240.0, math.max(0.0, width - 48));
     final meterLeft = (focalX - meterWidth / 2)
         .clamp(24.0, math.max(24.0, width - meterWidth - 24))
@@ -289,40 +305,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             label: context.l10n.readingPosition,
             value: percentRead,
             child: ExcludeSemantics(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(1),
-                    child: SizedBox(
-                      key: const ValueKey('focused-progress-track'),
-                      width: meterWidth,
-                      height: 2,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: ColoredBox(color: colors.separator),
-                          ),
-                          SizedBox(
-                            key: const ValueKey('focused-progress-fill'),
-                            width: meterWidth * _engine.progress,
-                            height: 2,
-                            child: ColoredBox(color: colors.accent),
-                          ),
-                        ],
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(1),
+                child: SizedBox(
+                  key: const ValueKey('focused-progress-track'),
+                  width: meterWidth,
+                  height: 2,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ColoredBox(color: colors.separator),
                       ),
-                    ),
+                      SizedBox(
+                        key: const ValueKey('focused-progress-fill'),
+                        width: meterWidth * _engine.progress,
+                        height: 2,
+                        child: ColoredBox(color: colors.accent),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    percentRead,
-                    textAlign: TextAlign.center,
-                    style: ReaderTypography.body(
-                      color: colors.accent,
-                      size: 13,
-                    ).copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -377,7 +379,42 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => CallbackShortcuts(
+    bindings: {
+      const SingleActivator(LogicalKeyboardKey.space): _toggle,
+      const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+          _seek(_engine.position + 1),
+      const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+          _seek(_engine.position - 1),
+      const SingleActivator(LogicalKeyboardKey.arrowRight, alt: true): () =>
+          _sentence(1),
+      const SingleActivator(LogicalKeyboardKey.arrowLeft, alt: true): () =>
+          _sentence(-1),
+      const SingleActivator(LogicalKeyboardKey.arrowUp): () => _changeSpeed(25),
+      const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+          _changeSpeed(-25),
+      const SingleActivator(LogicalKeyboardKey.keyB, meta: true):
+          _toggleBookmark,
+      const SingleActivator(LogicalKeyboardKey.keyB, control: true):
+          _toggleBookmark,
+      const SingleActivator(LogicalKeyboardKey.escape): () {
+        if (_immersive) {
+          _engine.pause();
+          _leaveImmersive();
+        }
+      },
+    },
+    child: Focus(autofocus: true, child: _buildReader(context)),
+  );
+
+  void _changeSpeed(int delta) {
+    final next = _engine.settings.copyWith(wpm: _engine.settings.wpm + delta);
+    _engine.configure(next);
+    setState(() {});
+    unawaited(_persistSettings(next));
+  }
+
+  Widget _buildReader(BuildContext context) {
     final colors = ReaderColors.of(context);
     ref.listen(settingsProvider, (_, next) {
       _engine.configure(next);
@@ -414,6 +451,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
       },
       child: PlatformPage(
         title: context.l10n.read,
+        contentWidth: 1120,
+        centerInWindow: true,
         largeTitle: false,
         trailing: ActionMenu(
           label: context.l10n.readingActions,
@@ -455,189 +494,185 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final bottom =
-                MediaQuery.paddingOf(context).bottom +
-                (widget.onImmersiveChanged != null ? 100 : 24);
-            final wordHeight = (constraints.maxHeight * .43).clamp(
-              280.0,
-              460.0,
-            );
-            return ListView(
-              padding: EdgeInsets.fromLTRB(24, 12, 24, bottom),
-              children: [
-                Text(
-                  widget.document.title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0,
-                    color: colors.text,
-                  ),
+            final bottom = ReaderLayout.bottomInset(context);
+            final sideBySide =
+                constraints.maxWidth >= 500 && constraints.maxHeight < 620;
+            final wordHeight = sideBySide
+                ? (constraints.maxHeight - 80).clamp(140.0, 280.0)
+                : (constraints.maxHeight * .43).clamp(280.0, 460.0);
+            final passage = <Widget>[
+              Text(
+                widget.document.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0,
+                  color: colors.text,
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  _engine.completed
-                      ? context.l10n.finishedRestart
-                      : context.l10n.positionOfWords(
-                          _engine.position + 1,
-                          _engine.tokens.length,
-                        ),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: colors.secondary),
-                ),
-                const SizedBox(height: 20),
-                WordContextView(
-                  document: widget.document,
-                  position: _engine.position,
-                  fontSize: _engine.settings.fontSize,
-                  readingFont: _engine.settings.readingFont,
-                  highlight: _engine.settings.highlight,
-                  height: wordHeight,
+              ),
+              SizedBox(height: sideBySide ? 4 : 12),
+              Text(
+                _engine.completed
+                    ? context.l10n.finishedRestart
+                    : context.l10n.positionOfWords(
+                        _engine.position + 1,
+                        _engine.tokens.length,
+                      ),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: colors.secondary),
+              ),
+              SizedBox(height: sideBySide ? 8 : 20),
+              WordContextView(
+                document: widget.document,
+                position: _engine.position,
+                fontSize: _engine.settings.fontSize,
+                readingFont: _engine.settings.readingFont,
+                highlight: _engine.settings.highlight,
+                height: wordHeight,
+                onTap: _toggle,
+                onStep: (delta) => _scrub(_engine.position + delta),
+                onScrollStart: () => _scrolling = true,
+                onScrollEnd: () {
+                  _scrolling = false;
+                  unawaited(_save());
+                },
+              ),
+              if (_engine.current?.isImage == true)
+                GestureDetector(
                   onTap: _toggle,
-                  onStep: (delta) => _scrub(_engine.position + delta),
-                  onScrollStart: () => _scrolling = true,
-                  onScrollEnd: () {
-                    _scrolling = false;
-                    unawaited(_save());
-                  },
+                  child: SizedBox(height: 200, child: _wordOrImage(context)),
                 ),
-                if (_engine.current?.isImage == true)
-                  GestureDetector(
-                    onTap: _toggle,
-                    child: SizedBox(height: 200, child: _wordOrImage(context)),
+            ];
+            final controls = <Widget>[
+              StreamBuilder<void>(
+                stream: _engine.changes,
+                builder: (context, _) {
+                  return Semantics(
+                    label: context.l10n.readingPosition,
+                    value: context.l10n.percentRead(_percentRead),
+                    child: isApple(context)
+                        ? SizedBox(
+                            width: double.infinity,
+                            child: CupertinoSlider(
+                              value: _engine.progress,
+                              onChanged: (v) =>
+                                  _scrub((v * _engine.tokens.length).round()),
+                              onChangeEnd: (_) => ref
+                                  .read(usageAnalyticsProvider)
+                                  .record(
+                                    UsageEvent.readingSeeked,
+                                    screen: UsageScreen.reader,
+                                  ),
+                            ),
+                          )
+                        : Slider(
+                            value: _engine.progress,
+                            onChanged: (v) =>
+                                _scrub((v * _engine.tokens.length).round()),
+                            onChangeEnd: (_) => ref
+                                .read(usageAnalyticsProvider)
+                                .record(
+                                  UsageEvent.readingSeeked,
+                                  screen: UsageScreen.reader,
+                                ),
+                          ),
+                  );
+                },
+              ),
+              const SizedBox(height: 28),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconAction(
+                    label: context.l10n.backTenWords,
+                    icon: LucideIcons.rotateCcw,
+                    onPressed: () => _seek(_engine.position - 10),
                   ),
-                const SizedBox(height: 16),
-                StreamBuilder<void>(
-                  stream: _engine.changes,
-                  builder: (context, _) {
-                    final seconds =
-                        (_engine.remainingTime.inMilliseconds / 1000).ceil();
-                    return Column(
-                      children: [
-                        Semantics(
-                          label: context.l10n.readingPosition,
-                          child: isApple(context)
-                              ? SizedBox(
-                                  width: double.infinity,
-                                  child: CupertinoSlider(
-                                    value: _engine.progress,
-                                    onChanged: (v) => _scrub(
-                                      (v * _engine.tokens.length).round(),
-                                    ),
-                                    onChangeEnd: (_) => ref
-                                        .read(usageAnalyticsProvider)
-                                        .record(
-                                          UsageEvent.readingSeeked,
-                                          screen: UsageScreen.reader,
-                                        ),
-                                  ),
-                                )
-                              : Slider(
-                                  value: _engine.progress,
-                                  onChanged: (v) => _scrub(
-                                    (v * _engine.tokens.length).round(),
-                                  ),
-                                  onChangeEnd: (_) => ref
-                                      .read(usageAnalyticsProvider)
-                                      .record(
-                                        UsageEvent.readingSeeked,
-                                        screen: UsageScreen.reader,
-                                      ),
-                                ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                context.l10n.percentRead(_percentRead),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: colors.secondary,
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              child: Text(
-                                seconds == 0
-                                    ? context.l10n.complete
-                                    : context.l10n.timeRemaining(
-                                        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}',
-                                      ),
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: colors.secondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 28),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconAction(
-                      label: context.l10n.backTenWords,
-                      icon: LucideIcons.rotateCcw,
-                      onPressed: () => _seek(_engine.position - 10),
-                    ),
-                    const SizedBox(width: 32),
-                    Semantics(
-                      button: true,
-                      label: context.l10n.playReading,
-                      onTap: _toggle,
-                      child: ExcludeSemantics(
-                        child: SizedBox(
-                          width: 76,
-                          height: 76,
-                          child: CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            color: colors.accent,
-                            borderRadius: BorderRadius.circular(38),
-                            onPressed: _toggle,
-                            child: Icon(
-                              LucideIcons.play,
-                              color: colors.onAccent,
-                              size: 30,
-                            ),
+                  const SizedBox(width: 32),
+                  Semantics(
+                    button: true,
+                    label: context.l10n.playReading,
+                    onTap: _toggle,
+                    child: ExcludeSemantics(
+                      child: SizedBox(
+                        width: 76,
+                        height: 76,
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          color: colors.accent,
+                          borderRadius: BorderRadius.circular(38),
+                          onPressed: _toggle,
+                          child: Icon(
+                            LucideIcons.play,
+                            color: colors.onAccent,
+                            size: 30,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 32),
-                    IconAction(
-                      label: context.l10n.forwardTenWords,
-                      icon: LucideIcons.rotateCw,
-                      onPressed: () => _seek(_engine.position + 10),
+                  ),
+                  const SizedBox(width: 32),
+                  IconAction(
+                    label: context.l10n.forwardTenWords,
+                    icon: LucideIcons.rotateCw,
+                    onPressed: () => _seek(_engine.position + 10),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Center(
+                child: ActionButton(
+                  label: context.l10n.speedValue(_engine.settings.wpm),
+                  icon: LucideIcons.gauge,
+                  onPressed: _speedSheet,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.tapToReadHint,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: colors.subtle),
+              ),
+              if (_saveFailed)
+                ActionButton(
+                  label: context.l10n.placeNotSaved,
+                  onPressed: () => _save(),
+                ),
+            ];
+            if (sideBySide) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        key: const ValueKey('landscape-passage'),
+                        padding: EdgeInsets.only(top: 12, bottom: bottom),
+                        children: passage,
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                    SizedBox(
+                      width: constraints.maxWidth >= 900
+                          ? 320
+                          : constraints.maxWidth >= 700
+                          ? 280
+                          : 240,
+                      child: ListView(
+                        key: const ValueKey('landscape-controls'),
+                        padding: EdgeInsets.only(top: 24, bottom: bottom),
+                        children: controls,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
-                Center(
-                  child: ActionButton(
-                    label: context.l10n.speedValue(_engine.settings.wpm),
-                    icon: LucideIcons.gauge,
-                    onPressed: _speedSheet,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  context.l10n.tapToReadHint,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: colors.subtle),
-                ),
-                if (_saveFailed)
-                  ActionButton(
-                    label: context.l10n.placeNotSaved,
-                    onPressed: () => _save(),
-                  ),
-              ],
+              );
+            }
+            return ListView(
+              padding: EdgeInsets.fromLTRB(24, 12, 24, bottom),
+              children: [...passage, const SizedBox(height: 16), ...controls],
             );
           },
         ),

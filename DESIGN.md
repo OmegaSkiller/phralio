@@ -1,6 +1,6 @@
 # Phralio design contract
 
-This file governs the `redesign` branch. Read it before changing presentation.
+This file governs the app's presentation. Read it before changing presentation.
 The purpose is a calm, content-first reader with native iOS controls, without
 losing the existing reading, import, library, accessibility or language features.
 
@@ -153,8 +153,8 @@ study above still informs interaction and spacing, not color or logo geometry.
 - Keep the 0.42 focal anchor, glyph-based alignment, timing, seeking, pause/resume,
   engine, SQLite data and privacy contracts unchanged. Only presentation changes.
 - In focused playback, align two short accent scope marks with the focal anchor.
-  Keep them close to the word and show a thin whole-reading progress bar and
-  localized percentage below the lower mark without moving the word.
+  Keep them close to the word and show a thin whole-reading progress bar below
+  the lower mark without moving the word. Do not show a percentage caption.
 - In the paused reader, show quiet paragraph context above and below a prominent
   current word. Fit excerpts to the available width and text scale; vertical
   movement advances by words. Keep the surface plain in Paper and Ink themes.
@@ -166,3 +166,26 @@ Font coverage was checked against the original TTF character maps: Plex covers
 the requested Latin and Cyrillic UI scripts; Newsreader lacks Cyrillic and both
 fonts lack CJK. Russian editorial headings therefore use Plex. Chinese/Japanese
 use language-aware platform fallbacks. Never download fonts at runtime.
+
+## Adaptive platforms, personal accents, and onboarding
+
+- Size layouts by available window width and height. Expanded windows use a
+  navigation sidebar; compact landscape windows use a rail. Compact portrait
+  keeps the floating tabs. Keep controls reachable in split-screen and at 2× type.
+- Bound forms, settings and prose to readable widths. Use the additional room
+  for hierarchy and supporting controls, never stretched phone buttons.
+- Short reader windows place paused controls beside the passage. The focused
+  word retains the existing 0.42 anchor inside its reading field at every size.
+- User-selected accents may extend the brand palette into ten restrained color
+  families. Brick/Ember remains the default. Each family has a dark action shade
+  on Paper and a light action shade on Ink, with at least 4.5:1 text contrast on
+  content/control surfaces. Names and selection checks accompany swatches.
+- Onboarding offers a traditional tour and a learn-by-doing version. Both cover
+  the real app features; the interactive welcome runs at 200 WPM using the same
+  reading engine and pauses for tasks. Practice data is isolated from the library.
+  Skip, back, replay, screen-reader-friendly text and reduced motion are required.
+- macOS uses actual AppKit Liquid Glass on macOS 26+, with solid/high-contrast
+  and older-system material fallbacks. Desktop menus, keyboard focus, pointer
+  actions and window resizing are first-class interactions. Give sidebar icons
+  clear leading space within the glass surface, and center the reader page in
+  the whole window while retaining its fixed focal anchor within that page.

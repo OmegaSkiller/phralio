@@ -4,6 +4,19 @@ enum SmartPauses { off, normal, strong }
 
 enum AppLanguage { system, en, ru, es, pt, zh, ja, pl, de, fr, it }
 
+enum AccentColor {
+  vermilion,
+  terracotta,
+  rose,
+  plum,
+  indigo,
+  blue,
+  teal,
+  forest,
+  olive,
+  ochre,
+}
+
 /// Stable stored IDs and bundled family names for the reading field only.
 enum ReadingFont {
   ibmPlexSans('IBM Plex Sans', 'IBMPlexSans'),
@@ -30,6 +43,8 @@ class ReaderSettings {
     this.appearance = Appearance.system,
     this.language = AppLanguage.system,
     this.readingFont = ReadingFont.ibmPlexSans,
+    this.accent = AccentColor.vermilion,
+    this.onboardingComplete = false,
     this.reduceTransparency = false,
     this.shareUsage = false,
     int imageSeconds = 5,
@@ -43,6 +58,8 @@ class ReaderSettings {
   final Appearance appearance;
   final AppLanguage language;
   final ReadingFont readingFont;
+  final AccentColor accent;
+  final bool onboardingComplete;
   final bool reduceTransparency;
   final bool shareUsage;
   final int imageSeconds;
@@ -54,6 +71,8 @@ class ReaderSettings {
     Appearance? appearance,
     AppLanguage? language,
     ReadingFont? readingFont,
+    AccentColor? accent,
+    bool? onboardingComplete,
     bool? reduceTransparency,
     bool? shareUsage,
     int? imageSeconds,
@@ -65,6 +84,8 @@ class ReaderSettings {
     appearance: appearance ?? this.appearance,
     language: language ?? this.language,
     readingFont: readingFont ?? this.readingFont,
+    accent: accent ?? this.accent,
+    onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
     shareUsage: shareUsage ?? this.shareUsage,
     imageSeconds: imageSeconds ?? this.imageSeconds,
@@ -77,12 +98,21 @@ class ReaderSettings {
     'appearance': appearance.name,
     'language': language.name,
     'readingFont': readingFont.name,
+    'accent': accent.name,
+    'onboardingComplete': onboardingComplete,
     'reduceTransparency': reduceTransparency,
     'shareUsage': shareUsage,
     'imageSeconds': imageSeconds,
     'fontSize': fontSize,
   };
   factory ReaderSettings.fromJson(Map<String, dynamic> json) => ReaderSettings(
+    // Existing installations keep their normal launch; the tour is replayable
+    // from Settings. A new library uses the constructor's false default.
+    onboardingComplete: json['onboardingComplete'] != false,
+    accent: AccentColor.values.firstWhere(
+      (v) => v.name == json['accent'],
+      orElse: () => AccentColor.vermilion,
+    ),
     appearance: Appearance.values.firstWhere(
       (v) => v.name == json['appearance'],
       orElse: () => Appearance.system,

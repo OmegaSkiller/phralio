@@ -1,7 +1,7 @@
 <p align="left"><img src="assets/brand/logo-horizontal.svg" alt="Phralio" width="290"></p>
 
 An offline-first reading app that gives each word a stable point of attention.
-Built with Flutter for iOS and Android, with native navigation and controls.
+Built with Flutter for iOS, Android and macOS, with adaptive navigation and native Apple controls.
 
 Phralio presents text one word at a time using RSVP (rapid serial visual
 presentation). Its focal character stays in one measured position as words
@@ -37,7 +37,8 @@ These are 6.9-inch iPhone App Store frames captured from the simulator with
 synthetic sample text. [More app renders](docs/screenshots/brandkit/README.md)
 cover both themes, iOS and compact Android, plus entry, settings and error
 states. [Paused scrolling captures](docs/screenshots/scrolling-behaviour/README.md)
-show the current word-by-word layout.
+show the word-by-word layout. [Adaptive app gallery](docs/screenshots/adaptive/README.md)
+shows the latest phone landscape, iPad, macOS and onboarding screens.
 
 ### Read now
 
@@ -53,7 +54,7 @@ show the current word-by-word layout.
   see nearby prose around the large current word. Swipe vertically to move one
   word at a time; desktop pointer scrolling and screen-reader actions also seek.
 - Focused playback keeps two short scope marks close to the focal letter, with
-  a thin whole-reading progress bar and percentage below.
+  a thin whole-reading progress bar below.
 - View supported PNG/JPEG/GIF/WebP images from EPUB, Markdown or articles. Image
   frames use a separate 1–30 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.
@@ -61,12 +62,18 @@ show the current word-by-word layout.
   Unicode characters; choose among ten bundled reading fonts, adjust type size or
   turn highlighting off. Font choices work offline and stay saved on this device.
 - Restore document position and settings from local SQLite. Reopening starts paused.
-- Choose System, Light or Dark appearance, saved across restarts.
+- Choose System, Light or Dark appearance and one of ten coordinated accent
+  presets, saved across restarts.
+- Start with a traditional tour or an interactive 200 WPM practice session. Learn
+  paste, playback, pace, scrolling, URLs, files, bookmarks and appearance without
+  adding practice content to your library. Replay either tour from Settings.
+- Navigation adapts from bottom tabs to a rail or sidebar. Wide forms and sheets
+  keep comfortable widths; short landscape readers place controls beside the text.
 - Follow the device language or choose English, Russian, Spanish, Portuguese,
   Simplified Chinese, Japanese, Polish, German, French or Italian in Settings.
   The choice is saved on this device.
-- Lucide icons, native UIKit Liquid Glass controls and menus on iOS 26+, with
-  accessible older-iOS and Android fallbacks. Reduce transparency for solid surfaces.
+- Lucide icons, native UIKit/AppKit Liquid Glass controls and menus on iOS/macOS
+  26+, with older-OS and Android fallbacks. Reduce transparency for solid surfaces.
 - A calm continuation card, floating navigation, grouped settings and focused
   preference sheets. [DESIGN.md](DESIGN.md) defines the redesign rules.
 
@@ -90,7 +97,7 @@ is whitespace-based; specialized CJK segmentation is not yet provided.
 New to Flutter? Start with the [step-by-step emulator and testing guide](docs/development/quickstart.md).
 
 Use Flutter 3.47.5 stable / Dart 3.13.4 or a compatible newer stable SDK.
-Install Xcode for iOS or Android Studio/SDK with an emulator for Android.
+Install Xcode for iOS/macOS or Android Studio/SDK with an emulator for Android.
 
 ```sh
 flutter pub get
@@ -105,6 +112,45 @@ See [environment](docs/development/environment.md) and
 [validation](docs/development/validation.md) for the actual development setup,
 executed checks and remaining release work. GitHub Actions validates formatting,
 analysis and tests without privileged secrets. CI execution requires a push.
+
+### Run on your Mac
+
+From the `phralio` repository directory, with Xcode and Flutter installed:
+
+```sh
+flutter pub get
+flutter run -d macos
+```
+
+To create a local release app:
+
+```sh
+flutter build macos --release
+open build/macos/Build/Products/Release/Phralio.app
+```
+
+Requires macOS 12 or newer. Liquid Glass uses the native macOS 26+ API;
+older systems use native visual-effect surfaces. The window restores its bounds,
+starts at 1120 × 780 and has a 760 × 540 minimum content size. Files are selected
+through the system picker; library data stays in the app's sandbox.
+
+| Shortcut | Action |
+| --- | --- |
+| ⌘1 / ⌘2 / ⌘3 / ⌘4 | Home / Read / Saved / Settings |
+| ⌘, | Settings |
+| ⌘N | Add text |
+| Space | Play / pause in the reader |
+| ← / → | Previous / next word |
+| Option + ← / → | Previous / next sentence |
+| ↑ / ↓ | Adjust pace by 25 WPM |
+| ⌘B | Bookmark the current word |
+| Escape | Leave focused playback |
+
+The native Read menu also offers URL import. Mouse-wheel scrolling in the paused
+passage moves word by word. Shortcuts do not replace normal text-field editing.
+See the [platform validation record](docs/development/adaptive-platform-plan.md)
+for tested devices and remaining checks. Signing, notarization and store release
+are separate from this local build.
 
 To enable optional Umami tracking in a build, create a dedicated Umami website
 property and supply its HTTPS server URL, website UUID and app hostname:

@@ -1,21 +1,17 @@
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/design.dart';
+import '../../app/adaptive_layout.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/document.dart';
-import '../../core/file_import.dart';
-import '../../core/remote_import.dart';
 import '../reader/reader_screen.dart';
 import 'paste_screen.dart';
+import 'pick_reading_file.dart';
 import 'url_screen.dart';
 import '../../l10n/l10n.dart';
 
@@ -85,47 +81,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     final analytics = ref.read(usageAnalyticsProvider);
     analytics.record(UsageEvent.importRequested);
     try {
-      final file = await openFile(
-        acceptedTypeGroups: [
-          XTypeGroup(
-            label: l10n.importFile,
-            extensions: ['txt', 'epub', 'md', 'markdown'],
-            mimeTypes: ['text/plain', 'application/epub+zip', 'text/markdown'],
-            uniformTypeIdentifiers: [
-              'public.plain-text',
-              'net.daringfireball.markdown',
-              'org.idpf.epub-container',
-            ],
-          ),
-        ],
-      );
-      if (file == null) {
+      final book = await pickReadingFile(l10n);
+      if (book == null) {
         analytics.record(UsageEvent.importCancelled);
         return;
-      }
-      if (!mounted) return;
-      if (await file.length() > FileImport.maxFileBytes) {
-        throw FormatException(l10n.fileTooLarge);
-      }
-      // Bound the stream too: providers can report a stale or unknown length.
-      final bytes = BytesBuilder(copy: false);
-      await for (final chunk in file.openRead()) {
-        if (bytes.length + chunk.length > FileImport.maxFileBytes) {
-          throw FormatException(l10n.fileTooLarge);
-        }
-        bytes.add(chunk);
-      }
-      var book = await compute(FileImport.parse, (
-        name: file.name,
-        bytes: bytes.takeBytes(),
-      ));
-      if (book.format == 'Markdown' && book.images.isNotEmpty) {
-        final importer = RemoteImport();
-        try {
-          book = await importer.hydrateImages(book);
-        } finally {
-          importer.close();
-        }
       }
       if (!mounted) return;
       final id = await ref.read(storeProvider).importReading(book);
@@ -211,12 +170,84 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           final documents = _starredOnly
               ? all.where((d) => d.starred).toList()
               : all;
+          if (all.isEmpty) {
+            return LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  (constraints.maxHeight * .08).clamp(12, 64),
+                  24,
+                  ReaderLayout.bottomInset(context),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.makeRoom,
+                          style: ReaderTypography.editorial(context, size: 36),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10n.quietShelf,
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: colors.secondary,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                        ActionButton(
+                          label: context.l10n.importFile,
+                          primary: true,
+                          icon: LucideIcons.plus,
+                          onPressed: _busy ? null : _import,
+                        ),
+                        const SizedBox(height: 8),
+                        ActionButton(
+                          label: context.l10n.tryShortReading,
+                          onPressed: _busy
+                              ? null
+                              : () => _perform(() async {
+                                  final id = await ref
+                                      .read(storeProvider)
+                                      .add(
+                                        context.l10n.sampleTitle,
+                                        sampleText,
+                                      );
+                                  ref
+                                      .read(usageAnalyticsProvider)
+                                      .record(
+                                        UsageEvent.sampleAdded,
+                                        source: ReadingSource.sample,
+                                      );
+                                  ref.invalidate(libraryProvider);
+                                  if (mounted) await _open(id);
+                                }),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          context.l10n.localFormats,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
           return ListView(
             padding: EdgeInsets.fromLTRB(
               24,
               8,
               24,
-              MediaQuery.paddingOf(context).bottom + 110,
+              ReaderLayout.bottomInset(context),
             ),
             children: [
               if (_busy)
@@ -230,99 +261,53 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     ],
                   ),
                 ),
-              if (all.isEmpty) ...[
-                const SizedBox(height: 40),
-                Text(
-                  context.l10n.makeRoom,
-                  style: ReaderTypography.editorial(context, size: 36),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  context.l10n.quietShelf,
-                  style: TextStyle(fontSize: 17, color: colors.secondary),
-                ),
-                const SizedBox(height: 28),
-                ActionButton(
-                  label: context.l10n.importFile,
-                  primary: true,
-                  icon: LucideIcons.plus,
-                  onPressed: _busy ? null : _import,
-                ),
-                const SizedBox(height: 8),
-                ActionButton(
-                  label: context.l10n.tryShortReading,
-                  onPressed: _busy
-                      ? null
-                      : () => _perform(() async {
-                          final id = await ref
-                              .read(storeProvider)
-                              .add(context.l10n.sampleTitle, sampleText);
-                          ref
-                              .read(usageAnalyticsProvider)
-                              .record(
-                                UsageEvent.sampleAdded,
-                                source: ReadingSource.sample,
-                              );
-                          ref.invalidate(libraryProvider);
-                          if (mounted) await _open(id);
-                        }),
-                ),
+
+              if (!_starredOnly) ...[
+                _continuation(all.first),
                 const SizedBox(height: 24),
-                Text(
-                  context.l10n.localFormats,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: colors.secondary),
-                ),
-              ] else ...[
-                if (!_starredOnly) ...[
-                  _continuation(all.first),
-                  const SizedBox(height: 24),
-                ],
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _starredOnly
-                            ? context.l10n.starred
-                            : context.l10n.recent,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: colors.text,
-                        ),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _starredOnly ? context.l10n.starred : context.l10n.recent,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: colors.text,
                       ),
                     ),
-                    ActionMenu(
-                      label: context.l10n.libraryFilter,
-                      icon: LucideIcons.listFilter,
-                      choices: [
-                        MenuChoice(
-                          context.l10n.recent,
-                          LucideIcons.clock3,
-                          () => _selectFilter(false),
-                          selected: !_starredOnly,
-                        ),
-                        MenuChoice(
-                          context.l10n.starred,
-                          LucideIcons.star,
-                          () => _selectFilter(true),
-                          selected: _starredOnly,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (documents.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28),
-                    child: Text(
-                      context.l10n.starredEmpty,
-                      style: TextStyle(color: colors.secondary),
-                    ),
                   ),
-                for (final document in documents) _entry(document),
-              ],
+                  ActionMenu(
+                    label: context.l10n.libraryFilter,
+                    icon: LucideIcons.listFilter,
+                    choices: [
+                      MenuChoice(
+                        context.l10n.recent,
+                        LucideIcons.clock3,
+                        () => _selectFilter(false),
+                        selected: !_starredOnly,
+                      ),
+                      MenuChoice(
+                        context.l10n.starred,
+                        LucideIcons.star,
+                        () => _selectFilter(true),
+                        selected: _starredOnly,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (documents.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  child: Text(
+                    context.l10n.starredEmpty,
+                    style: TextStyle(color: colors.secondary),
+                  ),
+                ),
+              for (final document in documents) _entry(document),
             ],
           );
         },
@@ -396,11 +381,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       const padding = EdgeInsets.symmetric(vertical: 16);
       return isApple(context)
           ? CupertinoButton(
+              key: ValueKey('open-reading-${document.id}'),
               padding: padding,
               onPressed: onPressed,
               child: child,
             )
           : InkWell(
+              key: ValueKey('open-reading-${document.id}'),
               onTap: onPressed,
               child: Padding(padding: padding, child: child),
             );

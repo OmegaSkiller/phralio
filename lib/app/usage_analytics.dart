@@ -51,6 +51,7 @@ enum UsageEvent {
   readingSeeked('reading_seeked'),
   readingSpeedChanged('reading_speed_changed'),
   appearanceChanged('appearance_changed'),
+  accentChanged('accent_changed'),
   languageChanged('language_changed'),
   transparencyChanged('transparency_changed'),
   smartPausesChanged('smart_pauses_changed'),
@@ -136,6 +137,7 @@ class UsageAnalytics {
            switch (defaultTargetPlatform) {
              TargetPlatform.iOS => 'iOS',
              TargetPlatform.android => 'Android',
+             TargetPlatform.macOS => 'macOS',
              _ => 'other',
            },
        _language =

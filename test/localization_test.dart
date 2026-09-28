@@ -13,7 +13,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class _TestSettingsController extends SettingsController {
   @override
-  ReaderSettings build() => ReaderSettings();
+  ReaderSettings build() => ReaderSettings(onboardingComplete: true);
 
   @override
   Future<void> update(ReaderSettings value) async => state = value;
@@ -62,7 +62,10 @@ void main() {
   });
 
   test('language setting round trips and unknown values use the device', () {
-    final settings = ReaderSettings(language: AppLanguage.ja);
+    final settings = ReaderSettings(
+      onboardingComplete: true,
+      language: AppLanguage.ja,
+    );
     expect(ReaderSettings.fromJson(settings.toJson()).language, AppLanguage.ja);
     expect(ReaderSettings.fromJson({}).language, AppLanguage.system);
     expect(
@@ -77,7 +80,9 @@ void main() {
     final path = '${dir.path}/library.sqlite';
     var store = await LibraryStore.open(path, factory: databaseFactoryFfi);
     try {
-      await store.saveSettings(ReaderSettings(language: AppLanguage.pl));
+      await store.saveSettings(
+        ReaderSettings(onboardingComplete: true, language: AppLanguage.pl),
+      );
       await store.close();
       store = await LibraryStore.open(path, factory: databaseFactoryFfi);
       expect((await store.settings()).language, AppLanguage.pl);
@@ -100,7 +105,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Settings').last);
+    await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     expect(find.text('Device language'), findsOneWidget);
     await tester.tap(find.text('Language'));
@@ -110,8 +115,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Español'));
     await tester.pumpAndSettle();
-    expect(find.text('Inicio'), findsWidgets);
-    expect(find.text('Ajustes'), findsWidgets);
+    expect(find.byTooltip('Inicio'), findsOneWidget);
+    expect(find.byTooltip('Ajustes'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -127,7 +132,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Settings').last);
+    await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Reading font'));
     await tester.tap(find.text('Reading font'));
@@ -149,13 +154,18 @@ void main() {
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [libraryProvider.overrideWith((ref) async => [])],
+        overrides: [
+          initialSettingsProvider.overrideWithValue(
+            ReaderSettings(onboardingComplete: true),
+          ),
+          libraryProvider.overrideWith((ref) async => []),
+        ],
         child: const ReaderApp(),
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Главная'), findsWidgets);
-    expect(find.text('Настройки'), findsOneWidget);
+    expect(find.byTooltip('Главная'), findsOneWidget);
+    expect(find.byTooltip('Настройки'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
   testWidgets(
@@ -176,7 +186,7 @@ void main() {
             overrides: [
               libraryProvider.overrideWith((ref) async => []),
               initialSettingsProvider.overrideWithValue(
-                ReaderSettings(language: language),
+                ReaderSettings(onboardingComplete: true, language: language),
               ),
             ],
             child: const ReaderApp(),

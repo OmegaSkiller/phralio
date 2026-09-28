@@ -21,12 +21,16 @@ void main() {
     await deleteDatabase(path);
     var store = await LibraryStore.open(path);
     try {
-      await store.saveSettings(ReaderSettings(language: AppLanguage.ru));
+      await store.saveSettings(
+        ReaderSettings(onboardingComplete: true, language: AppLanguage.ru),
+      );
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             storeProvider.overrideWithValue(store),
-            initialSettingsProvider.overrideWithValue(await store.settings()),
+            initialSettingsProvider.overrideWithValue(
+              (await store.settings()).copyWith(onboardingComplete: true),
+            ),
           ],
           child: const ReaderApp(),
         ),
@@ -52,7 +56,9 @@ void main() {
         ProviderScope(
           overrides: [
             storeProvider.overrideWithValue(store),
-            initialSettingsProvider.overrideWithValue(await store.settings()),
+            initialSettingsProvider.overrideWithValue(
+              (await store.settings()).copyWith(onboardingComplete: true),
+            ),
           ],
           child: const ReaderApp(),
         ),

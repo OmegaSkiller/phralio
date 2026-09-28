@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'design.dart';
+import 'accent.dart';
+import '../core/settings.dart';
 
 /// One palette/type owner for app routes, sheets, and startup recovery.
 abstract final class ReaderTheme {
-  static ThemeData material(Brightness brightness) {
-    final c = brightness == Brightness.dark
-        ? ReaderColors.dark
-        : ReaderColors.light;
+  static ThemeData material(
+    Brightness brightness, [
+    AccentColor preset = AccentColor.vermilion,
+  ]) {
+    final c =
+        (brightness == Brightness.dark ? ReaderColors.dark : ReaderColors.light)
+            .withAccent(
+              brightness == Brightness.dark ? preset.dark : preset.light,
+            );
     final scheme =
         ColorScheme.fromSeed(
           seedColor: c.accent,
@@ -43,7 +50,7 @@ abstract final class ReaderTheme {
       fontFamily: ReaderTypography.ui,
       fontFamilyFallback: ReaderTypography.fallbacks(),
       scaffoldBackgroundColor: c.background,
-      cupertinoOverrideTheme: cupertino(brightness),
+      cupertinoOverrideTheme: cupertino(brightness, preset),
       appBarTheme: AppBarTheme(
         backgroundColor: c.background,
         foregroundColor: c.text,
@@ -84,14 +91,17 @@ abstract final class ReaderTheme {
     );
   }
 
-  static CupertinoThemeData cupertino(Brightness? brightness) {
+  static CupertinoThemeData cupertino(
+    Brightness? brightness, [
+    AccentColor preset = AccentColor.vermilion,
+  ]) {
     const text = CupertinoDynamicColor.withBrightness(
       color: ReaderColors.ink,
       darkColor: ReaderColors.paper,
     );
-    const accent = CupertinoDynamicColor.withBrightness(
-      color: ReaderColors.brick,
-      darkColor: ReaderColors.ember,
+    final accent = CupertinoDynamicColor.withBrightness(
+      color: preset.light,
+      darkColor: preset.dark,
     );
     const background = CupertinoDynamicColor.withBrightness(
       color: ReaderColors.paper,

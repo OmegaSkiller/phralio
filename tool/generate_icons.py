@@ -31,6 +31,14 @@ icons = root / 'ios/Runner/Assets.xcassets/AppIcon.appiconset'
 for item in json.loads((icons / 'Contents.json').read_text())['images']:
     size = round(float(item['size'].split('x')[0]) * float(item['scale'].removesuffix('x')))
     render(source, icons / item['filename'], size, opaque=True)
+# macOS expects transparent space around the icon's rounded platform shape.
+# Preserve the exact approved mark; apply only the platform container and inset.
+mac_source = brand / 'app-icon-macos.svg'
+mac_source.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><rect x="100" y="100" width="824" height="824" rx="184" fill="{paper}"/><g transform="translate(100 100) scale(0.8046875)"><path fill="{ink}" transform="translate({tx} {ty}) scale({scale})" d="{geometry}"/></g></svg>\n')
+mac_icons = root / 'macos/Runner/Assets.xcassets/AppIcon.appiconset'
+for item in json.loads((mac_icons / 'Contents.json').read_text())['images']:
+    size = round(float(item['size'].split('x')[0]) * float(item['scale'].removesuffix('x')))
+    render(mac_source, mac_icons / item['filename'], size)
 res = root / 'android/app/src/main/res'
 for density, size in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhdpi',192)]:
     render(source, res / f'mipmap-{density}/ic_launcher.png', size, opaque=True)

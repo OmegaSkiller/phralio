@@ -28,7 +28,9 @@ void main() {
         ProviderScope(
           overrides: [
             storeProvider.overrideWithValue(store),
-            initialSettingsProvider.overrideWithValue(settings),
+            initialSettingsProvider.overrideWithValue(
+              settings.copyWith(onboardingComplete: true),
+            ),
           ],
           child: const ReaderApp(),
         ),

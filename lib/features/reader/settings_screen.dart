@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/design.dart';
+import '../../app/adaptive_layout.dart';
 import '../../app/providers.dart';
 import '../../app/usage_analytics.dart';
 import '../../core/settings.dart';
 import '../../l10n/l10n.dart';
 import 'licenses_screen.dart';
+import '../onboarding/onboarding_screen.dart';
+import 'accent_picker.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -190,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           20,
           0,
           20,
-          MediaQuery.paddingOf(context).bottom + 110,
+          ReaderLayout.bottomInset(context),
         ),
         children: [
           const SizedBox(height: 16),
@@ -221,6 +224,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   (v) => ref.read(settingsProvider).copyWith(appearance: v),
                   UsageEvent.appearanceChanged,
                 ),
+              ),
+              SettingRow(
+                title: l.accentColor,
+                icon: LucideIcons.palette,
+                value: l.accentName(settings.accent),
+                onTap: () {
+                  var saving = false;
+                  showReaderSheet(
+                    context,
+                    l.accentColor,
+                    (sheetContext) => AccentPicker(
+                      selected: ref.read(settingsProvider).accent,
+                      onSelected: (value) async {
+                        if (saving) return;
+                        saving = true;
+                        final saved = await _update(
+                          ref.read(settingsProvider).copyWith(accent: value),
+                          UsageEvent.accentChanged,
+                        );
+                        if (saved && sheetContext.mounted) {
+                          Navigator.pop(sheetContext);
+                        }
+                        saving = false;
+                      },
+                    ),
+                  );
+                },
               ),
               SettingRow(
                 title: l.reduceTransparency,
@@ -357,6 +387,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           GroupedRows(
             children: [
+              SettingRow(
+                title: l.tourTitle,
+                icon: LucideIcons.bookOpen,
+                onTap: () =>
+                    pushPage(context, const OnboardingScreen(replay: true)),
+              ),
               SettingRow(
                 title: l.licenses,
                 icon: LucideIcons.fileCheck,

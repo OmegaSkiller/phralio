@@ -37,8 +37,9 @@ void main() {
     );
     for (final font in ReadingFont.values) {
       expect(
-        ReaderSettings.fromJson(ReaderSettings(readingFont: font).toJson())
-            .readingFont,
+        ReaderSettings.fromJson(
+          ReaderSettings(onboardingComplete: true, readingFont: font).toJson(),
+        ).readingFont,
         font,
       );
     }
@@ -112,6 +113,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            initialSettingsProvider.overrideWithValue(
+              ReaderSettings(onboardingComplete: true),
+            ),
             libraryProvider.overrideWith(
               (ref) async => [
                 const LibraryEntry(
@@ -228,6 +232,7 @@ void main() {
               libraryProvider.overrideWith((ref) async => []),
               initialSettingsProvider.overrideWithValue(
                 ReaderSettings(
+                  onboardingComplete: true,
                   appearance: Appearance.dark,
                   reduceTransparency: true,
                 ),
@@ -262,7 +267,12 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [libraryProvider.overrideWith((ref) async => [])],
+            overrides: [
+              initialSettingsProvider.overrideWithValue(
+                ReaderSettings(onboardingComplete: true),
+              ),
+              libraryProvider.overrideWith((ref) async => []),
+            ],
             child: const ReaderApp(),
           ),
         );

@@ -1,3 +1,5 @@
+import 'package:phralio/core/settings.dart';
+
 import 'controls.dart';
 
 import 'dart:convert';
@@ -50,7 +52,12 @@ void main() {
       );
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [storeProvider.overrideWithValue(store)],
+          overrides: [
+            storeProvider.overrideWithValue(store),
+            initialSettingsProvider.overrideWithValue(
+              ReaderSettings(onboardingComplete: true),
+            ),
+          ],
           child: const ReaderApp(),
         ),
       );

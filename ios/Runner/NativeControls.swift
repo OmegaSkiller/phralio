@@ -112,6 +112,8 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
     root.tintColor = color("accent")
     let items = values["items"] as? [[String: Any]] ?? []
     if values["kind"] as? String == "tabs" {
+      let vertical = values["vertical"] as? Bool == true
+      let compact = values["compact"] as? Bool == true
       let material = UIVisualEffectView()
       if !solid {
         if #available(iOS 26.0, *) {
@@ -125,11 +127,11 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
         material.backgroundColor = color("surface")
       }
       material.clipsToBounds = true
-      material.layer.cornerRadius = 36
+      material.layer.cornerRadius = vertical ? 24 : 36
       material.layer.cornerCurve = .continuous
       fill(material, in: root, inset: 2)
       let stack = UIStackView()
-      stack.axis = .horizontal
+      stack.axis = vertical ? .vertical : .horizontal
       stack.distribution = .fillEqually
       fill(stack, in: material.contentView, inset: 5)
       for item in items {
@@ -137,21 +139,23 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
         let button = UIButton(type: .system)
         var config = UIButton.Configuration.plain()
         config.image = icon(item["icon"])
-        config.title = item["label"] as? String
-        config.imagePlacement = .top
-        config.imagePadding = 3
+        config.title = compact ? nil : item["label"] as? String
+        config.imagePlacement = vertical ? .leading : .top
+        config.imagePadding = vertical ? 12 : 3
+        button.contentHorizontalAlignment = vertical && !compact ? .leading : .center
         config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 1, bottom: 5, trailing: 1)
         config.baseForegroundColor = selected ? root.tintColor : color("secondary")
         config.background.backgroundColor = selected ? color("text").withAlphaComponent(0.07) : .clear
-        config.background.cornerRadius = 29
+        config.background.cornerRadius = vertical ? 18 : 29
+        let fontSize: CGFloat = vertical && !compact ? 15 : 11
         let scale = min(values["textScale"] as? Double ?? 1, 1.4)
-        let baseFont = UIFont(name: uiFontName, size: 11 * scale) ?? UIFont.systemFont(ofSize: 11 * scale, weight: .medium)
+        let baseFont = UIFont(name: uiFontName, size: fontSize * scale) ?? UIFont.systemFont(ofSize: fontSize * scale, weight: .medium)
         // The first registered descriptor can be the Thin named instance.
         // Set the supplied variable font's real weight axis, not synthetic bold.
         let descriptor = baseFont.fontDescriptor.addingAttributes([
           UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [NSNumber(value: 0x77676874): NSNumber(value: 500)]
         ])
-        let uiFont = UIFont(descriptor: descriptor, size: 11 * scale)
+        let uiFont = UIFont(descriptor: descriptor, size: fontSize * scale)
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
           var result = attributes
           result.font = uiFont

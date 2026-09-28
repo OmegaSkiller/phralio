@@ -1,0 +1,9 @@
+# A little room for words
+
+One word. Then the next.
+
+Reading is a place to settle. Choose a comfortable pace, pause when you want, and return to any word. Your place belongs to you.
+
+# A new chapter
+
+Bring your own words when you are ready.

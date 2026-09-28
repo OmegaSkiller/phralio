@@ -31,7 +31,12 @@ void main() {
     final store = await LibraryStore.open(file);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [storeProvider.overrideWithValue(store)],
+        overrides: [
+          storeProvider.overrideWithValue(store),
+          initialSettingsProvider.overrideWithValue(
+            ReaderSettings(onboardingComplete: true),
+          ),
+        ],
         child: const ReaderApp(),
       ),
     );
@@ -98,7 +103,9 @@ void main() {
 
     await container
         .read(settingsProvider.notifier)
-        .update(ReaderSettings(appearance: Appearance.dark));
+        .update(
+          ReaderSettings(onboardingComplete: true, appearance: Appearance.dark),
+        );
     await tester.pumpAndSettle();
     expect(
       ReaderColors.of(tester.element(find.byType(LibraryScreen))),
@@ -108,7 +115,12 @@ void main() {
     await capture('brandkit/$platform-library-dark');
     await container
         .read(settingsProvider.notifier)
-        .update(ReaderSettings(appearance: Appearance.light));
+        .update(
+          ReaderSettings(
+            onboardingComplete: true,
+            appearance: Appearance.light,
+          ),
+        );
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('A little more room').last, 160);
     await tester.pumpAndSettle();
@@ -123,7 +135,9 @@ void main() {
 
     await container
         .read(settingsProvider.notifier)
-        .update(ReaderSettings(appearance: Appearance.dark));
+        .update(
+          ReaderSettings(onboardingComplete: true, appearance: Appearance.dark),
+        );
     await tester.pumpAndSettle();
     expect(
       ReaderColors.of(tester.element(find.byType(ReaderScreen))),
@@ -156,7 +170,12 @@ void main() {
     await capture('brandkit/$platform-settings-dark');
     await container
         .read(settingsProvider.notifier)
-        .update(ReaderSettings(appearance: Appearance.light));
+        .update(
+          ReaderSettings(
+            onboardingComplete: true,
+            appearance: Appearance.light,
+          ),
+        );
     await tester.pumpAndSettle();
     await capture('brandkit/$platform-settings-light');
     await tester.tap(find.text('Language'));
@@ -166,7 +185,7 @@ void main() {
     for (final language in [AppLanguage.ja, AppLanguage.ru]) {
       await container
           .read(settingsProvider.notifier)
-          .update(ReaderSettings(language: language));
+          .update(ReaderSettings(onboardingComplete: true, language: language));
       await tester.pumpAndSettle();
       await binding.takeScreenshot(
         'brandkit/$platform-settings-${language.name}',
