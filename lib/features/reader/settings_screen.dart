@@ -292,6 +292,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               SettingRow(
                 title: l.smartPauses,
                 icon: LucideIcons.timer,
+                subtitle: l.smartPausesHint,
                 value: _pauseName(settings.pauses),
                 onTap: () => _choices(
                   l.smartPauses,

@@ -20,6 +20,7 @@ class WordContextView extends StatefulWidget {
     required this.readingFont,
     required this.highlight,
     required this.height,
+    this.image,
     required this.onTap,
     required this.onStep,
     required this.onScrollStart,
@@ -32,6 +33,7 @@ class WordContextView extends StatefulWidget {
   final ReadingFont readingFont;
   final bool highlight;
   final double height;
+  final Widget? image;
   final VoidCallback onTap;
   final ValueChanged<int> onStep;
   final VoidCallback onScrollStart;
@@ -170,19 +172,6 @@ class _WordContextViewState extends State<WordContextView> {
     final colors = ReaderColors.of(context);
     final scaler = MediaQuery.textScalerOf(context);
     final contextSize = scaler.scale(16);
-    final compact = widget.height < 260;
-    final minimumActiveHeight = compact ? 72.0 : 100.0;
-    final gap = compact ? 8.0 : 14.0;
-    final activeHeight = math.max(
-      minimumActiveHeight,
-      scaler.scale(widget.fontSize) * 1.6,
-    );
-    final contextLines = compact ? 1 : 3;
-    final contextHeight = contextSize * 1.4 * contextLines;
-    final panelHeight = math.max(
-      widget.height,
-      activeHeight + contextHeight * 2 + gap * 2,
-    );
     final contextStyle =
         ReaderTypography.body(color: colors.secondary, size: 16).copyWith(
           fontFamily: widget.readingFont.family,
@@ -193,8 +182,28 @@ class _WordContextViewState extends State<WordContextView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        // The reader owns the viewport; word gestures must never resize or
+        // scroll its chrome. Unbounded tutorial canvases retain their height.
+        final panelHeight = constraints.constrainHeight(widget.height);
+        final compact = panelHeight < 260;
+        final gap = compact ? 8.0 : 14.0;
+        final desiredActiveHeight = math.max(
+          compact ? 72.0 : 100.0,
+          scaler.scale(widget.fontSize) * 1.6,
+        );
+        final lineHeight = contextSize * 1.4;
+        final contextLines =
+            ((panelHeight - desiredActiveHeight - gap * 2) / (lineHeight * 2))
+                .floor()
+                .clamp(0, compact ? 1 : 3);
+        final activeHeight = contextLines == 0
+            ? math.min(panelHeight, desiredActiveHeight)
+            : math.min(
+                desiredActiveHeight,
+                panelHeight - lineHeight * contextLines * 2 - gap * 2,
+              );
         final direction = Directionality.of(context);
-        final before = position > 0
+        final before = contextLines > 0 && position > 0
             ? _before(
                 tokens,
                 position,
@@ -206,7 +215,7 @@ class _WordContextViewState extends State<WordContextView> {
                 contextLines,
               )
             : '';
-        final after = position < tokens.length - 1
+        final after = contextLines > 0 && position < tokens.length - 1
             ? _after(
                 tokens,
                 position,
@@ -272,40 +281,41 @@ class _WordContextViewState extends State<WordContextView> {
                         alignment: Alignment.bottomLeft,
                         child: Text(
                           before,
-                          maxLines: contextLines,
+                          maxLines: math.max(1, contextLines),
                           overflow: TextOverflow.ellipsis,
                           style: contextStyle,
                         ),
                       ),
                     ),
-                    SizedBox(height: gap),
-                    active.isImage
-                        ? SizedBox(
-                            height: activeHeight,
-                            child: Center(
-                              child: Text(
-                                context.l10n.image,
-                                style: TextStyle(
+                    SizedBox(height: contextLines > 0 ? gap : 0),
+                    SizedBox(
+                      height: activeHeight,
+                      width: double.infinity,
+                      child: active.isImage
+                          ? widget.image ??
+                                Center(child: Text(context.l10n.image))
+                          : FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                height: desiredActiveHeight,
+                                child: FocalWord(
+                                  token: active,
                                   fontSize: widget.fontSize,
-                                  color: colors.text,
+                                  readingFont: widget.readingFont,
+                                  highlight: widget.highlight,
+                                  minimumHeight: desiredActiveHeight,
                                 ),
                               ),
                             ),
-                          )
-                        : FocalWord(
-                            token: active,
-                            fontSize: widget.fontSize,
-                            readingFont: widget.readingFont,
-                            highlight: widget.highlight,
-                            minimumHeight: minimumActiveHeight,
-                          ),
-                    SizedBox(height: gap),
+                    ),
+                    SizedBox(height: contextLines > 0 ? gap : 0),
                     Expanded(
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Text(
                           after,
-                          maxLines: contextLines,
+                          maxLines: math.max(1, contextLines),
                           overflow: TextOverflow.ellipsis,
                           style: contextStyle,
                         ),

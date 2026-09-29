@@ -165,8 +165,34 @@ void main() {
     await tester.pumpAndSettle();
     await tapIcon(tester, 'Back');
     await tapTab(tester, 'Saved');
+    expect(find.text('Reading'), findsOneWidget);
     await capture('brandkit/$platform-saved-dark');
+    await tester.drag(find.byKey(ValueKey('star-$id')), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+    expect((await store.all()).single.starred, isFalse);
+    expect((await store.bookmarks()).single.word, 'Reading');
+    await tester.drag(
+      find.byKey(ValueKey('bookmark-$id-6')),
+      const Offset(-500, 0),
+    );
+    await tester.pumpAndSettle();
+    expect(await store.bookmarks(), isEmpty);
+    expect((await store.document(id)).text, sampleText);
+    await store.setStarred(id, true);
+    await store.toggleBookmark(id, 6);
+    container.invalidate(savedProvider);
+    await tester.pumpAndSettle();
+    expect(find.byKey(ValueKey('star-$id')), findsOneWidget);
+    expect(find.byKey(ValueKey('bookmark-$id-6')), findsOneWidget);
     await tapTab(tester, 'Settings');
+    expect(find.text('Font Size'), findsOneWidget);
+    expect(find.text('Type size'), findsNothing);
+    expect(
+      find.text(
+        'Give punctuation, paragraphs, numbers, and longer words more time.',
+      ),
+      findsOneWidget,
+    );
     await capture('brandkit/$platform-settings-dark');
     await container
         .read(settingsProvider.notifier)

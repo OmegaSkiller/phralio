@@ -3,8 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import 'dart:async';
+
 import 'app/design.dart';
 import 'app/theme.dart';
+import 'app/startup_screen.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
@@ -31,16 +34,36 @@ Future<void> main() async {
       ], await rootBundle.loadString('assets/fonts/${font.assetStem}-OFL.txt'));
     }
   });
-  await launchReader();
+  await launchReader(showSplash: true);
 }
 
-Future<void> launchReader() async {
+Future<void> launchReader({bool showSplash = false}) async {
   LibraryStore? store;
+  final reduceMotion = WidgetsBinding
+      .instance
+      .platformDispatcher
+      .accessibilityFeatures
+      .disableAnimations;
+  final startupFinished = Completer<void>();
+  final splashComplete = showSplash && !reduceMotion
+      ? startupFinished.future
+      : Future<void>.value();
+  if (showSplash) {
+    runApp(
+      StartupScreen(
+        reduceMotion: reduceMotion,
+        onFinished: () {
+          if (!startupFinished.isCompleted) startupFinished.complete();
+        },
+      ),
+    );
+  }
   try {
     store = await LibraryStore.open(
       path.join(await getDatabasesPath(), 'reader.sqlite'),
     );
     final settings = await store.settings();
+    await splashComplete;
     runApp(
       ProviderScope(
         overrides: [
@@ -64,7 +87,7 @@ Future<void> launchReader() async {
                 Text(context.l10n.localLibraryFailed),
                 ActionButton(
                   label: context.l10n.tryAgain,
-                  onPressed: launchReader,
+                  onPressed: () => launchReader(),
                 ),
               ],
             ),

@@ -6,7 +6,7 @@ import '../../app/design.dart';
 import '../../core/document.dart';
 import '../../core/settings.dart';
 
-/// Uses the shaped glyph selection box, preserving kerning and grapheme offsets.
+/// Anchors the shaped focal grapheme, keeping both sides inside the field.
 class FocalLayout {
   FocalLayout(
     ReaderToken token,
@@ -43,23 +43,22 @@ class FocalLayout {
         extentOffset: prefix.length + character.length,
       ),
     );
-    focalCenter = boxes.isEmpty
-        ? painter.width / 2
-        : (boxes.first.left + boxes.first.right) / 2;
-    final anchor = width * Measures.anchor;
-    scale = math
-        .min(
-          1.0,
-          math.min(
-            (anchor - 16) / math.max(1, focalCenter),
-            (width - anchor - 16) / math.max(1, painter.width - focalCenter),
-          ),
-        )
-        .clamp(0.01, 1.0);
-    left = anchor - focalCenter * scale;
+    focalBounds = boxes.isEmpty
+        ? Offset.zero & painter.size
+        : boxes
+              .map((box) => box.toRect())
+              .reduce((bounds, box) => bounds.expandToInclude(box));
+    final reach = math.max(
+      focalBounds.center.dx,
+      painter.width - focalBounds.center.dx,
+    );
+    scale = math.min(1.0, math.max(0, width / 2 - 16) / math.max(1, reach));
+    left = width / 2 - focalBounds.center.dx * scale;
   }
   late final TextPainter painter;
-  late final double focalCenter, scale, left;
+  late final Rect focalBounds;
+  late final double scale, left;
+  double top(double height) => height / 2 - focalBounds.center.dy * scale;
   void dispose() => painter.dispose();
 }
 
@@ -132,10 +131,7 @@ class _WordPainter extends CustomPainter {
     );
     canvas.save();
     canvas.clipRect(Offset.zero & size);
-    canvas.translate(
-      layout.left,
-      (size.height - layout.painter.height * layout.scale) / 2,
-    );
+    canvas.translate(layout.left, layout.top(size.height));
     canvas.scale(layout.scale);
     layout.painter.paint(canvas, Offset.zero);
     canvas.restore();

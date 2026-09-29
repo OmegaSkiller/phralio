@@ -2,32 +2,32 @@ import 'package:flutter/widgets.dart';
 
 import '../core/settings.dart';
 
-/// Functional shades for Paper and Ink. Stable IDs live in ReaderSettings.
+/// Saturated functional shades for white and AMOLED black. Stable IDs live in ReaderSettings.
 extension AccentColors on AccentColor {
   Color get light => switch (this) {
-    AccentColor.vermilion => const Color(0xFFA73E2A),
-    AccentColor.terracotta => const Color(0xFF934E35),
-    AccentColor.rose => const Color(0xFF9B3D58),
-    AccentColor.plum => const Color(0xFF784471),
-    AccentColor.indigo => const Color(0xFF514D96),
-    AccentColor.blue => const Color(0xFF315F90),
-    AccentColor.teal => const Color(0xFF246A69),
-    AccentColor.forest => const Color(0xFF3E654A),
-    AccentColor.olive => const Color(0xFF62632D),
-    AccentColor.ochre => const Color(0xFF825B20),
+    AccentColor.vermilion => const Color(0xFFC73518),
+    AccentColor.terracotta => const Color(0xFFB84208),
+    AccentColor.rose => const Color(0xFFC51C5A),
+    AccentColor.plum => const Color(0xFF9323BF),
+    AccentColor.indigo => const Color(0xFF5142DE),
+    AccentColor.blue => const Color(0xFF0068D6),
+    AccentColor.teal => const Color(0xFF007B79),
+    AccentColor.forest => const Color(0xFF13802A),
+    AccentColor.olive => const Color(0xFF5B7000),
+    AccentColor.ochre => const Color(0xFF8F6000),
   };
 
   Color get dark => switch (this) {
-    AccentColor.vermilion => const Color(0xFFF29C82),
-    AccentColor.terracotta => const Color(0xFFE9B18F),
-    AccentColor.rose => const Color(0xFFEAA3B8),
-    AccentColor.plum => const Color(0xFFD6ACD2),
-    AccentColor.indigo => const Color(0xFFB9B4EE),
-    AccentColor.blue => const Color(0xFF9ABFE6),
-    AccentColor.teal => const Color(0xFF8DCFC8),
-    AccentColor.forest => const Color(0xFFA5CBA7),
-    AccentColor.olive => const Color(0xFFC9CE8E),
-    AccentColor.ochre => const Color(0xFFE4C282),
+    AccentColor.vermilion => const Color(0xFFFF6040),
+    AccentColor.terracotta => const Color(0xFFFF8A38),
+    AccentColor.rose => const Color(0xFFFF5593),
+    AccentColor.plum => const Color(0xFFCC69FF),
+    AccentColor.indigo => const Color(0xFF9780FF),
+    AccentColor.blue => const Color(0xFF459BFF),
+    AccentColor.teal => const Color(0xFF16C9BA),
+    AccentColor.forest => const Color(0xFF39D667),
+    AccentColor.olive => const Color(0xFFA3CC21),
+    AccentColor.ochre => const Color(0xFFFFBD24),
   };
 }
 

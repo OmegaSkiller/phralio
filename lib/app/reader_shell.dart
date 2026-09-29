@@ -199,9 +199,7 @@ class _ReaderShellState extends ConsumerState<ReaderShell> {
                           horizontal: vertical && !compact ? 14 : 0,
                         ),
                         decoration: BoxDecoration(
-                          color: i == _selected
-                              ? colors.accent.withValues(alpha: .1)
-                              : null,
+                          color: i == _selected ? colors.elevated : null,
                           borderRadius: BorderRadius.circular(
                             vertical ? 18 : 30,
                           ),

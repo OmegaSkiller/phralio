@@ -497,53 +497,64 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
             final bottom = ReaderLayout.bottomInset(context);
             final sideBySide =
                 constraints.maxWidth >= 500 && constraints.maxHeight < 620;
-            final wordHeight = sideBySide
-                ? (constraints.maxHeight - 80).clamp(140.0, 280.0)
-                : (constraints.maxHeight * .43).clamp(280.0, 460.0);
-            final passage = <Widget>[
-              Text(
-                widget.document.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0,
-                  color: colors.text,
+            final availableHeight = constraints.maxHeight - bottom - 12;
+            final compact =
+                availableHeight < 600 ||
+                MediaQuery.textScalerOf(context).scale(16) > 24;
+            final playSize = compact ? 56.0 : 76.0;
+            final passage = Column(
+              children: [
+                Text(
+                  widget.document.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w600,
+                    color: colors.text,
+                  ),
                 ),
-              ),
-              SizedBox(height: sideBySide ? 4 : 12),
-              Text(
-                _engine.completed
-                    ? context.l10n.finishedRestart
-                    : context.l10n.positionOfWords(
-                        _engine.position + 1,
-                        _engine.tokens.length,
+                const SizedBox(height: 4),
+                Text(
+                  _engine.completed
+                      ? context.l10n.finishedRestart
+                      : context.l10n.positionOfWords(
+                          _engine.position + 1,
+                          _engine.tokens.length,
+                        ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: colors.secondary),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, canvas) => Center(
+                      child: WordContextView(
+                        document: widget.document,
+                        position: _engine.position,
+                        fontSize: _engine.settings.fontSize,
+                        readingFont: _engine.settings.readingFont,
+                        highlight: _engine.settings.highlight,
+                        height: math.min(460, canvas.maxHeight),
+                        image: _engine.current?.isImage == true
+                            ? _wordOrImage(context)
+                            : null,
+                        onTap: _toggle,
+                        onStep: (delta) => _scrub(_engine.position + delta),
+                        onScrollStart: () => _scrolling = true,
+                        onScrollEnd: () {
+                          _scrolling = false;
+                          unawaited(_save());
+                        },
                       ),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: colors.secondary),
-              ),
-              SizedBox(height: sideBySide ? 8 : 20),
-              WordContextView(
-                document: widget.document,
-                position: _engine.position,
-                fontSize: _engine.settings.fontSize,
-                readingFont: _engine.settings.readingFont,
-                highlight: _engine.settings.highlight,
-                height: wordHeight,
-                onTap: _toggle,
-                onStep: (delta) => _scrub(_engine.position + delta),
-                onScrollStart: () => _scrolling = true,
-                onScrollEnd: () {
-                  _scrolling = false;
-                  unawaited(_save());
-                },
-              ),
-              if (_engine.current?.isImage == true)
-                GestureDetector(
-                  onTap: _toggle,
-                  child: SizedBox(height: 200, child: _wordOrImage(context)),
+                    ),
+                  ),
                 ),
-            ];
+              ],
+            );
             final controls = <Widget>[
               StreamBuilder<void>(
                 stream: _engine.changes,
@@ -580,7 +591,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   );
                 },
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: compact ? 4 : 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -596,8 +607,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                     onTap: _toggle,
                     child: ExcludeSemantics(
                       child: SizedBox(
-                        width: 76,
-                        height: 76,
+                        width: playSize,
+                        height: playSize,
                         child: CupertinoButton(
                           padding: EdgeInsets.zero,
                           color: colors.accent,
@@ -620,59 +631,73 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: compact ? 4 : 18),
               Center(
-                child: ActionButton(
+                child: Semantics(
                   label: context.l10n.speedValue(_engine.settings.wpm),
-                  icon: LucideIcons.gauge,
-                  onPressed: _speedSheet,
+                  button: true,
+                  child: CupertinoButton(
+                    onPressed: _speedSheet,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      context.l10n.speedValue(_engine.settings.wpm),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: colors.accent),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                context.l10n.tapToReadHint,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: colors.subtle),
-              ),
+              if (!compact) ...[
+                const SizedBox(height: 12),
+                Text(
+                  context.l10n.tapToReadHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: colors.subtle),
+                ),
+              ],
               if (_saveFailed)
                 ActionButton(
                   label: context.l10n.placeNotSaved,
                   onPressed: () => _save(),
                 ),
             ];
-            if (sideBySide) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: ListView(
-                        key: const ValueKey('landscape-passage'),
-                        padding: EdgeInsets.only(top: 12, bottom: bottom),
-                        children: passage,
-                      ),
-                    ),
-                    const SizedBox(width: 28),
-                    SizedBox(
-                      width: constraints.maxWidth >= 900
-                          ? 320
-                          : constraints.maxWidth >= 700
-                          ? 280
-                          : 240,
-                      child: ListView(
-                        key: const ValueKey('landscape-controls'),
-                        padding: EdgeInsets.only(top: 24, bottom: bottom),
-                        children: controls,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return ListView(
+            return Padding(
               padding: EdgeInsets.fromLTRB(24, 12, 24, bottom),
-              children: [...passage, const SizedBox(height: 16), ...controls],
+              child: sideBySide
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: KeyedSubtree(
+                            key: const ValueKey('landscape-passage'),
+                            child: passage,
+                          ),
+                        ),
+                        const SizedBox(width: 28),
+                        SizedBox(
+                          width: constraints.maxWidth >= 900
+                              ? 320
+                              : constraints.maxWidth >= 700
+                              ? 280
+                              : 240,
+                          child: Column(
+                            key: const ValueKey('landscape-controls'),
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: controls,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Expanded(child: passage),
+                        const SizedBox(height: 8),
+                        ...controls,
+                      ],
+                    ),
             );
           },
         ),

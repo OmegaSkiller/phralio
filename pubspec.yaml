@@ -24,6 +24,7 @@ dependencies:
   http: ^1.6.0
   markdown: ^7.3.1
   flutter_svg: ^2.3.0
+  lottie: ^3.6.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -66,7 +66,7 @@ void main() {
     }
   });
   testWidgets(
-    'shaped focal glyph remains anchored, including long Unicode words',
+    'focal grapheme is centered and long Unicode words stay inside the field',
     (tester) async {
       for (final font in ReadingFont.values) {
         for (final word in [
@@ -78,29 +78,37 @@ void main() {
           'extraordinarily-longword',
           '👩‍💻',
         ]) {
-          for (final scale in [1.0, 2.0, 3.0]) {
-            final layout = FocalLayout(
-              ReaderToken(word, 0, false),
-              TextStyle(
-                fontSize: 42,
-                fontFamily: font.family,
-                fontWeight: FontWeight.w500,
-              ),
-              Colors.teal,
-              true,
-              320,
-              TextScaler.linear(scale),
-            );
-            expect(
-              layout.left + layout.focalCenter * layout.scale,
-              closeTo(320 * Measures.anchor, 0.01),
-            );
-            expect(layout.left, greaterThanOrEqualTo(15.99));
-            expect(
-              layout.left + layout.painter.width * layout.scale,
-              lessThanOrEqualTo(304.01),
-            );
-            layout.dispose();
+          for (final highlight in [true, false]) {
+            for (final width in [240.0, 390.0, 844.0]) {
+              for (final scale in [1.0, 2.0, 3.0]) {
+                final layout = FocalLayout(
+                  ReaderToken(word, 0, false),
+                  TextStyle(
+                    fontSize: 42,
+                    fontFamily: font.family,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  Colors.teal,
+                  highlight,
+                  width,
+                  TextScaler.linear(scale),
+                );
+                expect(
+                  layout.left + layout.focalBounds.center.dx * layout.scale,
+                  closeTo(width * Measures.anchor, 0.01),
+                );
+                expect(
+                  layout.top(180) + layout.focalBounds.center.dy * layout.scale,
+                  closeTo(90, .01),
+                );
+                expect(layout.left, greaterThanOrEqualTo(15.99));
+                expect(
+                  layout.left + layout.painter.width * layout.scale,
+                  lessThanOrEqualTo(width - 15.99),
+                );
+                layout.dispose();
+              }
+            }
           }
         }
       }

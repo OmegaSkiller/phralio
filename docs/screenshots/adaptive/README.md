@@ -26,7 +26,10 @@ bar under the current word:
 ![macOS light reader](macos-reader-light.png)
 ![macOS dark reader](macos-reader-dark.png)
 
-## Two onboarding options
+## Earlier onboarding (superseded)
+
+These captures document the previous design. The [new interactive onboarding](../onboarding/README.md)
+replaces both tour variants with one optional hands-on journey.
 
 <img src="ipad-onboarding-choice.png" alt="Choose interactive practice or a traditional tour" width="300">
 <img src="ipad-onboarding-traditional.png" alt="Traditional welcome lesson" width="300">

@@ -17,6 +17,39 @@ class SavedScreen extends ConsumerStatefulWidget {
 }
 
 class _SavedScreenState extends ConsumerState<SavedScreen> {
+  final _hiddenStars = <int>{};
+  final _hiddenBookmarks = <(int, int)>{};
+
+  Future<void> _removeStar(int id) async {
+    setState(() => _hiddenStars.add(id));
+    try {
+      await ref.read(storeProvider).setStarred(id, false);
+      ref.read(usageAnalyticsProvider).record(UsageEvent.starRemoved);
+      ref.invalidate(savedProvider);
+      ref.invalidate(libraryProvider);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _hiddenStars.remove(id));
+        showProblem(context, context.l10n.readingUnavailable);
+      }
+    }
+  }
+
+  Future<void> _removeBookmark(int documentId, int position) async {
+    final key = (documentId, position);
+    setState(() => _hiddenBookmarks.add(key));
+    try {
+      await ref.read(storeProvider).removeBookmark(documentId, position);
+      ref.read(usageAnalyticsProvider).record(UsageEvent.bookmarkRemoved);
+      ref.invalidate(savedProvider);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _hiddenBookmarks.remove(key));
+        showProblem(context, context.l10n.bookmarkSaveFailed);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +82,19 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(savedProvider, (_, next) {
+      if (next.isLoading) return;
+      final data = next.asData?.value;
+      if (data == null) return;
+      // Hide dismissed rows only until the store acknowledges their removal.
+      // Later additions of the same star or bookmark must be visible again.
+      final stars = data.starred.map((book) => book.id).toSet();
+      final bookmarks = data.bookmarks
+          .map((mark) => (mark.documentId, mark.position))
+          .toSet();
+      _hiddenStars.removeWhere((id) => !stars.contains(id));
+      _hiddenBookmarks.removeWhere((key) => !bookmarks.contains(key));
+    });
     final saved = ref.watch(savedProvider);
     return PlatformPage(
       title: context.l10n.saved,
@@ -69,7 +115,9 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
           ),
           children: [
             SectionLabel(context.l10n.starredReadings),
-            if (data.starred.isEmpty)
+            if (data.starred
+                .where((book) => !_hiddenStars.contains(book.id))
+                .isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
@@ -81,17 +129,33 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
               GroupedRows(
                 children: [
                   for (final book in data.starred)
-                    SettingRow(
-                      title: book.title,
-                      icon: LucideIcons.bookOpen,
-                      subtitle:
-                          '${book.format} · ${context.l10n.percentRead((book.progress * 100).floor())}',
-                      onTap: () => _open(context, ref, book.id),
-                    ),
+                    if (!_hiddenStars.contains(book.id))
+                      Dismissible(
+                        key: ValueKey('star-${book.id}'),
+                        direction: DismissDirection.endToStart,
+                        background: ColoredBox(
+                          color: ReaderColors.of(context).elevated,
+                        ),
+                        onDismissed: (_) => _removeStar(book.id),
+                        child: SettingRow(
+                          title: book.title,
+                          icon: LucideIcons.bookOpen,
+                          subtitle:
+                              '${book.format} · ${context.l10n.percentRead((book.progress * 100).floor())}',
+                          onTap: () => _open(context, ref, book.id),
+                        ),
+                      ),
                 ],
               ),
             SectionLabel(context.l10n.bookmarks),
-            if (data.bookmarks.isEmpty)
+            if (data.bookmarks
+                .where(
+                  (mark) => !_hiddenBookmarks.contains((
+                    mark.documentId,
+                    mark.position,
+                  )),
+                )
+                .isEmpty)
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
@@ -103,20 +167,36 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
               GroupedRows(
                 children: [
                   for (final mark in data.bookmarks)
-                    SettingRow(
-                      title: mark.title,
-                      icon: LucideIcons.bookmark,
-                      subtitle: context.l10n.wordOfWords(
-                        mark.position + 1,
-                        mark.wordCount,
+                    if (!_hiddenBookmarks.contains((
+                      mark.documentId,
+                      mark.position,
+                    )))
+                      Dismissible(
+                        key: ValueKey(
+                          'bookmark-${mark.documentId}-${mark.position}',
+                        ),
+                        direction: DismissDirection.endToStart,
+                        background: ColoredBox(
+                          color: ReaderColors.of(context).elevated,
+                        ),
+                        onDismissed: (_) =>
+                            _removeBookmark(mark.documentId, mark.position),
+                        child: SettingRow(
+                          title: mark.title,
+                          icon: LucideIcons.bookmark,
+                          subtitle: mark.word,
+                          value: context.l10n.wordOfWords(
+                            mark.position + 1,
+                            mark.wordCount,
+                          ),
+                          onTap: () => _open(
+                            context,
+                            ref,
+                            mark.documentId,
+                            position: mark.position,
+                          ),
+                        ),
                       ),
-                      onTap: () => _open(
-                        context,
-                        ref,
-                        mark.documentId,
-                        position: mark.position,
-                      ),
-                    ),
                 ],
               ),
           ],

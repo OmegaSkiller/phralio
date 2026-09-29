@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:phralio/app/providers.dart';
-import 'package:phralio/app/design.dart';
 import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/settings.dart';
 import 'package:phralio/features/library/library_store.dart';
@@ -133,7 +132,7 @@ void main() {
         await capture('$orientation-settings-dark');
         expect(tester.takeException(), isNull);
       }
-      // Both tour variants are captured on the real renderer as well.
+      // The full interactive journey is covered by onboarding_screenshots_test.
       await tester.pumpWidget(const SizedBox.shrink());
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -151,76 +150,11 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(OnboardingScreen), findsOneWidget);
-      await capture('onboarding-choice');
-      await tester.ensureVisible(find.text('Take a guided tour'));
-      await tester.tap(find.text('Take a guided tour'));
-      await tester.scrollUntilVisible(
-        find.text('Start'),
-        160,
-        scrollable: find
-            .descendant(
-              of: find.byType(OnboardingScreen),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      await tester.tap(find.text('Start'));
-      await tester.pumpAndSettle();
-      await capture('onboarding-traditional');
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            storeProvider.overrideWithValue(store),
-            initialSettingsProvider.overrideWithValue(
-              ReaderSettings(appearance: Appearance.light),
-            ),
-          ],
-          child: const ReaderApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.text('Start'),
-        160,
-        scrollable: find
-            .descendant(
-              of: find.byType(OnboardingScreen),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      await tester.tap(find.text('Start'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('tour-next')),
-        160,
-        scrollable: find
-            .descendant(
-              of: find.byType(OnboardingScreen),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
+      await capture('onboarding-welcome');
+      await tester.ensureVisible(find.byKey(const ValueKey('tour-next')));
       await tester.tap(find.byKey(const ValueKey('tour-next')));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.widgetWithText(ActionButton, 'Use a sample'),
-        160,
-        scrollable: find
-            .descendant(
-              of: find.byType(OnboardingScreen),
-              matching: find.byType(Scrollable),
-            )
-            .first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(ActionButton, 'Use a sample'));
-      await tester.ensureVisible(find.widgetWithText(ActionButton, 'Read'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(ActionButton, 'Read'));
-      await tester.pumpAndSettle();
-      await capture('onboarding-interactive');
+      await capture('onboarding-read');
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
       await store.close();

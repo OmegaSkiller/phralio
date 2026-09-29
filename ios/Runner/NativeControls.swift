@@ -44,7 +44,7 @@ final class NativeControlsFactory: NSObject, FlutterPlatformViewFactory {
   }
 }
 
-private final class NativeControlsView: NSObject, FlutterPlatformView {
+private final class NativeControlsView: NSObject, FlutterPlatformView, UITabBarDelegate {
   private let root: UIView
   private let channel: FlutterMethodChannel
   private let fontName: String
@@ -73,6 +73,10 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
   deinit { NotificationCenter.default.removeObserver(self) }
   func view() -> UIView { root }
   @objc private func accessibilityChanged() { update(configuration, force: true) }
+
+  func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+    channel.invokeMethod("select", arguments: String(item.tag))
+  }
 
   private func icon(_ code: Any?, size: CGFloat = 23) -> UIImage? {
     guard let code = code as? Int, let scalar = UnicodeScalar(code),
@@ -114,6 +118,35 @@ private final class NativeControlsView: NSObject, FlutterPlatformView {
     if values["kind"] as? String == "tabs" {
       let vertical = values["vertical"] as? Bool == true
       let compact = values["compact"] as? Bool == true
+      if !vertical {
+        // Let UIKit own tab layout, selection and the system's Liquid Glass.
+        // Its opaque appearance follows both the app and device transparency settings.
+        let bar = UITabBar()
+        bar.delegate = self
+        bar.tintColor = root.tintColor
+        bar.unselectedItemTintColor = color("secondary")
+        let appearance = UITabBarAppearance()
+        if solid {
+          appearance.configureWithOpaqueBackground()
+          appearance.backgroundColor = color("surface")
+        } else {
+          appearance.configureWithDefaultBackground()
+        }
+        bar.standardAppearance = appearance
+        bar.scrollEdgeAppearance = appearance
+        bar.items = items.map { item in
+          let tab = UITabBarItem(title: item["label"] as? String,
+                                 image: icon(item["icon"]), tag: Int(item["id"] as? String ?? "") ?? 0)
+          tab.accessibilityLabel = item["label"] as? String
+          return tab
+        }
+        if let selected = Int(values["selected"] as? String ?? ""),
+           bar.items?.indices.contains(selected) == true {
+          bar.selectedItem = bar.items?[selected]
+        }
+        fill(bar, in: root)
+        return
+      }
       let material = UIVisualEffectView()
       if !solid {
         if #available(iOS 26.0, *) {

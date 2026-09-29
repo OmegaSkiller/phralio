@@ -10,6 +10,7 @@ import 'accent.dart';
 import 'adaptive_layout.dart';
 import 'native_controls.dart';
 import '../l10n/l10n.dart';
+import '../core/settings.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ abstract final class Measures {
   static const gap = 16.0;
   static const target = 48.0;
   static const radius = 16.0;
-  static const anchor = 0.42;
+  static const anchor = 0.5;
 }
 
 class ReaderColors {
@@ -53,7 +54,7 @@ class ReaderColors {
       destructive;
   Color get focal => accent;
   Color get interactive => accent;
-  bool get isDark => background == ink;
+  bool get isDark => background == const Color(0xFF000000);
   ReaderColors withAccent(Color value) => value == accent
       ? this
       : ReaderColors(
@@ -79,32 +80,32 @@ class ReaderColors {
   static const mist = Color(0xFFC9D1CB);
   static const brick = Color(0xFFA73E2A);
   static const ember = Color(0xFFF29C82);
-  static const light = ReaderColors(
-    background: paper,
-    surface: Color(0xFFFAF7F0),
-    elevated: Color(0xFFE8E7DD),
-    text: ink,
-    secondary: Color(0xFF53605A),
-    subtle: Color(0xFF626B63),
-    accent: brick,
-    onAccent: paper,
-    separator: Color(0xFFD1D2C7),
-    disabled: Color(0xFF929A91),
+  static final light = ReaderColors(
+    background: Color(0xFFFFFFFF),
+    surface: Color(0xFFFFFFFF),
+    elevated: Color(0xFFF2F2F2),
+    text: Color(0xFF101010),
+    secondary: Color(0xFF525252),
+    subtle: Color(0xFF666666),
+    accent: AccentColor.vermilion.light,
+    onAccent: Color(0xFFFFFFFF),
+    separator: Color(0xFFD9D9D9),
+    disabled: Color(0xFF8A8A8A),
     positive: Color(0xFF356044),
     warning: Color(0xFF795700),
     destructive: brick,
   );
-  static const dark = ReaderColors(
-    background: ink,
-    surface: Color(0xFF23322F),
-    elevated: Color(0xFF30413C),
-    text: paper,
-    secondary: mist,
-    subtle: Color(0xFFADB7AE),
-    accent: ember,
-    onAccent: ink,
-    separator: Color(0xFF46554F),
-    disabled: Color(0xFF708179),
+  static final dark = ReaderColors(
+    background: Color(0xFF000000),
+    surface: Color(0xFF111111),
+    elevated: Color(0xFF1C1C1C),
+    text: Color(0xFFFFFFFF),
+    secondary: Color(0xFFCCCCCC),
+    subtle: Color(0xFFAAAAAA),
+    accent: AccentColor.vermilion.dark,
+    onAccent: Color(0xFF000000),
+    separator: Color(0xFF353535),
+    disabled: Color(0xFF777777),
     positive: Color(0xFFA7CEAB),
     warning: Color(0xFFE6C675),
     destructive: ember,
@@ -320,9 +321,7 @@ class ActionButton extends StatelessWidget {
       selected: selected,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: selected == true
-              ? ReaderColors.of(context).accent.withValues(alpha: .12)
-              : null,
+          color: selected == true ? ReaderColors.of(context).elevated : null,
           borderRadius: BorderRadius.circular(14),
         ),
         child: button,
@@ -719,8 +718,9 @@ class SectionLabel extends StatelessWidget {
 Future<T?> showReaderSheet<T>(
   BuildContext context,
   String title,
-  WidgetBuilder builder,
-) {
+  WidgetBuilder builder, {
+  Widget Function(Widget child)? presentation,
+}) {
   Widget content(BuildContext sheetContext, ScrollController? controller) {
     final colors = ReaderColors.of(sheetContext);
     return ColoredBox(
@@ -772,6 +772,13 @@ Future<T?> showReaderSheet<T>(
     );
   }
 
+  // A draft appearance/locale must also cover the sheet chrome, which lives
+  // on a separate route outside the caller's inherited widgets.
+  Widget presentedContent(BuildContext context, ScrollController? controller) {
+    final child = Builder(builder: (context) => content(context, controller));
+    return presentation?.call(child) ?? child;
+  }
+
   if (MediaQuery.sizeOf(context).width >= 700 ||
       Theme.of(context).platform == TargetPlatform.macOS) {
     return showDialog<T>(
@@ -784,7 +791,7 @@ Future<T?> showReaderSheet<T>(
             maxWidth: 560,
             maxHeight: MediaQuery.sizeOf(context).height * .85,
           ),
-          child: content(context, null),
+          child: presentedContent(context, null),
         ),
       ),
     );
@@ -793,7 +800,7 @@ Future<T?> showReaderSheet<T>(
     return showCupertinoSheet<T>(
       context: context,
       topGap: .14,
-      scrollableBuilder: (context, controller) => content(context, controller),
+      scrollableBuilder: presentedContent,
     );
   }
   return showModalBottomSheet<T>(
@@ -807,7 +814,7 @@ Future<T?> showReaderSheet<T>(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * .85,
       ),
-      child: content(context, null),
+      child: presentedContent(context, null),
     ),
   );
 }

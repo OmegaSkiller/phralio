@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:phralio/app/providers.dart';
+import 'package:phralio/app/adaptive_layout.dart';
 import 'package:phralio/app/reader_app.dart';
 import 'package:phralio/core/document.dart';
 import 'package:phralio/core/settings.dart';
@@ -128,6 +129,93 @@ void main() {
     await tester.runAsync(store.close);
     semantics.dispose();
   });
+
+  for (final size in [
+    const Size(320, 568),
+    const Size(390, 844),
+    const Size(640, 320),
+    const Size(834, 1194),
+  ]) {
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('paused chrome stays fixed at $size with ${scale}x text', (
+        tester,
+      ) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final store = await tester.runAsync(
+          () => LibraryStore.open(
+            inMemoryDatabasePath,
+            factory: databaseFactoryFfi,
+          ),
+        );
+        final id = await tester.runAsync(
+          () => store!.add(
+            'Fixed reader',
+            'One two three four five six seven eight nine ten eleven twelve.',
+          ),
+        );
+        final document = await tester.runAsync(() => store!.document(id!));
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [storeProvider.overrideWithValue(store!)],
+            child: MaterialApp(
+              localizationsDelegates: appLocalizationDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(scale)),
+                child: child!,
+              ),
+              home: ReaderLayout(
+                navigation: NavigationLayout.forSize(size.width, size.height),
+                hasBottomTabs: size.width < 600,
+                onImmersiveChanged: (_) {},
+                child: ReaderScreen(document: document!),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final title = find.text('Fixed reader');
+        final play = find.bySemanticsLabel('Play reading');
+        final canvas = find.byType(WordContextView);
+        final titleRect = tester.getRect(title);
+        final playRect = tester.getRect(play);
+        final canvasRect = tester.getRect(canvas);
+        expect(
+          find.descendant(
+            of: find.byType(ReaderScreen),
+            matching: find.byType(Scrollable),
+          ),
+          findsNothing,
+        );
+        expect(canvasRect.height, greaterThan(40));
+        expect(playRect.bottom, lessThan(size.height));
+        await tester.drag(title, const Offset(0, -80));
+        await tester.sendEventToBinding(
+          PointerScrollEvent(
+            position: tester.getCenter(play),
+            scrollDelta: const Offset(0, 120),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.widget<WordContextView>(canvas).position, 0);
+        await tester.drag(canvas, const Offset(0, -40));
+        await tester.pumpAndSettle();
+        expect(tester.widget<WordContextView>(canvas).position, 1);
+        expect(tester.getRect(title), titleRect);
+        expect(tester.getRect(play), playRect);
+        expect(tester.getRect(canvas), canvasRect);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        final saved = await tester.runAsync(() => store.document(id!));
+        expect(saved!.position, 1);
+        await tester.runAsync(store.close);
+      });
+    }
+  }
 
   testWidgets('main navigation exposes Home, Read, Settings and Saved', (
     tester,

@@ -4,8 +4,8 @@ An offline-first reading app that gives each word a stable point of attention.
 Built with Flutter for iOS, Android and macOS, with adaptive navigation and native Apple controls.
 
 Phralio presents text one word at a time using RSVP (rapid serial visual
-presentation). Its focal character stays in one measured position as words
-change. Pace and punctuation pauses are controls for personal comfort, not
+presentation). The focal character stays centered between the scope marks,
+horizontally and vertically, while the rest of the word flows around it. Pace and punctuation pauses are controls for personal comfort, not
 promises of faster comprehension.
 
 **Status: local reader with optional URL import.** TXT, Markdown and DRM-free EPUB
@@ -15,9 +15,11 @@ Conventional page reading, PDF reflow and purchasing remain later milestones.
 ### The reading aperture
 
 The approved brandkit gives Phralio its split-P mark, warm Paper (`#F4F0E7`),
-deep Ink (`#182523`) and restrained Vermilion (`#BA4A32`). Brick (`#A73E2A`)
-is the accessible light-mode action color; Ember (`#F29C82`) serves that role
-in dark mode. IBM Plex Sans leads the interface and is the default reader font;
+deep Ink (`#182523`) and restrained Vermilion (`#BA4A32`) as reference colors.
+The app uses crisp white and AMOLED-black surfaces, with ten vibrant functional
+accent presets. The default is `#C73518` in light mode and `#FF6040` in dark mode;
+changing accents leaves the neutral reading surfaces unchanged.
+IBM Plex Sans leads the interface and is the default reader font;
 Newsreader is reserved for editorial headings. The active word stays on a plain,
 fixed reading field. See the [app brand guide](docs/brand/brand-guide.md),
 [design contract](DESIGN.md) and [brand artwork](assets/brand/README.md).
@@ -38,7 +40,9 @@ synthetic sample text. [More app renders](docs/screenshots/brandkit/README.md)
 cover both themes, iOS and compact Android, plus entry, settings and error
 states. [Paused scrolling captures](docs/screenshots/scrolling-behaviour/README.md)
 show the word-by-word layout. [Adaptive app gallery](docs/screenshots/adaptive/README.md)
-shows the latest phone landscape, iPad, macOS and onboarding screens.
+shows phone landscape, iPad and macOS screens. The [onboarding gallery](docs/screenshots/onboarding/README.md)
+shows the new interactive journey; its [design plan](docs/design/onboarding-redesign.md)
+maps every lesson and the UX decisions behind it.
 
 ### Read now
 
@@ -56,17 +60,19 @@ shows the latest phone landscape, iPad, macOS and onboarding screens.
 - Focused playback keeps two short scope marks close to the focal letter, with
   a thin whole-reading progress bar below.
 - View supported PNG/JPEG/GIF/WebP images from EPUB, Markdown or articles. Image
-  frames use a separate 1–30 second viewing-time setting.
+  frames use a separate 1–60 second viewing-time setting.
 - Adjust 100–1500 WPM live; choose Off, Normal or Strong smart pauses.
-- Keep the focal glyph anchored using real text measurement, including composed
-  Unicode characters; choose among ten bundled reading fonts, adjust type size or
+- Keep the focal character centered using real text measurement, including composed
+  Unicode characters; choose among ten bundled reading fonts, adjust Font Size or
   turn highlighting off. Font choices work offline and stay saved on this device.
 - Restore document position and settings from local SQLite. Reopening starts paused.
 - Choose System, Light or Dark appearance and one of ten coordinated accent
   presets, saved across restarts.
-- Start with a traditional tour or an interactive 200 WPM practice session. Learn
-  paste, playback, pace, scrolling, URLs, files, bookmarks and appearance without
-  adding practice content to your library. Replay either tour from Settings.
+- Learn by doing in ten optional steps: tap to read and pause, choose a pace,
+  move through words, import text/clipboard/URLs/files, jump to headings, time
+  images, star/bookmark, resume, then customize fonts and appearance. Practice
+  never enters your library. Only Finish saves choices; Skip discards drafts.
+  Replay from Settings → Getting started.
 - Navigation adapts from bottom tabs to a rail or sidebar. Wide forms and sheets
   keep comfortable widths; short landscape readers place controls beside the text.
 - Follow the device language or choose English, Russian, Spanish, Portuguese,

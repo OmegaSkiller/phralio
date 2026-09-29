@@ -46,11 +46,13 @@ class BookmarkEntry {
     required this.position,
     required this.title,
     required this.wordCount,
+    required this.word,
   });
   final int documentId;
   final int position;
   final String title;
   final int wordCount;
+  final String word;
 }
 
 class LibraryStore {
@@ -260,19 +262,51 @@ class LibraryStore {
     return true;
   }
 
-  Future<List<BookmarkEntry>> bookmarks() async =>
-      (await database.rawQuery(
-            'SELECT b.document_id, b.position, d.title, d.word_count FROM bookmarks b JOIN documents d ON d.id=b.document_id ORDER BY b.created DESC',
-          ))
-          .map(
-            (row) => BookmarkEntry(
-              documentId: row['document_id'] as int,
-              position: row['position'] as int,
-              title: row['title'] as String,
-              wordCount: row['word_count'] as int,
-            ),
-          )
-          .toList();
+  Future<List<BookmarkEntry>> bookmarks() async {
+    final rows = await database.rawQuery(
+      'SELECT b.document_id, b.position, d.title, d.word_count FROM bookmarks b JOIN documents d ON d.id=b.document_id ORDER BY b.created DESC',
+    );
+    final wordsByDocument = <int, List<String>>{};
+    final result = <BookmarkEntry>[];
+    for (final row in rows) {
+      final id = row['document_id'] as int;
+      var words = wordsByDocument[id];
+      if (words == null) {
+        final document = await database.query(
+          'documents',
+          columns: ['content'],
+          where: 'id=?',
+          whereArgs: [id],
+          limit: 1,
+        );
+        if (document.isEmpty) continue;
+        words = RegExp(r'\S+', unicode: true)
+            .allMatches(document.single['content'] as String)
+            .map((match) => match.group(0)!)
+            .toList();
+        wordsByDocument[id] = words;
+      }
+      final position = row['position'] as int;
+      result.add(
+        BookmarkEntry(
+          documentId: id,
+          position: position,
+          title: row['title'] as String,
+          wordCount: row['word_count'] as int,
+          word: position >= 0 && position < words.length ? words[position] : '',
+        ),
+      );
+    }
+    return result;
+  }
+
+  Future<void> removeBookmark(int documentId, int position) async {
+    await database.delete(
+      'bookmarks',
+      where: 'document_id=? AND position=?',
+      whereArgs: [documentId, position],
+    );
+  }
 
   Future<void> setStarred(int id, bool value) async {
     await database.update(

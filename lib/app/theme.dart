@@ -96,24 +96,24 @@ abstract final class ReaderTheme {
     AccentColor preset = AccentColor.vermilion,
   ]) {
     const text = CupertinoDynamicColor.withBrightness(
-      color: ReaderColors.ink,
-      darkColor: ReaderColors.paper,
+      color: Color(0xFF101010),
+      darkColor: Color(0xFFFFFFFF),
     );
     final accent = CupertinoDynamicColor.withBrightness(
       color: preset.light,
       darkColor: preset.dark,
     );
     const background = CupertinoDynamicColor.withBrightness(
-      color: ReaderColors.paper,
-      darkColor: ReaderColors.ink,
+      color: Color(0xFFFFFFFF),
+      darkColor: Color(0xFF000000),
     );
     final body = ReaderTypography.body(color: text);
     return CupertinoThemeData(
       brightness: brightness,
       primaryColor: accent,
       primaryContrastingColor: const CupertinoDynamicColor.withBrightness(
-        color: ReaderColors.paper,
-        darkColor: ReaderColors.ink,
+        color: Color(0xFFFFFFFF),
+        darkColor: Color(0xFF000000),
       ),
       scaffoldBackgroundColor: background,
       barBackgroundColor: background,
@@ -150,8 +150,8 @@ abstract final class ReaderTheme {
             ? Brightness.light
             : Brightness.dark,
         systemNavigationBarColor: brightness == Brightness.dark
-            ? ReaderColors.ink
-            : ReaderColors.paper,
+            ? const Color(0xFF000000)
+            : const Color(0xFFFFFFFF),
         systemNavigationBarIconBrightness: brightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark,

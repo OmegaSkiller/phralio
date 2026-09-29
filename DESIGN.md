@@ -150,14 +150,14 @@ study above still informs interaction and spacing, not color or logo geometry.
 - Platform icons derive from the square master, without baked-in corner masks.
   Android adaptive artwork stays inside its safe zone; splash has light/dark
   surfaces and a still, centered mark.
-- Keep the 0.42 focal anchor, glyph-based alignment, timing, seeking, pause/resume,
-  engine, SQLite data and privacy contracts unchanged. Only presentation changes.
+- Center the full word at the fixed midpoint of the reading field. Keep timing,
+  seeking, pause/resume, engine, SQLite data and privacy contracts unchanged.
 - In focused playback, align two short accent scope marks with the focal anchor.
   Keep them close to the word and show a thin whole-reading progress bar below
   the lower mark without moving the word. Do not show a percentage caption.
 - In the paused reader, show quiet paragraph context above and below a prominent
   current word. Fit excerpts to the available width and text scale; vertical
-  movement advances by words. Keep the surface plain in Paper and Ink themes.
+  movement advances by words. Keep the surface plain in both themes.
 - Verify actual fonts at phone sizes in both themes, persisted add/read/resume,
   imports/Saved/settings, 2× text, all locales, and native controls. Simulator
   evidence is distinct from physical-device accessibility/performance proof.
@@ -175,17 +175,57 @@ use language-aware platform fallbacks. Never download fonts at runtime.
 - Bound forms, settings and prose to readable widths. Use the additional room
   for hierarchy and supporting controls, never stretched phone buttons.
 - Short reader windows place paused controls beside the passage. The focused
-  word retains the existing 0.42 anchor inside its reading field at every size.
-- User-selected accents may extend the brand palette into ten restrained color
-  families. Brick/Ember remains the default. Each family has a dark action shade
-  on Paper and a light action shade on Ink, with at least 4.5:1 text contrast on
+  focal grapheme stays centered within its reading field at every size.
+- User-selected accents extend the brand palette into ten saturated color
+  families. Vibrant Vermilion remains the default. Each family has a dark action shade
+  on the light surface and a light action shade on black, with at least 4.5:1 text contrast on
   content/control surfaces. Names and selection checks accompany swatches.
-- Onboarding offers a traditional tour and a learn-by-doing version. Both cover
-  the real app features; the interactive welcome runs at 200 WPM using the same
-  reading engine and pauses for tasks. Practice data is isolated from the library.
-  Skip, back, replay, screen-reader-friendly text and reduced motion are required.
+- Onboarding is one optional, replayable learn-by-doing journey. Start paused;
+  teach tap/play/pause with the existing engine at 200 WPM, then introduce pace,
+  navigation, sources, contents, images, saved places, resume and customization.
+  Give every step a stationary instruction, honest progress, Back, Skip and a
+  clear Continue action. Confirm actions without automatically advancing.
+  Disclose advanced controls only when requested. Draft preferences and all
+  practice content stay isolated from the library; only Finish saves edited
+  preferences. Skip discards them. See docs/design/onboarding-redesign.md for
+  the screen plan, privacy boundaries and validation requirements.
 - macOS uses actual AppKit Liquid Glass on macOS 26+, with solid/high-contrast
   and older-system material fallbacks. Desktop menus, keyboard focus, pointer
   actions and window resizing are first-class interactions. Give sidebar icons
   clear leading space within the glass surface, and center the reader page in
   the whole window while retaining its fixed focal anchor within that page.
+
+## Current iPhone refinement
+
+- Center the focal grapheme horizontally and vertically between the scope
+  marks on every platform, in every font and text scale, even with highlighting
+  disabled. Fit both sides of long words without shifting that anchor. Progress
+  remains below the scope marks and must not displace the anchor. This supersedes
+  whole-word centering; preserve reading-engine timing.
+- Use white, crisp neutral surfaces in light appearance and true black reading
+  canvas in dark appearance. Chosen accent shades belong to functional emphasis
+  such as the focal glyph, scope marks, progress, controls and active icons.
+- iPhone bottom navigation is a UIKit tab bar, allowing the OS to own its
+  Liquid Glass rendering. Reduce Transparency uses an opaque bar. Keep the
+  existing adaptive rail/sidebar on larger windows.
+- The approved logo-motion Lottie belongs on the in-app startup screen only.
+  Play only source seconds 3–4 (frames 180–240 at 60 fps), then continue as
+  soon as the library is ready. Keep the native launch storyboard still and
+  show the final static logo when system reduced motion is enabled. In dark mode map its source colors to a
+  black canvas, white mark and warm accent at render time; leave the export
+  unchanged in the reference package; only the bundled excerpt changes its
+  in/out frames. Allow a tap to continue once data is ready.
+- Saved rows can be swiped left to remove a star or bookmark. Bookmark rows
+  show the bookmarked word under the reading title.
+
+## Fixed paused reader
+
+- Paused reader chrome never scrolls. Only the text canvas handles vertical
+  drag and wheel events, retaining the existing word-by-word thresholds.
+- Use a bounded passage and fixed controls; short landscape windows place
+  controls alongside it. Compact layouts reduce spacing and the play control
+  to 56 pt, preserving comfortable targets. Hide the redundant gesture hint
+  when room is limited.
+- Fit surrounding prose to the remaining height at the current text scale.
+  Keep images inside the same canvas. Only scale the focal word down when it
+  cannot fit; never change playback timing, position or persistence.
