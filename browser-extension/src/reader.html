@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Phralio</title>
+    <link rel="icon" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="reader.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar chrome">
+        <a id="brand" href="#home" aria-label="Phralio"
+          ><img id="logo" src="assets/logo-ink.svg" alt="Phralio"
+        /></a>
+        <nav id="nav" aria-label="Phralio"></nav>
+      </header>
+      <div id="notice" role="alert" hidden></div>
+      <main id="main"></main>
+      <dialog id="dialog"><div id="dialog-content"></div></dialog>
+    </div>
+    <script src="reader.js" defer></script>
+  </body>
+</html>

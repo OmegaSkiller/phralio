@@ -1,0 +1,716 @@
+:root {
+  color-scheme: light;
+  --bg: #fff;
+  --surface: #f2f2f2;
+  --ink: #191919;
+  --muted: #626262;
+  --line: #dedede;
+  --accent: #c73518;
+  --on-accent: #fff;
+  --glass: #ffffffdc;
+  --reader-font: "IBM Plex Sans";
+  --reader-size: 42px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    16px/1.5 "IBM Plex Sans",
+    "Noto Sans",
+    system-ui,
+    sans-serif;
+}
+body.dark {
+  color-scheme: dark;
+  --bg: #000;
+  --surface: #111;
+  --ink: #fafafa;
+  --muted: #aaa;
+  --line: #333;
+  --glass: #111111dc;
+  --on-accent: #000;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+button {
+  cursor: pointer;
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  padding: 10px 16px;
+  background: var(--surface);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+button:hover {
+  filter: brightness(0.92);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+a {
+  color: var(--accent);
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+button.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+button.ghost {
+  background: transparent;
+}
+button.active {
+  color: var(--accent);
+}
+button.icon {
+  width: 44px;
+  padding: 10px;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg);
+  height: 96px;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+#brand {
+  display: block;
+  width: 143px;
+  flex-shrink: 0;
+}
+#logo {
+  width: 100%;
+  display: block;
+}
+nav {
+  display: flex;
+  gap: 4px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 5px;
+  backdrop-filter: blur(24px);
+}
+nav button {
+  background: transparent;
+  min-width: 90px;
+}
+nav button.active {
+  background: var(--surface);
+}
+main {
+  max-width: 1040px;
+  margin: auto;
+  padding: 42px 36px 80px;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  font-family: Newsreader, "IBM Plex Sans", sans-serif;
+  font-weight: 450;
+  font-size: 52px;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin-bottom: 16px;
+}
+html:lang(ru) h1,
+html:lang(zh) h1,
+html:lang(ja) h1 {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 30px 0 14px;
+}
+.muted,
+small {
+  color: var(--muted);
+}
+.intro {
+  max-width: 600px;
+  font-size: 18px;
+  color: var(--muted);
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 24px 0 42px;
+}
+.reading-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.reading-row .open {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  text-align: left;
+  display: block;
+  padding: 6px 0;
+  overflow-wrap: anywhere;
+}
+.reading-row strong {
+  font-size: 19px;
+  font-weight: 500;
+  display: block;
+}
+.reading-row small {
+  display: block;
+  margin-top: 3px;
+}
+.row-actions {
+  display: flex;
+  gap: 4px;
+}
+.empty {
+  padding: 40px 0;
+  max-width: 600px;
+  color: var(--muted);
+}
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--line);
+}
+.setting > div {
+  max-width: 55%;
+}
+.setting p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 5px 0 0;
+}
+.setting .select-control {
+  position: relative;
+  max-width: 45%;
+  min-width: 130px;
+}
+.select-control select {
+  appearance: none;
+  width: 100%;
+  padding-inline: 16px 48px;
+  text-overflow: ellipsis;
+}
+.select-control svg {
+  position: absolute;
+  inset-inline-end: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+.setting input[type="number"] {
+  width: 96px;
+}
+.setting input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+input,
+textarea,
+select {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 44px;
+}
+textarea {
+  width: 100%;
+  min-height: 230px;
+  resize: vertical;
+}
+input[type="range"] {
+  padding: 0;
+  accent-color: var(--accent);
+  background: transparent;
+  min-height: 32px;
+  cursor: pointer;
+}
+label.form-label {
+  display: block;
+  margin: 20px 0 8px;
+}
+form input[type="text"],
+form input[type="url"] {
+  width: 100%;
+}
+.settings-page {
+  max-width: 720px;
+}
+.reader-page {
+  position: fixed;
+  inset: 96px 0 0;
+  max-width: none;
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+.reader-head {
+  width: min(920px, 100%);
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  gap: 12px;
+  min-width: 0;
+}
+.reader-head h2 {
+  margin: 0;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60vw;
+}
+.reader-head small {
+  font-size: 12px;
+}
+.reader-head .tools {
+  display: flex;
+  gap: 4px;
+}
+.canvas {
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+}
+.stage {
+  display: grid;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px);
+  text-align: center;
+}
+.word-slot {
+  position: relative;
+}
+.word {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  font-family: var(--reader-font), "Noto Sans", system-ui, sans-serif;
+  font-size: var(--reader-size);
+  font-weight: 500;
+  line-height: 1.25;
+  display: inline-block;
+  white-space: nowrap;
+  max-width: none;
+}
+.word .focal {
+  color: var(--accent);
+}
+.scope {
+  width: 2px;
+  height: 17px;
+  background: var(--accent);
+  margin: 15px auto;
+}
+.progress {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 2px;
+  width: min(220px, 42vw);
+  margin: 20px auto 0;
+  background: var(--line);
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  background: var(--accent);
+  height: 100%;
+  width: 0;
+}
+.context {
+  position: absolute;
+  left: 50%;
+  width: min(640px, calc(100% - 72px));
+  transform: translateX(-50%);
+  font-family: var(--reader-font), "Noto Sans", system-ui, sans-serif;
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.65;
+  color: var(--muted);
+  text-align: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.before {
+  bottom: calc(50% + 90px);
+  max-height: 25%;
+}
+.after {
+  top: calc(50% + 105px);
+  max-height: 23%;
+}
+.canvas img {
+  display: block;
+  max-width: min(600px, 80vw);
+  max-height: 32vh;
+  margin: auto;
+  object-fit: contain;
+}
+.reader-controls {
+  width: min(740px, 100%);
+  margin: auto;
+  padding: 12px 24px 28px;
+  text-align: center;
+}
+.reader-controls .transport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.play {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+.play svg {
+  width: 24px;
+  height: 24px;
+}
+.pace {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 14px 0 0;
+}
+.pace input {
+  width: clamp(120px, 24vw, 240px);
+}
+.pace output {
+  min-width: 78px;
+  text-align: left;
+}
+.reader-controls .seek {
+  width: 100%;
+  margin-top: 10px;
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 9px 0 0;
+}
+.playing .chrome {
+  visibility: hidden;
+  pointer-events: none;
+}
+.playing .context {
+  visibility: hidden;
+}
+.playing .reader-page {
+  inset: 0;
+}
+.playing .reader-head,
+.playing .reader-controls {
+  display: none;
+}
+.playing .stage {
+  width: calc(100% - 48px);
+}
+body.reader-mode {
+  overflow: hidden;
+}
+#notice {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: var(--bg);
+  padding: 12px 20px;
+  max-width: min(640px, 95vw);
+  box-shadow: 0 10px 40px #0002;
+}
+#notice button {
+  margin-left: 8px;
+}
+dialog {
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 28px;
+  width: min(600px, calc(100vw - 24px));
+  max-height: 85dvh;
+  overflow: auto;
+}
+dialog::backdrop {
+  background: #0007;
+  backdrop-filter: blur(8px);
+}
+dialog h2 {
+  margin: 0;
+}
+dialog .dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+dialog .contents-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  margin-bottom: 6px;
+}
+dialog .actions {
+  margin-bottom: 0;
+}
+.solid nav {
+  backdrop-filter: none;
+  background: var(--surface);
+}
+.license {
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+.source-link {
+  overflow-wrap: anywhere;
+}
+.reader-page .empty {
+  margin: auto;
+  padding: 32px;
+}
+.stat {
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  nav {
+    backdrop-filter: none;
+    background: var(--surface);
+  }
+  dialog::backdrop {
+    backdrop-filter: none;
+  }
+}
+@media (forced-colors: active) {
+  button {
+    border: 1px solid ButtonText;
+  }
+  .scope,
+  .progress > span {
+    background: Highlight;
+  }
+  .word .focal {
+    color: Highlight;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+@media (max-width: 650px) {
+  .topbar {
+    padding: 14px 18px;
+    height: 78px;
+  }
+  #brand {
+    width: 110px;
+  }
+  nav button {
+    min-width: 44px;
+    padding: 10px;
+  }
+  nav button span {
+    display: none;
+  }
+  main {
+    padding: 30px 22px 60px;
+  }
+  h1 {
+    font-size: 42px;
+  }
+  .reader-page {
+    inset: 78px 0 0;
+  }
+  .reader-head {
+    padding: 12px 18px;
+  }
+  .reader-head h2 {
+    max-width: 48vw;
+  }
+  .reader-head .tools {
+    gap: 0;
+  }
+  .reader-controls {
+    padding: 10px 18px 18px;
+  }
+  .transport {
+    gap: 6px !important;
+  }
+  .context {
+    width: calc(100% - 40px);
+  }
+  .setting {
+    gap: 12px;
+  }
+  .setting .select-control {
+    min-width: 110px;
+  }
+  .row-actions {
+    gap: 0;
+  }
+  .reading-row strong {
+    font-size: 17px;
+  }
+  .reading-row {
+    gap: 6px;
+  }
+  .actions {
+    gap: 8px;
+  }
+  button {
+    padding: 10px 12px;
+  }
+}
+@media (max-height: 600px) {
+  .topbar {
+    height: 70px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .reader-page {
+    inset: 70px 0 0;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .reader-head {
+    grid-column: 1/-1;
+    padding: 8px 22px;
+  }
+  .canvas {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .reader-controls {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 12px;
+  }
+  .reader-controls .transport {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px !important;
+  }
+  .transport .play {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: center;
+  }
+  .pace {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .reader-controls .hint {
+    display: none;
+  }
+  .playing .reader-page {
+    display: block;
+  }
+  .playing .canvas {
+    height: 100%;
+  }
+  .canvas.has-image .context {
+    visibility: hidden;
+  }
+  .context {
+    font-size: 16px;
+    max-height: 18%;
+  }
+  .before {
+    bottom: calc(50% + 80px);
+  }
+  .after {
+    top: calc(50% + 90px);
+  }
+}
+/* The focused canvas owns the full viewport after chrome leaves the grid. */
+.playing .reader-page {
+  display: block;
+}
+.playing .canvas {
+  height: 100%;
+}

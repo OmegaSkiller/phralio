@@ -1,0 +1,6 @@
+node_modules/
+dist/
+safari/
+artifacts/
+*.log
+src/catalogs.js

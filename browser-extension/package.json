@@ -1,0 +1,27 @@
+{
+  "name": "phralio-browser-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.js",
+    "check": "npm run build && npm test && npm run lint:firefox",
+    "safari": "npm run build && node scripts/safari.mjs",
+    "lint:firefox": "web-ext lint --source-dir dist/firefox --output text",
+    "package": "npm run build && node scripts/package.mjs",
+    "preview": "node scripts/preview.mjs",
+    "format": "prettier --write src/core.js src/background.js src/capture.js src/extract.js src/store.js src/reader.js src/extension-copy.js src/reader.css src/reader.html scripts test package.json"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "lucide": "^1.48.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.1.1",
+    "prettier": "^3.9.9",
+    "sharp": "^0.35.5",
+    "web-ext": "^10.7.0"
+  }
+}
