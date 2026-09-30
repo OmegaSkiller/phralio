@@ -133,8 +133,8 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
                       Dismissible(
                         key: ValueKey('star-${book.id}'),
                         direction: DismissDirection.endToStart,
-                        background: ColoredBox(
-                          color: ReaderColors.of(context).elevated,
+                        background: _SwipeDeleteBackground(
+                          label: context.l10n.unstarTitle(book.title),
                         ),
                         onDismissed: (_) => _removeStar(book.id),
                         child: SettingRow(
@@ -176,8 +176,8 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
                           'bookmark-${mark.documentId}-${mark.position}',
                         ),
                         direction: DismissDirection.endToStart,
-                        background: ColoredBox(
-                          color: ReaderColors.of(context).elevated,
+                        background: _SwipeDeleteBackground(
+                          label: context.l10n.removeBookmark,
                         ),
                         onDismissed: (_) =>
                             _removeBookmark(mark.documentId, mark.position),
@@ -204,4 +204,27 @@ class _SavedScreenState extends ConsumerState<SavedScreen> {
       ),
     );
   }
+}
+
+class _SwipeDeleteBackground extends StatelessWidget {
+  const _SwipeDeleteBackground({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: CupertinoColors.systemRed.resolveFrom(context),
+    child: Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.only(end: 20),
+        child: Icon(
+          LucideIcons.trash2,
+          size: 24,
+          color: CupertinoColors.white,
+          semanticLabel: label,
+        ),
+      ),
+    ),
+  );
 }

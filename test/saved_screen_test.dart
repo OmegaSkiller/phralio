@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:phralio/app/providers.dart';
 import 'package:phralio/features/library/library_store.dart';
 import 'package:phralio/features/library/saved_screen.dart';
@@ -49,17 +51,51 @@ void main() {
     expect(find.text('two'), findsOneWidget);
     expect(find.text('A reading'), findsNWidgets(2));
 
-    await tester.drag(
+    Future<void> swipeWithDeleteReveal(
+      Finder row, {
+      required bool starred,
+    }) async {
+      final rowBounds = tester.getRect(row);
+      final gesture = await tester.startGesture(rowBounds.center);
+      // Cross the gesture recognizer's touch slop before revealing the action.
+      await gesture.moveBy(const Offset(-20, 0));
+      await gesture.moveBy(const Offset(-80, 0));
+      await tester.pump();
+      final trash = find.descendant(
+        of: row,
+        matching: find.byIcon(LucideIcons.trash2),
+      );
+      expect(trash, findsOneWidget);
+      final iconBounds = tester.getRect(trash);
+      expect(iconBounds.left, greaterThan(rowBounds.right - 80));
+      expect(iconBounds.right, lessThan(rowBounds.right));
+      expect(tester.widget<Icon>(trash).color, CupertinoColors.white);
+      final background = tester.widget<ColoredBox>(
+        find.ancestor(of: trash, matching: find.byType(ColoredBox)).first,
+      );
+      expect(
+        background.color,
+        CupertinoColors.systemRed.resolveFrom(tester.element(row)),
+      );
+      // The reveal alone must not remove either saved mark.
+      expect((await tester.runAsync(store.all))!.single.starred, starred);
+      expect((await tester.runAsync(store.bookmarks))!, hasLength(1));
+      await gesture.moveBy(const Offset(-500, 0));
+      await gesture.up();
+      await tester.pumpAndSettle();
+    }
+
+    await swipeWithDeleteReveal(
       find.byKey(const ValueKey('star-1')),
-      const Offset(-500, 0),
+      starred: true,
     );
     await tester.pumpAndSettle();
     expect((await tester.runAsync(store.all))!.single.starred, isFalse);
     expect(find.text('two'), findsOneWidget);
 
-    await tester.drag(
+    await swipeWithDeleteReveal(
       find.byKey(const ValueKey('bookmark-1-1')),
-      const Offset(-500, 0),
+      starred: false,
     );
     await tester.pumpAndSettle();
     expect((await tester.runAsync(store.bookmarks))!, isEmpty);
